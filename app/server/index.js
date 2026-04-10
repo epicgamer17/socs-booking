@@ -1,27 +1,24 @@
-// temporary code from Claude
-// just testing stuff
-
 require('dotenv').config();
 const express = require('express');
-const mysql = require('mysql2');
 const cors = require('cors');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Create a connection pool (reuses connections efficiently)
-const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-}).promise();  // lets us use async/await
+// --- Routes ---
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/slots', require('./routes/slots'));
+app.use('/api/bookings', require('./routes/bookings'));
+app.use('/api/meeting-requests', require('./routes/meetingRequests'));
+app.use('/api/group-meetings', require('./routes/groupMeetings'));
 
-// Test route
-app.get('/api/test', async (req, res) => {
-  const [rows] = await db.query('SELECT 1 + 1 AS result');
-  res.json(rows);
-});
+// Health check
+app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-app.listen(5000, () => console.log('Server on port 5000'));
+// Global error handler (must be last)
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
