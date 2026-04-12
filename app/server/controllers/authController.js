@@ -54,10 +54,11 @@ exports.register = async (req, res) => {
 
 
 //--------Login--------
-//not for login when comparing password you will need to do 
+//note for login when comparing password you will need to do 
 //bcrypt.compare(enteredPassword, hashedPassword)
 //in order to check if it's correct 
-//also here is where jwt token thingy would also happen
+//also here a jwt token needs to be generated and stuff. 
+//also need to check if password and username is correct and matches db!
 
 //--------Logout--------
 

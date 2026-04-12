@@ -13,13 +13,14 @@ app.use(cors());
 //Routers
 const authRouter = require('./routes/auth.js');
 const bookingsRouter = require('./routes/bookings.js');
-const dashboardRouther = require('./routes/dashboard.js');
-const groupMeetingsRouther = require('./routes/groupMeetings.js');
-const meetingRequestRouther = require('./routes/meetingRequest.js');
+const dashboardRouter = require('./routes/dashboard.js');
+const groupMeetingsRouter = require('./routes/groupMeetings.js');
+const meetingRequestRouter = require('./routes/meetingRequest.js');
 const slotsRouter = require('./routes/slots.js'); 
 
 //Routing 
 app.use('/auth', authRouter); 
+
 //add others
 
 //delete comment later (just here for explination)

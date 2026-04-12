@@ -1,15 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const authController = require("../controllers/authController")
+const authController = require("../controllers/authController");
+const requireAuth = require("../middleware/authMiddleware");
 
-//register new user
-router.post("register", authController.register);
+//----Auth Routes----
 
+//register new user (public route so no auth needed)
+router.post("/register", authController.register);
 
-//Login Routes
+//login user (public route so no auth needed)
+router.post("/login", authController.login);
 
-
-//Logout Routes??
-
+//logout user
+router.post("/logout", requireAuth, authController.logout);
 
 module.exports = router;
