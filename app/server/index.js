@@ -19,9 +19,13 @@ const meetingRequestRouther = require('./routes/meetingRequest.js');
 const slotsRouter = require('./routes/slots.js'); 
 
 //Routing 
-app.use('/registration', authRouter);
-app.use('/login', authRouter);
-app.use('/logout', authRouter); //not sure if needed. Delete later possibly.
+app.use('/auth', authRouter); 
+//add others
+
+//delete comment later (just here for explination)
+// basically front end should send api calls for things like login,logout/register
+// with /auth/register, /auth/login /auth/logout like that. important for router and
+//controller to work!
 
 //rest is to be filled in as we work on it!
 
