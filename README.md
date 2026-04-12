@@ -7,3 +7,4 @@ in table list eat team emeber and code/feature they worked on.
 
 decription of 30% of website not coded by team (if there is)
 
+Note: migrations.js script is ai generated (very short script)
