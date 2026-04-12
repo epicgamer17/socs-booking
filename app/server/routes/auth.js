@@ -9,9 +9,9 @@ const requireAuth = require("../middleware/authMiddleware");
 router.post("/register", authController.register);
 
 //login user (public route so no auth needed)
-router.post("/login", authController.login);
+//router.post("/login", authController.login);
 
 //logout user
-router.post("/logout", requireAuth, authController.logout);
+//router.post("/logout", requireAuth, authController.logout);
 
 module.exports = router;
