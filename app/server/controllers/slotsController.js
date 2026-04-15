@@ -75,8 +75,26 @@ exports.activateSlot = async (req, res) => {
 
 //delete a slot
 exports.deleteSlot = async (req, res) => {
-const slotID = req.body.id;
-const ownerID = req.user.id;
+    const slotID = req.body.id;
+    const ownerID = req.user.id;
+
+    try {
+        const[result] = await db.query(
+            'DELETE * FROM slots WHERE id = ? AND ownerID = ?'
+            [slotID,ownerID]
+        );
+
+        if(result.affectedRows === 0){
+            return res.status(500).json({ message: "Unauthorized access or slot does not exist", error: err.message });
+        }
+
+        //also need to delete the booking from booking db 
+        //also need to return date, timeFrom, timeTo, and email of student for notification to be sent to. 
+        
+
+    } catch (err) {
+        return res.status(500).json({ message: "Failed to delete slot", error: err.message });
+    }
 
 
 };
