@@ -7,6 +7,8 @@ const requireAuth = require("../middleware/authMiddleware")
 //temporary testing routes while owner middleware not implemented
 router.post("/create",requireAuth, slotsController.createSlot); 
 router.get("/viewAll", requireAuth, slotsController.viewSlots);
+router.get("/activate", requireAuth, slotsController.activateSlot);
+router.get("/delete", requireAuth, slotsController.deleteSlot);
 
 //Create a booking slot
 //router.post("/create",requireAuth, requireOwner, slotsController.createSlot); 
