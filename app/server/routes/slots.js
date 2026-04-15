@@ -4,6 +4,10 @@ const slotsController = require("../controllers/slotsController");
 const requireAuth = require("../middleware/authMiddleware")
 //const requireOwner = require("../middleware/ownerMiddleware");
 
+//temporary testing routes while owner middleware not implemented
+router.post("/create",requireAuth, slotsController.createSlot); 
+router.get("/viewAll", requireAuth, slotsController.viewSlots);
+
 //Create a booking slot
 //router.post("/create",requireAuth, requireOwner, slotsController.createSlot); 
 
@@ -11,7 +15,7 @@ const requireAuth = require("../middleware/authMiddleware")
 //router.put("/activate", requireAuth, requireOwner, slotsController.activateSlot);
 
 //View booking slots
-//router.get("/viewAll", requireAuth, requireOwner, slotsController.viewSlots)
+//router.get("/viewAll", requireAuth, requireOwner, slotsController.viewSlots);
 
 //Delete a slot
 //router.delete("/delete", requireAuth, requireOwner, slotsController.deleteSlot);
