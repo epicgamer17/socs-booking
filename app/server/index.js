@@ -16,17 +16,14 @@ const authRouter = require('./routes/auth.js');
 //const dashboardRouter = require('./routes/dashboard.js');
 //const groupMeetingsRouter = require('./routes/groupMeetings.js');
 //const meetingRequestRouter = require('./routes/meetingRequest.js');
-//const slotsRouter = require('./routes/slots.js'); 
+const slotsRouter = require('./routes/slots.js'); 
 
 //Routing 
 app.use('/auth', authRouter); 
+app.use('/slots', slotsRouter);
 
 //add others
 
-//delete comment later (just here for explination)
-// basically front end should send api calls for things like login,logout/register
-// with /auth/register, /auth/login /auth/logout like that. important for router and
-//controller to work!
 
 //rest is to be filled in as we work on it!
 

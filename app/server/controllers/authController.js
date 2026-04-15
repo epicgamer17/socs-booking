@@ -13,7 +13,6 @@ exports.register = async (req, res) => {
         return res.status(400).json({ message: "missing fields" });
     }
 
-
     //if invalid email 
     if (!email.endsWith("@mcgill.ca") && !email.endsWith("@mail.mcgill.ca")) {
         return res.status(400).json({ message: "Mcgill email required " })
