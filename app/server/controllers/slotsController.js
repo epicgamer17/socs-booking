@@ -15,7 +15,6 @@ exports.createSlot = async (req, res) => {
             "INSERT INTO slots (ownerID, date, timeFrom, timeTo) VALUES(?,?,?,?)",
             [ownerID, date, timeFrom, timeTo]
         );
-
         return res.status(201).json({ message: "Slot created" });
     } catch (err) {
         return res.status(500).json({ message: "Slot creation failed", error: err.message });
@@ -41,7 +40,7 @@ exports.viewSlots = async (req, res) => {
             [ownerID]
         );
 
-        res.json(slots);
+        return res.status(200).json(slots);
     } catch (err) {
         return res.status(500).json({ message: "Failed to retrieve slots", error: err.message });
     }
@@ -49,11 +48,10 @@ exports.viewSlots = async (req, res) => {
 
 //activate a slot 
 exports.activateSlot = async (req, res) => {
-    const slotID = req.body.id;
+    const slotID = req.params.id;
     const ownerID = req.user.id;
 
     try {
-
         const [result] = await db.query(
             "UPDATE slots SET isActive = TRUE WHERE id = ? AND ownerID = ?",
             [slotID, ownerID]
@@ -68,29 +66,28 @@ exports.activateSlot = async (req, res) => {
 
     } catch (err) {
         return res.status(500).json({
-            message: "Failed to activate slot", error: err.message
-        });
+            message: "Failed to activate slot", error: err.message});
     }
 };
 
 //delete a slot
 exports.deleteSlot = async (req, res) => {
-    const slotID = req.body.id;
-    const ownerID = req.user.id;
+    const slotID = req.params.id;
+    const ownerID = req.params.id;
 
     try {
-        const[result] = await db.query(
-            'DELETE * FROM slots WHERE id = ? AND ownerID = ?'
-            [slotID,ownerID]
+        const [result] = await db.query(
+            'DELETE FROM slots WHERE id = ? AND ownerID = ?',
+            [slotID, ownerID]
         );
 
-        if(result.affectedRows === 0){
+        if (result.affectedRows === 0) {
             return res.status(500).json({ message: "Unauthorized access or slot does not exist", error: err.message });
         }
 
         //also need to delete the booking from booking db 
         //also need to return date, timeFrom, timeTo, and email of student for notification to be sent to. 
-        
+
 
     } catch (err) {
         return res.status(500).json({ message: "Failed to delete slot", error: err.message });
