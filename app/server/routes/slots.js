@@ -13,7 +13,7 @@ router.post("/create", requireAuth, requireOwner, slotsController.createSlot);
 router.put("/activate/:id", requireAuth, requireOwner, slotsController.activateSlot);
 
 //view all booking slots
-router.get("/viewSlots", requireAuth, requireOwner, slotsController.viewSlots);
+router.get("/viewAll", requireAuth, requireOwner, slotsController.viewSlots);
 
 //delete a slot
 router.delete("/delete/:id", requireAuth, requireOwner, slotsController.deleteSlot);
