@@ -1,5 +1,6 @@
 const db = require("../db/db");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 //--------Registration--------
 exports.register = async (req, res) => {
@@ -51,6 +52,7 @@ exports.register = async (req, res) => {
 
 
 
+//our db is id, email, password, role 
 
 //--------Login--------
 //note for login when comparing password you will need to do 
@@ -58,6 +60,50 @@ exports.register = async (req, res) => {
 //in order to check if it's correct 
 //also here a jwt token needs to be generated and stuff. 
 //also need to check if password and username is correct and matches db!
+exports.login = async (req, res) => {
+    //remove any trailing whitespaces
+    const email = req.body.email.trim();
+    const enteredPassword = req.body.password.trim();
+    
+    //check if email and password provided
+    if (!email || !enteredPassword) {
+        return res.status(400).json({ message: "missing fields" });
+    }
+
+    try {
+        // fetch user credentials
+        const [users] = await db.query(
+            `SELECT 
+              users.password AS hashedPassword,
+              users.id AS id,
+              users.role as role
+             FROM users
+             WHERE users.email = ?`,
+            [email]
+        );
+
+        const user = users[0];
+        if (!user) {
+            // no user found
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        const hashedPassword = user.hashedPassword;
+        
+        if (!(await bcrypt.compare(enteredPassword, hashedPassword))) {
+            // wrong password
+            return res.status(401).json({ message: "Invalid credentials" }); 
+        }
+
+        // login successful: send back JWT token expiring in 1h
+        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        return res.status(200).json({ message: "User logged in successfully", token });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Invalid credentials', error: error.message });
+    }
+}
+
 
 //--------Logout--------
 
