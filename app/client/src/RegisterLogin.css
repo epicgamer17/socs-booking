@@ -1,0 +1,25 @@
+
+body{
+    flex-direction: column;
+}
+
+.Registration-area{
+    text-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+/* .Registration-area h1{
+    text-size: 20px;
+} */
+
+input{
+    padding: 10px 10px;
+    width: 150px;
+    margin-bottom: 10px;
+}
+
+button{
+    width:100px;
+}
