@@ -1,10 +1,138 @@
-# socs-booking
+# SOCS Booking Application
 
-need to include url to website
+👥 **Team Roles**
 
-table of all teammates name and Id
-in table list eat team emeber and code/feature they worked on. 
+| Name | Role | ID | Features Worked On |
+| :--- | :--- | :--- | :--- |
+| Sophia Hussain | Leader | [ID] | [Features] |
+| Thomas Nguyen | Backend | [ID] | [Features] |
+| Jonathan Lamontagne-Kratz | Frontend | 261143892 | Owner Page, Bonus Features |
+| [Unassigned] | Design | [ID] | [Features] |
 
-decription of 30% of website not coded by team (if there is)
+🛠 **Tech Stack**
 
-Note: migrations.js script is ai generated (very short script)
+- **Database:** MariaDB
+- **Backend:** Node.js, Express
+- **Frontend:** React
+
+🚀 **Quick Start & Local Testing**
+
+Use these commands to run the project locally and test the code running on the SOCS servers.
+
+1. **SSH into the SOCS Server (Enable local testing)**
+   ```bash
+   ssh -L 5000:localhost:5000 -L 5173:localhost:5173 winter2026-comp307
+   ```
+
+2. **Start the Backend Server**
+   ```bash
+   cd socs-booking/app/server
+   node index.js
+   # Test at: http://localhost:5000/api/test/
+   ```
+
+3. **Access the MariaDB Database**
+   (Credentials are located in `socs-booking/app/server/.env`)
+   ```bash
+   mysql -u cs307-user -p
+   ```
+
+4. **Start the Frontend Client**
+   ```bash
+   cd socs-booking/app/client
+   npm run dev
+   # Test at: http://localhost:5173/
+   ```
+
+📡 **Backend Routes & API Guide**
+
+### Authentication Overview
+Authentication uses JWT. After logging in, you must send the token with all protected requests. Put the payload information in the body of the request.
+
+**Required Header for Protected Routes:**
+`Authorization: Bearer <your_jwt_token_here>`
+
+| Method | Endpoint | Required Payload | Description |
+| :--- | :--- | :--- | :--- |
+| POST | `/auth/register` | email, password | Registers a new user. |
+| POST | `/auth/login` | email, password | Returns a JWT token. |
+| POST | `/auth/logout` | None | Destroys session. |
+
+### Slots API — Frontend Reference
+All slot routes require JWT token in header.
+*Dates: YYYY-MM-DD, Times: HH:MM.*
+
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| GET | `/slots/owners` | Returns all owners with active slots. |
+| POST | `/slots/create` | (Owner Only) Create a new slot. Body: `{ date, timeFrom, timeTo }` |
+| GET | `/slots/viewMy` | (Owner Only) Returns owner's slots and booking status. |
+| PUT | `/slots/activate/:id` | (Owner Only) Activates a private slot. |
+| GET | `/slots/public/:ownerID` | Returns all active, unbooked slots for that owner. |
+| DELETE | `/slots/delete/:id` | (Owner Only) Deletes slot and returns cancellation info. |
+
+✉️ **Quick Reference: The mailto: Pattern**
+Use this pattern for email notifications. The backend returns the string for the frontend to execute:
+```javascript
+const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+window.open(mailtoUrl);
+```
+
+📋 **Task List Progress**
+
+**Phase 0: Initial Setup**
+- [x] 0.1 Set up Express app
+- [x] 0.2 Database Connection
+- [x] 0.3 Database Tables
+- [x] 0.4 requireAuth Middleware
+- [x] 0.5 requireOwner Middleware
+
+**Phase 1: Core & Auth**
+- [x] 1.1 POST /auth/register
+- [x] 1.2 POST /auth/login
+- [ ] 1.3 POST /auth/logout
+- [ ] 1.4 Landing Page component
+- [ ] 1.5 Register/Login validation
+- [ ] 1.6 Directory Page (Owner listing)
+- [ ] 1.7 Invitation Route & Guards
+
+**Phase 2: User Experience & Basic Slots**
+- [x] 2.1 GET /users/owners
+- [x] 2.2 POST /slots (Create)
+- [x] 2.3 GET /slots/mine (View My)
+- [x] 2.4 PATCH /slots/:id/activate
+- [x] 2.5 DELETE /slots/:id
+- [x] 2.6 GET /slots/owner/:ownerId
+- [ ] 2.7 POST /bookings
+- [ ] 2.8 GET /bookings/mine
+- [ ] 2.9 DELETE /bookings/:id
+- [ ] 2.10 User Dashboard UI
+- [ ] 2.11 MailtoButton component
+- [ ] 2.12 Request Meeting UI
+- [ ] 2.13 Voting Grid selection UI
+
+**Phase 3: Owner Experience & Invitations**
+- [ ] 3.1 GET /dashboard (Unified)
+- [ ] 3.2 POST /slots/:id/invite (Token)
+- [ ] 3.3 GET /slots/invite/:token
+- [ ] 3.4 Owner Dashboard UI (Tabs)
+- [ ] 3.5 SlotManager toggle UI
+- [ ] 3.6 Meeting Request list view
+- [ ] 3.7 Calendar Selector form
+- [ ] 3.8 Recurring repetition input
+
+**Phase 4: Meeting Types & Bonuses**
+- [ ] 4.1 POST /requests
+- [ ] 4.2 GET /requests/inbox
+- [ ] 4.3 PATCH /requests/:id/accept
+- [ ] 4.4 PATCH /requests/:id/decline
+- [ ] 4.5 POST /group (Calendar method)
+- [ ] 4.6 POST /group/:id/vote
+- [ ] 4.7 GET /group/:id/votes
+- [ ] 4.8 POST /group/:id/finalize
+- [ ] 4.9 POST /officehours (Recurring)
+- [ ] 4.10 .ics Calendar Export
+- [ ] 4.11 Heatmap Bonus Feature
+
+---
+*Note: migrations.js script is AI-generated (short utility script).*
