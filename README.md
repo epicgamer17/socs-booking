@@ -133,6 +133,24 @@ window.open(mailtoUrl);
 - [ ] 4.9 POST /officehours (Recurring)
 - [ ] 4.10 .ics Calendar Export
 - [ ] 4.11 Heatmap Bonus Feature
+- [ ] 4.12 McGill Tinder (Team Finder Bonus)
+
+**Phase 5: Final Polish & Submission**
+- [ ] 5.1 Finalize Application Name
+- [ ] 5.2 Security Review (Protected routes & HTTPS)
+- [ ] 5.3 Code Attribution & README update (30% Rule)
+- [ ] 5.4 5-Minute Walkthrough Video (with audio)
+
+---
+### 📝 Code Attribution & 30% Rule
+*In accordance with COMP 307 requirements, below is the list of code/libraries not written by the team (max 30%):*
+
+| Resource | Usage/Location | Origin |
+| :--- | :--- | :--- |
+| `migrations.js` | Database initialization | AI-generated utility script |
+| React | Frontend framework | Bootstrap/Meta |
+| Node/Express | Backend server | Open source |
+| mysql2/jwt/bcrypt | Auth & DB utilities | NPM packages |
 
 ---
 *Note: migrations.js script is AI-generated (short utility script).*
