@@ -151,6 +151,6 @@ window.open(mailtoUrl);
 | React | Frontend framework | Bootstrap/Meta |
 | Node/Express | Backend server | Open source |
 | mysql2/jwt/bcrypt | Auth & DB utilities | NPM packages |
-
+| README.md | Basic outline | AI-generated outline and formatting |
 ---
 *Note: migrations.js script is AI-generated (short utility script).*
