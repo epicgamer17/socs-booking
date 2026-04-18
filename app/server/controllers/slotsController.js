@@ -66,32 +66,42 @@ exports.activateSlot = async (req, res) => {
 
     } catch (err) {
         return res.status(500).json({
-            message: "Failed to activate slot", error: err.message});
+            message: "Failed to activate slot", error: err.message
+        });
     }
 };
 
 //delete a slot
 exports.deleteSlot = async (req, res) => {
     const slotID = req.params.id;
-    const ownerID = req.params.id;
-
+    const ownerID = req.user.id;
     try {
-        const [result] = await db.query(
-            'DELETE FROM slots WHERE id = ? AND ownerID = ?',
-            [slotID, ownerID]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(500).json({ message: "Unauthorized access or slot does not exist", error: err.message });
-        }
-
-        //also need to delete the booking from booking db 
-        //also need to return date, timeFrom, timeTo, and email of student for notification to be sent to. 
-
-
+      //get slot and booker info
+      const [rows] = await db.query(
+        `SELECT slots.date, slots.timeFrom, slots.timeTo, users.email AS bookedByEmail
+         FROM slots
+         LEFT JOIN bookings ON slots.id = bookings.slotID
+         LEFT JOIN users ON users.id = bookings.userID
+         WHERE slots.id = ? AND slots.ownerID = ?`,
+        [slotID, ownerID]
+      );
+      if (rows.length === 0) {
+        return res.status(404).json({ message: "Unauthorized or slot does not exist" });
+      }
+      //delete booking associated to slot if it exists
+      if (rows[0].bookedByEmail !== null) {
+        await db.query("DELETE FROM bookings WHERE slotID = ?", [slotID]);
+      }
+      //delete slot
+      await db.query(
+        "DELETE FROM slots WHERE id = ? AND ownerID = ?",
+        [slotID, ownerID]
+      );
+      return res.status(200).json({
+        message: `Booking on ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been cancelled`,
+        emailToNotify: rows[0].bookedByEmail
+      });
     } catch (err) {
-        return res.status(500).json({ message: "Failed to delete slot", error: err.message });
+      return res.status(500).json({ message: "Failed to delete slot", error: err.message });
     }
-
-
-};
+  };
