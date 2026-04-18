@@ -1,7 +1,24 @@
 const db = require("../db/db");
 
+//----- Get all Owners with Public Slots -----
+exports.getOwners = async (req, res) => {
+  try {
+    const [result] = await db.query(
+      `SELECT DISTINCT users.id AS ownerID, users.email FROM users
+       LEFT JOIN slots ON slots.ownerID = users.id
+       WHERE slots.isActive = TRUE AND users.role = 'owner'`
+    );
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to retrieve owners", error: err.message });
+  }
+};
 
-//create a slot
+
+
+
+
+//----- Create Slot -----
 exports.createSlot = async (req, res) => {
 
     const ownerID = req.user.id;
@@ -21,7 +38,7 @@ exports.createSlot = async (req, res) => {
     }
 };
 
-//view all slots and associated bookings
+//----- View all Slots and Associated Bookings -----
 exports.viewSlots = async (req, res) => {
     const ownerID = req.user.id;
 
@@ -46,7 +63,7 @@ exports.viewSlots = async (req, res) => {
     }
 };
 
-//activate a slot 
+//----- Activate a Slot ----- 
 exports.activateSlot = async (req, res) => {
     const slotID = req.params.id;
     const ownerID = req.user.id;
@@ -71,7 +88,7 @@ exports.activateSlot = async (req, res) => {
     }
 };
 
-//delete a slot
+//----- Delete a Slot -----
 exports.deleteSlot = async (req, res) => {
     const slotID = req.params.id;
     const ownerID = req.user.id;

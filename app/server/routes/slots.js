@@ -6,14 +6,20 @@ const requireOwner = require("../middleware/ownerMiddleware");
 
 //----Slots Routes----
 
+//get all owners that have public slots. 
+router.get("owners", requireAuth, slotsController.getOwners);
+
 //create a booking slot
 router.post("/create", requireAuth, requireOwner, slotsController.createSlot);
 
 //activate a booking slot
 router.put("/activate/:id", requireAuth, requireOwner, slotsController.activateSlot);
 
-//view all booking slots
-router.get("/viewAll", requireAuth, requireOwner, slotsController.viewSlots);
+//view all my slots as the owner 
+router.get("/viewMy", requireAuth, requireOwner, slotsController.viewSlots);
+
+//view all public booking slots of a owner 
+router.get("/public/:ownerID", requireAuth, slotsController.viewOwnersSlots); 
 
 //delete a slot
 router.delete("/delete/:id", requireAuth, requireOwner, slotsController.deleteSlot);
