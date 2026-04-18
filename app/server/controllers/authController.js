@@ -2,7 +2,7 @@ const db = require("../db/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-//--------Registration--------
+//--------Registration--------   TO DO AFTER DEMO -- CHECK IF USER ALREADY REGISTERED WITH THAT EMAIL. AND ALSO SEND VERIFICATION EMAIL TO CHECK IS EMAIL USED FOR REGISTRATION ACTUALLY EXISTS. 
 exports.register = async (req, res) => {
 
     //remove any trailing whitespaces
