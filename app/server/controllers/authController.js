@@ -48,18 +48,7 @@ exports.register = async (req, res) => {
 
 
 
-
-
-
-
-//our db is id, email, password, role 
-
 //--------Login--------
-//note for login when comparing password you will need to do 
-//bcrypt.compare(enteredPassword, hashedPassword)
-//in order to check if it's correct 
-//also here a jwt token needs to be generated and stuff. 
-//also need to check if password and username is correct and matches db!
 exports.login = async (req, res) => {
     //remove any trailing whitespaces
     const email = req.body.email.trim();
