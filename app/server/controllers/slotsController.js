@@ -15,7 +15,22 @@ exports.getOwners = async (req, res) => {
 };
 
 
+//----- Get all Public Available Slot of Specific Owner -----
+exports.viewOwnersSlots = async (req, res) => {
+  const ownerID = req.params.ownerID
+  try{
+    const[result] = await db.query(`
+    SELECT * FROM slots WHERE slots.ownerID = ? 
+    AND slots.isActive = TRUE
+    AND slots.id NOT IN (SELECT slotID FROM bookings)`,
+    [ownerID]);
 
+    return res.status(200).json(result);
+  } catch (err) {
+    return res.status(500).json({message: "Error finding public slots", error: err.message})
+
+  }
+}
 
 
 //----- Create Slot -----
@@ -49,6 +64,7 @@ exports.viewSlots = async (req, res) => {
               slots.date,
               slots.timeFrom,
               slots.timeTo,
+              slots.isActive,
               users.email AS bookedByEmail
              FROM slots 
              LEFT JOIN bookings ON slots.id = bookings.slotID 
@@ -79,7 +95,7 @@ exports.activateSlot = async (req, res) => {
             return res.status(404).json({ message: "Unauthorized or slot does not exist" });
         }
 
-        return res.json({ message: "Slot activated" });
+        return res.status(200).json({ message: "Slot activated" });
 
     } catch (err) {
         return res.status(500).json({
