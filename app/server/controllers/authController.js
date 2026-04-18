@@ -91,9 +91,12 @@ exports.login = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Invalid credentials', error: error.message });
     }
-}
+};
 
 
 //--------Logout--------
+exports.logout = async (_, res) => {
+    res.status(200).json({ message: 'Logout successful' });
+};
 
 //whatever else
