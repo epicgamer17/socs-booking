@@ -5,7 +5,7 @@ import useAuth from "./auth";
 
 function ProtectedRoutes(){
     const {user} = useAuth()
-    return user ? <Outlet/> : <Navigate to="/login"/>
+    return user ? <Outlet/> : <Navigate to="/Login"/>
 
 }
 

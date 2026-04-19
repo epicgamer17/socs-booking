@@ -1,6 +1,6 @@
 
 
-function DirectoryPage(){
+function DirectoryPage() {
 
     return <p>directory page</p>
 
