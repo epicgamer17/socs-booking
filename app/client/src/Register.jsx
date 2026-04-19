@@ -36,15 +36,11 @@ function Register(){
     return(
             <div className="Registration-area">  
                 <h1>Register</h1>
-
                 <input id="email-box" type="text" value={email} onChange={handleEmailChange} placeholder="first.last@[mail.]mcgill.ca" />
                 <input id="password-box" type="password" value={password} onChange={handlePasswordChange} placeholder="Password"/>
                 {error && <p style={{color:"red"}}>{error}</p>}
                 {isRegistered && <p style={{color:"green"}}>Registration Successful</p>}
                 <button onClick={submitForm}>Register</button>
-
-
-
             </div>);
 
 }

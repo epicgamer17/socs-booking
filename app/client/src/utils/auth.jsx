@@ -7,7 +7,12 @@ const API_URL = import.meta.env.VITE_API_URL
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem("user");
+        return savedUser ? JSON.parse(savedUser) : null;
+
+
+    });
     const [error, setError] = useState("");
 
     function getRoleFromEmail(email) {
@@ -18,18 +23,18 @@ export function AuthProvider({ children }) {
     }
 
     function checkEmailPassword(email, password) {
-        if (email.trim() === "") {
-            setError("Please enter your email");
-            return false;
-        }
-        if (password.trim() === "") {
-            setError("Please enter your password");
-            return false;
-        }
-        if (!getRoleFromEmail(email)) {
-            setError("Use a valid McGill email");
-            return false;
-        }
+        // if (email.trim() === "") {
+        //     setError("Please enter your email");
+        //     return false;
+        // }
+        // if (password.trim() === "") {
+        //     setError("Please enter your password");
+        //     return false;
+        // }
+        // if (!getRoleFromEmail(email)) {
+        //     setError("Use a valid McGill email");
+        //     return false;
+        // }
         return true;
     }
 
@@ -42,9 +47,10 @@ export function AuthProvider({ children }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, password })
         });
-
+        console.log(r)
+        const data = await r.json();
         if (!r.ok) {
-            setError("Registration Failed");
+            setError(data.message || "Registration Failed");
             return false;
         }
         return true;
@@ -62,16 +68,24 @@ export function AuthProvider({ children }) {
 
         const data = await r.json();
         if (!r.ok) {
-            setError("Login Failed");
+            setError(data.message || "Login Failed");
             return false;
         }
 
         const userData = { email, role: data.role, token: data.token };
+        localStorage.setItem("user", JSON.stringify(userData))
         setUser(userData);
         return userData;
     }
 
-    function logout() {
+    async function logout() {
+        await fetch(`${API_URL}/auth/logout`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${user.token}` }
+
+
+        }),
+            localStorage.removeItem("user")
         setUser(null);
     }
 
