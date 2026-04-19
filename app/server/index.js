@@ -5,6 +5,10 @@ const cors = require('cors');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+//eventually AS BONUS must make this https if possible. most important priority bonus bc otherwise
+//jwt tokens can by read any anyone (which breaks the whole point of auth)
+
+
 //Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
