@@ -4,7 +4,8 @@ const db = require("../db/db");
 exports.getOwners = async (req, res) => {
   try {
     const [result] = await db.query(
-      `SELECT DISTINCT users.id AS ownerID, users.email FROM users
+      `SELECT DISTINCT users.id AS ownerID, users.firstName,
+      users.lastName, users.department, users.email FROM users
        LEFT JOIN slots ON slots.ownerID = users.id
        WHERE slots.isActive = TRUE AND users.role = 'owner'`
     );
