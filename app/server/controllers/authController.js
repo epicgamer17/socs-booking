@@ -2,16 +2,30 @@ const db = require("../db/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+//Valid Department Codes 
+const VALID_DEPARTMENTS = [
+    "ACCT", "AEBI", "AECH", "AEIS", "AEMA", "AEPH", "AERO", "AFRI", "AGEC", "AGRI",
+    "ANAT", "ANTH", "ARCH", "ARTH", "ATOC", "BBME", "BINF", "BIOC", "BIOL", "BIOS",
+    "BPHY", "CHEE", "CHEM", "CIVE", "CLAS", "COGS", "COMP", "COMS", "ECON", "ECSE",
+    "ENGL", "ENVR", "EPSC", "FINE", "FREN", "FRSL", "GEOG", "GERM", "HGEN", "HIST",
+    "INDG", "INSY", "LING", "MATH", "MECH", "MGMT", "MGSC", "MIME", "MIMM", "MRKT",
+    "NSCI", "NUTR", "PHAR", "PHGY", "PHIL", "PHYS", "POLI", "PSYC", "RELG", "SOCI",
+    "SWRK", "URBP", "WMST"
+];
+
 //--------Registration--------   TO DO AFTER DEMO -- CHECK IF USER ALREADY REGISTERED WITH THAT EMAIL. AND ALSO SEND VERIFICATION EMAIL TO CHECK IS EMAIL USED FOR REGISTRATION ACTUALLY EXISTS. 
 exports.register = async (req, res) => {
 
     //remove any trailing whitespaces
     const email = req.body.email.trim();
     const password = req.body.password.trim();
-
-    //check if email and password provided
-    if (!email || !password) {
-        return res.status(400).json({ message: "missing fields" });
+    const firstName = req.body.firstName.trim();
+    const lastName = req.body.lastName.trim();
+    //if department value provided then remove trailing whitespaces
+    const department = req.body.department ? req.body.department.trim() : null;
+    //check if email and password, first name, last name provided
+    if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({ message: "missing mandatory fields" });
     }
 
     //if invalid email 
@@ -22,6 +36,12 @@ exports.register = async (req, res) => {
     //if weak password 
     if (password.length < 8) {
         return res.status(400).json({ message: "Password must be at least 8 characters" });
+    }
+
+    //if invalid department
+
+    if (department && !VALID_DEPARTMENTS.includes(department)) {
+        return res.status(400).json({ message: "Invalid department code" })
     }
 
     //setting role 
@@ -36,8 +56,8 @@ exports.register = async (req, res) => {
 
         //add valid user to db
         await db.query(
-            "INSERT INTO users (email, password, role) VALUES( ?, ?, ? )",
-            [email, hashedPassword, role]
+            "INSERT INTO users (email, firstName, lastName, department, password, role) VALUES( ?, ?, ?, ?, ?, ? )",
+            [email, firstName, lastName, department, hashedPassword, role]
         );
         return res.status(201).json({ message: "User registered successfully" });
 
@@ -53,7 +73,7 @@ exports.login = async (req, res) => {
     //remove any trailing whitespaces
     const email = req.body.email.trim();
     const enteredPassword = req.body.password.trim();
-    
+
     //check if email and password provided
     if (!email || !enteredPassword) {
         return res.status(400).json({ message: "missing fields" });
@@ -78,10 +98,10 @@ exports.login = async (req, res) => {
         }
 
         const hashedPassword = user.hashedPassword;
-        
+
         if (!(await bcrypt.compare(enteredPassword, hashedPassword))) {
             // wrong password
-            return res.status(401).json({ message: "Invalid credentials" }); 
+            return res.status(401).json({ message: "Invalid credentials" });
         }
 
         // login successful: send back JWT token expiring in 1h
