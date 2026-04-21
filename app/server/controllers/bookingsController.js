@@ -35,8 +35,8 @@ exports.bookSlot = async (req, res) => {
         // book the slot
         // created at date already set automatically by the DB
         await db.query(
-            "INSERT INTO bookings (slotID, userID) VALUES(?,?,?)",
-            [slotID, userID, dateBooked]
+            "INSERT INTO bookings (slotID, userID) VALUES(?,?)",
+            [slotID, userID]
         );
         return res.status(201).json({ message: "Slot booked" });
     } catch (err) {
