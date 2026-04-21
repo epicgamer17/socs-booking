@@ -8,8 +8,8 @@ router.post("/meeting", requireAuth, requestMeeting);
 
 router.get("/see", requireAuth, requireOwner, seeMeetingRequest);
 
-router.post("/accept", requireAuth, requireOwner, acceptMeeting);
-router.post("/decline", requireAuth, requireOwner, declineMeeting);
+router.post("/accept/:id", requireAuth, requireOwner, acceptMeeting);
+router.post("/decline/:id", requireAuth, requireOwner, declineMeeting);
 
 
 
