@@ -14,7 +14,7 @@ Also, I think each slot should only have one booking, so we might want UNIQUE(sl
 
 
 */
-
+const db = require("../db/db");
 
 exports.bookSlot = async (req, res) => {
     const userID = req.user.id;
