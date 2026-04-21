@@ -19,7 +19,7 @@ const authRouter = require('./routes/auth.js');
 const bookingsRouter = require('./routes/bookings.js');
 //const dashboardRouter = require('./routes/dashboard.js');
 //const groupMeetingsRouter = require('./routes/groupMeetings.js');
-const meetingRequestsRouter = require('./routes/meetingRequest.js');
+const meetingRequestsRouter = require('./routes/meetingRequests.js');
 const slotsRouter = require('./routes/slots.js'); 
 
 //Routing 
