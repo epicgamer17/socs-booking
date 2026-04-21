@@ -20,11 +20,12 @@ function App() {
                     <Route path='/' element={<LandingPage />} />
                     <Route path='/Register' element={<Register />} />
                     <Route path='/Login' element={<Login />} />
+                    <Route path='/DirectoryPage' element={<DirectoryPage />} />
 
 
                     <Route element={<ProtectedRoutes />}>
 
-                        <Route path='/DirectoryPage' element={<DirectoryPage />} />
+                        {/* <Route path='/DirectoryPage' element={<DirectoryPage />} /> */}
 
                         <Route element={<OwnerRoute />}>
                             <Route path='/OwnerDashboard' element={<OwnerDashboard />} />

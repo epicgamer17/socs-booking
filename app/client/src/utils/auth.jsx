@@ -23,29 +23,38 @@ export function AuthProvider({ children }) {
     }
 
     function checkEmailPassword(email, password) {
-        // if (email.trim() === "") {
-        //     setError("Please enter your email");
-        //     return false;
-        // }
-        // if (password.trim() === "") {
-        //     setError("Please enter your password");
-        //     return false;
-        // }
-        // if (!getRoleFromEmail(email)) {
-        //     setError("Use a valid McGill email");
-        //     return false;
-        // }
+        if (email.trim() === "") {
+            setError("Please enter your email");
+            return false;
+        }
+        if (password.trim() === "") {
+            setError("Please enter your password");
+            return false;
+        }
+        if (!getRoleFromEmail(email)) {
+            setError("Use a valid McGill email");
+            return false;
+        }
         return true;
     }
 
-    async function register(email, password) {
+    async function register(email,firstName,lastName,password,department) {
         setError("");
         if (!checkEmailPassword(email, password)) return false;
+
+        const to_send_data = {
+            email,firstName,lastName,password
+        }
+
+        if (getRoleFromEmail(email)==="owner") {
+            to_send_data.department = department;
+            
+        }
 
         const r = await fetch(`${API_URL}/auth/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify(to_send_data)
         });
         console.log(r)
         const data = await r.json();
@@ -72,7 +81,7 @@ export function AuthProvider({ children }) {
             return false;
         }
 
-        const userData = { email, role: data.role, token: data.token };
+        const userData = { email, role: getRoleFromEmail(email), token: data.token };
         localStorage.setItem("user", JSON.stringify(userData))
         setUser(userData);
         return userData;

@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { login, error, setError } = useAuth();
+    const { user, login, error, setError } = useAuth();
     const navigate = useNavigate()
 
 
@@ -24,8 +24,8 @@ function Login() {
     }
 
     async function submitForm() {
-        const user = await login(email, password)
-        if (user) {
+        if (await login(email, password)) {
+            console.log(user.role)
             if (user.role === 'owner') {
                 navigate("/OwnerDashboard")
             } else {

@@ -1,0 +1,25 @@
+
+
+.header-block, .owner-row{
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1.5fr;
+    gap: 16px;
+    align-items: center;
+
+}
+
+.header-block{
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.owner-row{
+    background-image: linear-gradient(90deg , hsl(0, 0%, 76%) 0%, hsl(0, 0%, 95%) 100%);
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+
+
+
+}
