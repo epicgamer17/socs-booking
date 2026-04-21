@@ -4,7 +4,7 @@
 
 | Name | Role | ID | Features Worked On |
 | :--- | :--- | :--- | :--- |
-| Sophia Hussain | Leader/Backend | 2611418580 | Registration, JWT auth middleware, Owner middleware, Slots (create/delete/activate/view my slots/view owners public slots/browse all owners with active slots), users.sql, slots.sql, bookings.sql |
+| Sophia Hussain | Leader/Backend | 2611418580 | Registration, JWT auth middleware, Owner middleware, Slots (create/delete/activate/view my slots/view owners public slots/browse all owners with active slots), users.sql, slots.sql, meetingRequests.sql, Type 1 meeting request |
 | Thomas Nguyen | Backend | [ID] | [Features] |
 | Jonathan Lamontagne-Kratz | Frontend | 261143892 | Owner Page, Bonus Features |
 | Tanav Bansal | Frontend/Design | 261075755 | Landing page,registration page,login page |
