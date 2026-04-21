@@ -6,6 +6,12 @@ const requireAuth = require("../middleware/authMiddleware");
 //----Bookings Routes----
 
 // book a slot
-router.post("/book/:id", requireAuth, bookingsController.bookSlot);
+router.post("/:slotID", requireAuth, bookingsController.bookSlot);
+
+// view bookings
+router.get("/view", requireAuth, bookingsController.viewBookings);
+
+// cancel booking
+router.delete("/:bookingID", requireAuth, bookingsController.cancelBooking);
 
 module.exports = router;

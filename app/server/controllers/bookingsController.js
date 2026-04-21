@@ -19,12 +19,16 @@ const db = require("../db/db");
 
 exports.bookSlot = async (req, res) => {
   const userID = req.user.id;
-  const slotID = req.params.id;
+  const userEmail = req.user.email;
+  const slotID = req.params.slotID;
 
   try {
     // verify slot exists
     const [rows] = await db.query(
-      `SELECT slots.id
+      `SELECT slots.id,
+              slots.date     AS date,
+              slots.timeFrom AS timeFrom,
+              slots.timeTo   AS timeTo
          FROM slots
         WHERE slots.id = ? AND isActive = TRUE`,
       [slotID]
@@ -39,7 +43,13 @@ exports.bookSlot = async (req, res) => {
       "INSERT INTO bookings (slotID, userID) VALUES(?,?)",
       [slotID, userID]
     );
-    return res.status(201).json({ message: "Slot booked" });
+
+    // return info on booked slot and notify by email
+    return res.status(201).json({
+      message: `Booking on slot at ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been created`,
+      // TODO: notify by email -- pending team decision, see issue #42
+      emailToNotify: userEmail
+    });
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
       // needs UNIQUE(slotID) for this branch to ever trigger
@@ -63,16 +73,54 @@ exports.viewBookings = async (req, res) => {
               slots.timeFrom,
               slots.timeTo,
               slots.isActive,
-              users.email AS bookedByEmail
          FROM bookings
          JOIN slots ON slots.id = bookings.slotID
-         JOIN users AS owners ON owners.id = slots.ownerID
         WHERE bookings.userID = ?`,
       [userID]
     );
 
-    return res.status(200).json(bookings);
+    // return the info about the bookings to the booker
+    return res.status(200).json(bookings);    
   } catch (err) {
     return res.status(500).json({ message: "Failed to retrieve bookings", error: err.message });
+  }
+}
+
+// cancel specified booking by deleting it
+exports.cancelBooking = async (req, res) => {
+  const userID = req.user.id;
+  const userEmail = req.user.email;
+  const bookingID = req.params.bookingID;
+
+  try {
+    const [rows] = await db.query(
+      `SELECT bookings.id,
+              slots.date     AS date,
+              slots.timeFrom AS timeFrom,
+              slots.timeTo   AS timeTo
+         FROM bookings
+         JOIN slots ON slots.id = bookings.slotID
+        WHERE bookings.userID = ? AND bookings.id = ?`,
+      [userID, bookingID]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Unauthorized or booking doesn't exist" });
+    }
+
+    // delete booking
+    await db.query(
+      "DELETE FROM bookings WHERE id = ? AND userID = ?",
+      [bookingID, userID]
+    );
+
+    // return info on deleted booking and notify by email
+    return res.status(200).json({
+      message: `Booking on ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been cancelled`,
+      // TODO: notify by email -- pending team decision, see issue #42
+      emailToNotify: userEmail
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to cancel booking", error: err.message });
   }
 }
