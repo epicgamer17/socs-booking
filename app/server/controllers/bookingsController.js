@@ -19,7 +19,6 @@ const db = require("../db/db");
 
 exports.bookSlot = async (req, res) => {
   const userID = req.user.id;
-  const userEmail = req.user.email;
   const slotID = req.params.slotID;
 
   try {
@@ -28,8 +27,10 @@ exports.bookSlot = async (req, res) => {
       `SELECT slots.id,
               slots.date     AS date,
               slots.timeFrom AS timeFrom,
-              slots.timeTo   AS timeTo
+              slots.timeTo   AS timeTo,
+              owners.email   AS ownerEmail
          FROM slots
+         JOIN users AS owners ON owners.id = slots.ownerID
         WHERE slots.id = ? AND isActive = TRUE`,
       [slotID]
     );
@@ -44,11 +45,10 @@ exports.bookSlot = async (req, res) => {
       [slotID, userID]
     );
 
-    // return info on booked slot and notify by email
+    // return info on booked slot and notify owner by email
     return res.status(201).json({
       message: `Booking on slot at ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been created`,
-      // TODO: notify by email -- pending team decision, see issue #42
-      emailToNotify: userEmail
+      emailToNotify: rows[0].ownerEmail
     });
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
@@ -73,8 +73,10 @@ exports.viewBookings = async (req, res) => {
               slots.timeFrom,
               slots.timeTo,
               slots.isActive,
+              owners.email       AS ownerEmail
          FROM bookings
          JOIN slots ON slots.id = bookings.slotID
+         JOIN users AS owners ON owners.id = slots.ownerID
         WHERE bookings.userID = ?`,
       [userID]
     );
@@ -89,7 +91,6 @@ exports.viewBookings = async (req, res) => {
 // cancel specified booking by deleting it
 exports.cancelBooking = async (req, res) => {
   const userID = req.user.id;
-  const userEmail = req.user.email;
   const bookingID = req.params.bookingID;
 
   try {
@@ -97,8 +98,10 @@ exports.cancelBooking = async (req, res) => {
       `SELECT bookings.id,
               slots.date     AS date,
               slots.timeFrom AS timeFrom,
-              slots.timeTo   AS timeTo
+              slots.timeTo   AS timeTo,
+              owners.email    AS ownerEmail
          FROM bookings
+         JOIN users AS owners ON owners.id = slots.ownerID
          JOIN slots ON slots.id = bookings.slotID
         WHERE bookings.userID = ? AND bookings.id = ?`,
       [userID, bookingID]
@@ -114,11 +117,10 @@ exports.cancelBooking = async (req, res) => {
       [bookingID, userID]
     );
 
-    // return info on deleted booking and notify by email
+    // return info on deleted booking and notify owner by email
     return res.status(200).json({
       message: `Booking on ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been cancelled`,
-      // TODO: notify by email -- pending team decision, see issue #42
-      emailToNotify: userEmail
+      emailToNotify: rows[0].ownerEmail
     });
   } catch (err) {
     return res.status(500).json({ message: "Failed to cancel booking", error: err.message });

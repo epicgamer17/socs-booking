@@ -5,7 +5,7 @@
 | Name | Role | ID | Features Worked On |
 | :--- | :--- | :--- | :--- |
 | Sophia Hussain | Leader/Backend | 2611418580 | Registration, JWT auth middleware, Owner middleware, Slots (create/delete/activate/view my slots/view owners public slots/browse all owners with active slots), users.sql, slots.sql, meetingRequests.sql, Type 1 meeting request |
-| Thomas Nguyen | Backend | 261181634 | login/logout controllers, booking controllers (create, view) |
+| Thomas Nguyen | Backend | 261181634 | login/logout controllers, booking controllers (create, view, cancel) |
 | Jonathan Lamontagne-Kratz | Frontend | 261143892 | Owner Page, Bonus Features |
 | Tanav Bansal | Frontend/Design | 261075755 | Landing page,registration page,login page |
 
@@ -28,7 +28,7 @@ Use these commands to run the project locally and test the code running on the S
    ```bash
    cd socs-booking/app/server
    node index.js
-   # Test at: http://localhost:5000/api/test/
+   # Test at: http://localhost:5000/
    ```
 
 3. **Access the MariaDB Database**
