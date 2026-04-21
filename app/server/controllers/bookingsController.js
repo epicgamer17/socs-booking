@@ -49,7 +49,7 @@ exports.bookSlot = async (req, res) => {
   }
 }
 
-// view all the bookings for a user with specified ID
+// view all the bookings, with slot information, for a user with specified ID
 exports.viewBookings = async (req, res) => {
   const userID = req.user.id;
 
