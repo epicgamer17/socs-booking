@@ -32,8 +32,6 @@ function App() {
                         <Route path='/invite/:ownerId' element={<BookingPage />} />
 
 
-
-
                         <Route element={<OwnerRoute />}>
                             <Route path='/OwnerDashboard' element={<OwnerDashboard />} />
                         </Route>

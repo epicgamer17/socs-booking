@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import useAuth from './utils/auth'
 
 import './RegisterLogin.css'
@@ -18,6 +18,10 @@ function Register(){
     const{register,error,setError} = useAuth();
     const[department,setDepartment] = useState("");
     const[isOwner,setIsOwner] = useState(false);
+
+    useEffect(()=>{
+        document.title = "Register"
+    },[]);
     
 
 
@@ -66,7 +70,7 @@ function Register(){
             return
         }
         if(password !== confirmationPassword){
-            setError("passwords should be same")
+            setError("passwords must match")
             return
 
         }
@@ -83,49 +87,81 @@ function Register(){
 
         const ok = await register(email,firstName,lastName,password,department)
         if (ok) {
+            setFirstName("")
+            setLastName("")
             setEmail("")
             setPassword("")
+            setConfirmationPassword("")
+            setIsOwner(false)
             setIsRegistered(true)
-
-            
         }
     }
 
     return(
             <div className="Registration-area">  
                 <h1>Register</h1>
-                <div className="row">
-                <input  type="text" value={email} onChange={handleEmailChange} placeholder="first.last@[mail.]mcgill.ca" /><br/>
-                </div>
+                
                 
                 <div className="row">
-                <input  type="text" value={firstName} onChange={handleFirstNameChange} placeholder="First name" />
-                <input  type="text" value={lastName} onChange={handleLastNameChange} placeholder="Last name" /><br/>
+
+                    <div className="field">
+                        <label htmlFor="firstName">First Name</label>
+                        <input  id="firstName" type="text" value={firstName} onChange={handleFirstNameChange} placeholder="First name" />
+                    </div>
+
+                    <div className="field">
+                        <label htmlFor="lastName">Last Name</label>
+                        <input id="lastName" type="text" value={lastName} onChange={handleLastNameChange} placeholder="Last name" />
+                    </div>
+
+                </div>
+
+                <div className="row">
+                    <div className="field">
+                        <label htmlFor="email">McGill Email</label>
+                        <input  id="email" type="email" value={email} onChange={handleEmailChange} placeholder="first.last@[mail.]mcgill.ca" />
+                    </div>
+                    
+                    
                 </div>
 
                 <div className="row">
 
+                    <div className="field">
+                        <label htmlFor="password">Password</label>
+                        <input id="password" type="password" value={password} onChange={handlePasswordChange} placeholder="Password"/>
+                    </div>
 
-                <input  type="password" value={password} onChange={handlePasswordChange} placeholder="Password"/>
-                <input  type="password" value={confirmationPassword} onChange={handleConfirmationPasswordChange} placeholder="Confirm password"/><br/>
+                    <div className="field">
+                        <label htmlFor="confirmationPassword">Confirm Password</label>
+                         <input  id="confirmationPassword" type="password" value={confirmationPassword} onChange={handleConfirmationPasswordChange} placeholder="Confirm password"/>
+                    </div>
                 </div>
 
                 {error && <p style={{color:"red"}}>{error}</p>}
                 {isRegistered && <p style={{color:"green"}}>Registration Successful</p>}
+
+
                 { isOwner &&
-                    <>
-                    <select value={department} onChange={handleDepartmentChange}>
-                        <option value="">Select Department</option>
-                        {
-                            DEPARTMENT_OPTIONS.map(d=>{
-                                return (<option value={d.code} key={d.code}>
-                                    {getDepartment(d.code)}
-                                </option>);
-                            }
-                            )
-                        }
-                    </select><br/></>
-                 }
+                    <div className="row">
+
+                        <div className="field">
+                            <label htmlFor="dept">Department</label>
+                            <select id="dept" value={department} onChange={handleDepartmentChange}>
+                                <option value="">Select Department</option>
+                                {
+                                    DEPARTMENT_OPTIONS.map(d=>{
+                                        return (<option value={d.code} key={d.code}>
+                                            {getDepartment(d.code)}
+                                        </option>);
+                                    }
+                                    )
+                                }
+                            </select>
+                        </div>
+
+                    </div>
+                }
                 <button onClick={submitForm}>Register</button>
             </div>);
 
