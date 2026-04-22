@@ -4,12 +4,12 @@ const meetingRequestsController = require('../controllers/meetingRequestsControl
 const requireAuth = require("../middleware/authMiddleware");
 const requireOwner = require("../middleware/ownerMiddleware");
 
-router.post("/meeting", requireAuth, requestMeeting);
+router.post("/meeting", requireAuth, meetingRequestsController.requestMeeting);
 
-router.get("/see", requireAuth, requireOwner, seeMeetingRequest);
+// router.get("/see", requireAuth, requireOwner, meetingRequestsController.seeMeetingRequests);
 
-router.post("/accept/:id", requireAuth, requireOwner, acceptMeeting);
-router.post("/decline/:id", requireAuth, requireOwner, declineMeeting);
+router.post("/accept/:id", requireAuth, requireOwner, meetingRequestsController.acceptMeeting);
+router.post("/decline/:id", requireAuth, requireOwner, meetingRequestsController.declineMeeting);
 
 
 
