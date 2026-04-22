@@ -28,7 +28,7 @@ Use these commands to run the project locally and test the code running on the S
    ```bash
    cd socs-booking/app/server
    node index.js
-   # Test at: http://localhost:5000/
+   # Test at: http://localhost:3000/
    ```
 
 3. **Access the MariaDB Database**
