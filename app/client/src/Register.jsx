@@ -94,11 +94,22 @@ function Register(){
     return(
             <div className="Registration-area">  
                 <h1>Register</h1>
+                <div className="row">
                 <input  type="text" value={email} onChange={handleEmailChange} placeholder="first.last@[mail.]mcgill.ca" /><br/>
+                </div>
+                
+                <div className="row">
                 <input  type="text" value={firstName} onChange={handleFirstNameChange} placeholder="First name" />
                 <input  type="text" value={lastName} onChange={handleLastNameChange} placeholder="Last name" /><br/>
+                </div>
+
+                <div className="row">
+
+
                 <input  type="password" value={password} onChange={handlePasswordChange} placeholder="Password"/>
                 <input  type="password" value={confirmationPassword} onChange={handleConfirmationPasswordChange} placeholder="Confirm password"/><br/>
+                </div>
+
                 {error && <p style={{color:"red"}}>{error}</p>}
                 {isRegistered && <p style={{color:"green"}}>Registration Successful</p>}
                 { isOwner &&

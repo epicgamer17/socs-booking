@@ -6,7 +6,7 @@ body{
     background-repeat: no-repeat;
     background-attachment: fixed; */
 
-    background-color: #eef3f8;
+    background-color: rgba(0, 0, 0, 0.901);
 
     display: flex;
     justify-content: center;

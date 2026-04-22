@@ -1,33 +1,80 @@
 
 body{
-    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #121212;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+*{
+    box-sizing: border-box;
+
+}
+
+h1{
+    color: #ed1b2f;
+    margin-bottom: 20px;
+    font-size: 2rem;
 }
 
 .Registration-area{
-    text-align: center;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    /* display: flex; */
-    /* flex-direction: column; */
+    background-color: #7a7a7a;
+    padding: 30px 20px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+
 }
 
-/* .Registration-area h1{
-    text-size: 20px;
-} */
-
-input{
-    padding: 10px 10px;
-    width: 150px;
-    margin-bottom: 10px;
-    margin-left: 5px;
-    margin-right: 5px;
+.row{
+    display: flex;
+    gap: 10px;
+    width: 100%;
 }
-select{
-    width: 170px;
-    margin-bottom: 10px;
-    
 
+
+select,button,input{
+    padding: 12px;
+    width: 100%;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
 }
 
 button{
-    width:100px;
+    background-color: #ed1b2f;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
 }
+
+button:hover{
+    background-color: #c41628;
+}
+
+
+@media (max-width:600px) {
+    .Registration-area{
+        padding: 24px 16px;
+        border-radius: 16px;
+    }
+
+    .row{
+        flex-direction: column;
+        gap: 0;
+    }
+
+    h1{
+        font-size: 1.7rem;
+    }
+    
+}
+
