@@ -17,11 +17,11 @@
 
 🚀 **Quick Start & Local Testing**
 
-Use these commands to run the project locally and test the code running on the SOCS servers.
+Use these commands to run the project locally and test the code running on the SOCS servers. You SSH with port-forwarding on the first terminal, without on the second, if you want to test both backend and frontend at the same time.
 
 1. **SSH into the SOCS Server (Enable local testing)**
    ```bash
-   ssh -L 5000:localhost:5000 -L 5173:localhost:5173 winter2026-comp307
+   ssh -L 3000:localhost:3000 -L 5173:localhost:5173 winter2026-comp307
    ```
 
 2. **Start the Backend Server**
