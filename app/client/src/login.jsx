@@ -33,7 +33,7 @@ function Login() {
                 navigate(from)
                 return;
             }
-            console.log(user.role)
+            console.log(userdata.role)
             if (userdata.role === 'owner') {
                 navigate("/OwnerDashboard")
             } else {
