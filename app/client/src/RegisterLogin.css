@@ -1,4 +1,9 @@
 
+*{
+    box-sizing: border-box;
+
+}
+
 body{
     display: flex;
     justify-content: center;
@@ -10,26 +15,31 @@ body{
     box-sizing: border-box;
 }
 
-*{
-    box-sizing: border-box;
 
-}
 
 h1{
-    color: #ed1b2f;
     margin-bottom: 20px;
-    font-size: 2rem;
+    color: #f5f5f5;
+    font-size: 1.9rem;
+    text-align: center;
 }
 
-.Registration-area{
+.Registration-area,.login-area{
     display: flex;
     flex-direction: column;
-    align-items: center;
-    background-color: #7a7a7a;
-    padding: 30px 20px;
+    background-color: #2a2a2a;
+    padding: 32px 24px;
     border-radius: 20px;
     width: 100%;
-    max-width: 400px;
+    max-width: 90vw;
+}
+.Registration-area{
+    width: 370px;
+
+
+}
+.login-area{
+    width: 300px;
 
 }
 
@@ -38,18 +48,45 @@ h1{
     gap: 10px;
     width: 100%;
 }
+.field{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+label{
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}
 
-
-select,button,input{
+select,input{
     padding: 12px;
     width: 100%;
     margin-bottom: 10px;
     border-radius: 6px;
-    border: none;
+    border: 1px solid #444;
+    background-color: #1c1c1c;
+    color: #ffffff;
     font-size: 1rem;
 }
 
+input::placeholder{
+    color: #888;
+
+}
+
+input:focus,select:focus{
+    outline: none;
+    border-color: #ed1b2f;
+}
+
 button{
+    padding: 12px;
+    width: 100%;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
     background-color: #ed1b2f;
     color: white;
     cursor: pointer;

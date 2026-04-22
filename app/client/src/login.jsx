@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import useAuth from './utils/auth'
 
 import './RegisterLogin.css'
@@ -13,7 +13,9 @@ function Login() {
     const navigate = useNavigate()
     const location = useLocation()
 
-
+    useEffect(()=>{
+        document.title = "Login"
+    },[]);
 
     function handleEmailChange(event) {
         setError("")
@@ -33,7 +35,6 @@ function Login() {
                 navigate(from)
                 return;
             }
-            console.log(userdata.role)
             if (userdata.role === 'owner') {
                 navigate("/OwnerDashboard")
             } else {
@@ -43,11 +44,25 @@ function Login() {
     }
 
     return (
-        <div className="Registration-area">
+        <div className="login-area">
             <h1>Login</h1>
 
-            <input id="email-box" type="text" value={email} onChange={handleEmailChange} placeholder="first.last@[mail.]mcgill.ca" /><br/>
-            <input id="password-box" type="password" value={password} onChange={handlePasswordChange} placeholder="Password" /><br/>
+            <div className="row">
+                <div className="field">
+                    <label htmlFor="email">McGill Email</label>
+                    <input id="email" type="email" value={email} onChange={handleEmailChange} placeholder="first.last@[mail.]mcgill.ca"/>
+                </div>
+            </div>
+
+
+            <div className="row">
+                <div className="field">
+                    <label htmlFor="password">Password</label>
+                    <input id="password" type="password" value={password} onChange={handlePasswordChange} placeholder="Password"/>
+                </div>
+            </div>
+
+
             {error && <p style={{ color: "red" }}>{error}</p>}
             <button onClick={submitForm}>Login</button>
 
