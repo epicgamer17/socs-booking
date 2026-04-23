@@ -24,4 +24,7 @@ router.get("/public/:ownerID", requireAuth, slotsController.viewOwnersSlots);
 //delete a slot
 router.delete("/delete/:id", requireAuth, requireOwner, slotsController.deleteSlot);
 
+// Create recurring office hours slots
+router.post("/recurring", requireAuth, requireOwner, slotsController.createRecurringSlots);
+
 module.exports = router;
