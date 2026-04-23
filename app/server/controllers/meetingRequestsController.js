@@ -1,5 +1,7 @@
 const db = require("../db/db");
 
+
+//----- See all Meeting Requests -----
 exports.seeMeetingRequests = async (req, res) => {
     const ownerID = req.user.id;
 
@@ -24,6 +26,8 @@ exports.seeMeetingRequests = async (req, res) => {
     }
 };
 
+
+//----- Request a Meeting -----
 exports.requestMeeting = async (req, res) => {
     const userID = req.user.id;
     const ownerID = req.body.ownerID;
@@ -44,7 +48,7 @@ exports.requestMeeting = async (req, res) => {
 };
 
 
-
+//----- Accept a Meeting Request -----
 exports.acceptMeeting = async (req, res) => {
     const ownerID = req.user.id;
     const requestID = req.params.id;
@@ -110,6 +114,7 @@ exports.acceptMeeting = async (req, res) => {
     }
 };
 
+//----- Decline a Meeting Request -----
 exports.declineMeeting = async (req, res) => {
     const ownerID = req.user.id;
     const requestID = req.params.id;
