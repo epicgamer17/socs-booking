@@ -1,12 +1,55 @@
 
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from './utils/auth';
 import './index.css';
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function OwnerDashboard() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+
+  const [dashboardData, setDashboardData] = useState({ slots: [], meetingRequests: [] });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const r = await fetch(`${API_URL}/dashboard/owner`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${user.token}`,
+          },
+        });
+
+        const data = await r.json();
+        if (!r.ok) {
+          setError(data.message || "Failed to fetch dashboard data");
+          return;
+        }
+
+        setDashboardData({
+          slots: data.slots || [],
+          meetingRequests: data.meetingRequests || [],
+        });
+      } catch (err) {
+        setError("Failed to fetch dashboard data");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (user?.token) {
+      fetchDashboardData();
+    }
+  }, [user]);
+
+  const totalBookings = dashboardData.slots.filter((s) => s.bookedByEmail).length;
+  const activeSlots = dashboardData.slots.filter((s) => s.isActive).length;
+  const pendingRequests = dashboardData.meetingRequests.length;
 
   return (
     <div className="dashboard-container">
@@ -22,33 +65,40 @@ function OwnerDashboard() {
           </div>
         </div>
       </header>
-      
+
+      {error && <p style={{ color: '#ed1b2f' }}>{error}</p>}
+
       <div className="dashboard-grid">
         <div className="stat-card">
           <h3>Total Bookings</h3>
-          <p className="stat-value">128</p>
+          <p className="stat-value">{totalBookings}</p>
         </div>
         <div className="stat-card">
-          <h3>Active Rooms</h3>
-          <p className="stat-value">12</p>
+          <h3>Active Slots</h3>
+          <p className="stat-value">{activeSlots}</p>
         </div>
         <div className="stat-card">
           <h3>Pending Requests</h3>
-          <p className="stat-value">5</p>
+          <p className="stat-value">{pendingRequests}</p>
         </div>
       </div>
 
       <section className="dashboard-section">
-        <h2>Recent Activity</h2>
+        <h2>Your Slots</h2>
+        {loading && <p>Loading...</p>}
+        {!loading && dashboardData.slots.length === 0 && <p>No slots yet.</p>}
         <div className="activity-list">
-          <div className="activity-item">
-            <span>Room 301 booked by j.smith@mail.mcgill.ca</span>
-            <span className="activity-time">2 mins ago</span>
-          </div>
-          <div className="activity-item">
-            <span>Room 105 maintenance completed</span>
-            <span className="activity-time">1 hour ago</span>
-          </div>
+          {dashboardData.slots.map((slot) => (
+            <div key={slot.slotID} className="activity-item">
+              <span>
+                {slot.date} · {slot.timeFrom} – {slot.timeTo}
+                {!slot.isActive && ' (inactive)'}
+              </span>
+              <span className="activity-time">
+                {slot.bookedByEmail ? `Booked by ${slot.bookedByEmail}` : 'Available'}
+              </span>
+            </div>
+          ))}
         </div>
       </section>
 
