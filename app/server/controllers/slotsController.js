@@ -141,14 +141,15 @@ exports.deleteSlot = async (req, res) => {
   };
 
 
-  //create recurring office hours slots
+  //create recurring office hours slots (Type 3 - recurring office hours)
   exports.createRecurringSlots = async (req, res) => {
     const ownerID = req.user.id;
     const days = req.body.days; // array of dates e.g. ["2026-04-27", "2026-04-29"]
-    const weeks = req.body.weeks;
+    const weeks = req.body.weeks; // number of weeks to repeat
     const timeFrom = req.body.timeFrom;
     const timeTo = req.body.timeTo;
 
+    //check if required fields are provided
     if (!days || days.length === 0 || !weeks) {
       return res.status(400).json({ message: "Missing required fields" });
   }
@@ -158,6 +159,7 @@ exports.deleteSlot = async (req, res) => {
 
         const values = [];
 
+        //calculate all slot dates by adding 7 days per week offset
         for (let week = 0; week < weeks; week++) {
             for (const day of days) {
                 const slotDate = new Date(day);
@@ -166,6 +168,7 @@ exports.deleteSlot = async (req, res) => {
             }
         }
 
+        //bulk insert all slots in one query
         await conn.query(
             `INSERT INTO slots (ownerID, date, timeFrom, timeTo) VALUES ?`,
             [values]
@@ -177,6 +180,7 @@ exports.deleteSlot = async (req, res) => {
         await conn.rollback();
         return res.status(500).json({ message: "Failed to create recurring slots", error: err.message });
     } finally {
+        //release connection back to pool
         conn.release();
     }
 };
