@@ -26,8 +26,6 @@ const slotsRouter = require('./routes/slots.js');
 app.use('/auth', authRouter); 
 app.use('/slots', slotsRouter);
 app.use('/request', meetingRequestsRouter);
-
-//add others
 app.use('/bookings', bookingsRouter);
 app.use('/dashboard', dashboardRouter);
 

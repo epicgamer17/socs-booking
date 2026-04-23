@@ -1,13 +1,28 @@
-/*
-router.post("/meeting", requireAuth, requestMeeting);
-
-router.get("/see", requireAuth, requireOwner, seeMeetingRequests);
-
-router.post("/accept/:id", requireAuth, requireOwner, acceptMeeting);
-router.post("/decline/:id", requireAuth, requireOwner, declineMeeting);
-*/
-
 const db = require("../db/db");
+
+exports.seeMeetingRequests = async (req, res) => {
+    const ownerID = req.user.id;
+
+    try {
+        const [result] = await db.query(
+            `SELECT
+                meetingRequests.id,
+                meetingRequests.userID,
+                meetingRequests.date,
+                meetingRequests.timeFrom,
+                meetingRequests.timeTo,
+                meetingRequests.message,
+                users.email AS requestedBy
+            FROM meetingRequests
+            LEFT JOIN users ON users.id = meetingRequests.userID
+            WHERE meetingRequests.status = 'pending' AND meetingRequests.ownerID = ?`,
+            [ownerID]
+        );
+        return res.status(200).json(result);
+    } catch (err) {
+        return res.status(500).json({ message: "Failed to retrieve meeting requests", error: err.message });
+    }
+};
 
 exports.requestMeeting = async (req, res) => {
     const userID = req.user.id;
