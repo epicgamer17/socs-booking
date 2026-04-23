@@ -91,9 +91,9 @@ window.open(mailtoUrl);
 - [x] 1.1 POST /auth/register
 - [x] 1.2 POST /auth/login
 - [ ] 1.3 POST /auth/logout
-- [ ] 1.4 Landing Page component
+- [x] 1.4 Landing Page component
 - [ ] 1.5 Register/Login validation
-- [ ] 1.6 Directory Page (Owner listing)
+- [x] 1.6 Directory Page (Owner listing)
 - [ ] 1.7 Invitation Route & Guards
 
 **Phase 2: User Experience & Basic Slots**
@@ -103,29 +103,29 @@ window.open(mailtoUrl);
 - [x] 2.4 PATCH /slots/:id/activate
 - [x] 2.5 DELETE /slots/:id
 - [x] 2.6 GET /slots/owner/:ownerId
-- [ ] 2.7 POST /bookings
-- [ ] 2.8 GET /bookings/mine
-- [ ] 2.9 DELETE /bookings/:id
+- [x] 2.7 POST /bookings
+- [x] 2.8 GET /bookings/mine
+- [x] 2.9 DELETE /bookings/:id
 - [ ] 2.10 User Dashboard UI
 - [ ] 2.11 MailtoButton component
 - [ ] 2.12 Request Meeting UI
 - [ ] 2.13 Voting Grid selection UI
 
 **Phase 3: Owner Experience & Invitations**
-- [ ] 3.1 GET /dashboard (Unified)
+- [x] 3.1 GET /dashboard (Unified)
 - [ ] 3.2 POST /slots/:id/invite (Token)
 - [ ] 3.3 GET /slots/invite/:token
-- [ ] 3.4 Owner Dashboard UI (Tabs)
+- [x] 3.4 Owner Dashboard UI (Tabs)
 - [ ] 3.5 SlotManager toggle UI
-- [ ] 3.6 Meeting Request list view
+- [x] 3.6 Meeting Request list view
 - [ ] 3.7 Calendar Selector form
 - [ ] 3.8 Recurring repetition input
 
 **Phase 4: Meeting Types & Bonuses**
 - [ ] 4.1 POST /requests
-- [ ] 4.2 GET /requests/inbox
-- [ ] 4.3 PATCH /requests/:id/accept
-- [ ] 4.4 PATCH /requests/:id/decline
+- [x] 4.2 GET /requests/inbox
+- [x] 4.3 PATCH /requests/:id/accept
+- [x] 4.4 PATCH /requests/:id/decline
 - [ ] 4.5 POST /group (Calendar method)
 - [ ] 4.6 POST /group/:id/vote
 - [ ] 4.7 GET /group/:id/votes
