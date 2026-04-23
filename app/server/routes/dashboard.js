@@ -11,9 +11,9 @@ const requireOwner = require("../middleware/ownerMiddleware");
 //----Dashboard Routes----
 
 // get data for dashboard for owner
-router.get("/dashboard/owner", requireAuth, requireOwner, dashboardController.dashboardDataForOwner);
+router.get("/owner", requireAuth, requireOwner, dashboardController.dashboardDataForOwner);
 
 // get data for dashboard for student
-router.get("/dashboard/student", requireAuth, dashboardController.dashboardDataForStudent);
+router.get("/student", requireAuth, dashboardController.dashboardDataForStudent);
 
 module.exports = router;
