@@ -16,10 +16,10 @@ function LandingPage() {
                                 Connect with professors, schedule office hours, and manage your meetings all in one place.
                         </p>
                         <div className={styles.actionGroup}>
-                                <Button variant="primary" onClick={() => navigate('/Register')}>
+                                <Button variant="primary" onClick={() => navigate('/register')}>
                                         Register
                                 </Button>
-                                <Button variant="secondary" onClick={() => navigate('/Login')}>
+                                <Button variant="secondary" onClick={() => navigate('/login')}>
                                         Log In
                                 </Button>
                         </div>

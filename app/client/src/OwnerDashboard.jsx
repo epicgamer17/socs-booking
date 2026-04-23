@@ -183,8 +183,8 @@ function OwnerDashboard() {
           <p className={styles.subtitle}>Welcome back, Administrator</p>
         </div>
         <div className={styles.actionGroup}>
-          <Button variant="secondary" onClick={() => navigate("/DirectoryPage")}>View Directory</Button>
-          <Button variant="danger" onClick={() => { logout(); navigate("/Login"); }}>Logout</Button>
+          <Button variant="secondary" onClick={() => navigate("/directory-page")}>View Directory</Button>
+          <Button variant="danger" onClick={() => { logout(); navigate("/login"); }}>Logout</Button>
         </div>
       </header>
 

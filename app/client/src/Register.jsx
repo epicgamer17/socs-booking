@@ -121,7 +121,7 @@ function Register() {
                 </form>
 
                 <p className={styles.switchText}>
-                    Already have an account? <a href="/Login" className={styles.link}>Login here</a>
+                    Already have an account? <a href="/login" className={styles.link}>Login here</a>
                 </p>
             </div>
         </div>

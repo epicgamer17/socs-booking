@@ -38,9 +38,9 @@ function Login() {
                 return;
             }
             if (userdata.role === 'owner') {
-                navigate("/OwnerDashboard")
+                navigate("/owner-dashboard")
             } else {
-                navigate("/DirectoryPage")
+                navigate("/directory-page")
             }
         }
     }
@@ -61,7 +61,7 @@ function Login() {
                 </form>
 
                 <p className={styles.switchText}>
-                    Don't have an account? <a href="/Register" className={styles.link}>Register here</a>
+                    Don't have an account? <a href="/register" className={styles.link}>Register here</a>
                 </p>
             </div>
         </div>
