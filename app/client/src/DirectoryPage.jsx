@@ -112,41 +112,33 @@ function DirectoryPage() {
 
 
   return (
-    <div>
+    <div className={styles.container}>
+      <div className={styles.pageHeader}>
+        <h1>{document.title = "Directory"}</h1>
 
-
-
-
-      <h1>{document.title = "Directory"}</h1>
-
-      <select value={selectedDepartment} onChange={handleSelectedDepartment}>
-        <option value="ALL">All Deparments</option>
-        {
-          DEPARTMENT_OPTIONS.map(d => {
-            return (<option value={d.code} key={d.code}>
-              {getDepartment(d.code)}
-            </option>);
+        <select className={styles.select} value={selectedDepartment} onChange={handleSelectedDepartment}>
+          <option value="ALL">All Departments</option>
+          {
+            DEPARTMENT_OPTIONS.map(d => {
+              return (<option value={d.code} key={d.code}>
+                {getDepartment(d.code)}
+              </option>);
+            })
           }
-          )
-        }
-      </select><br />
-
-      <div className="header-block">
-
-        <h2>Name</h2>
-        <h2>Email</h2>
-        <h2>Department</h2>
+        </select>
       </div>
-      {filtered_owners.map((u, index) => {
-        return (<div key={index} className="owner-row" onClick={() => navigate(`/invite/${u.ownerID}`)}>
-          <p>{u.firstName} {u.lastName}</p>
-          <p>{u.email}</p>
-          <p>{getDepartment(u.department)}</p>
-        </div>);
-      }
 
-      )}
-
+      <div className={styles.grid}>
+        {filtered_owners.map((u, index) => {
+          return (
+            <div key={index} className={styles.userCard} onClick={() => navigate(`/invite/${u.ownerID}`)}>
+              <p className={styles.userName}>{u.firstName} {u.lastName}</p>
+              <p className={styles.userDept}>{getDepartment(u.department)}</p>
+              <p>{u.email}</p>
+            </div>
+          );
+        })}
+      </div>
     </div>);
 
 }

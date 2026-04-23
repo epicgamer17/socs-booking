@@ -1,0 +1,106 @@
+.container {
+    padding: var(--spacing-xl);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: var(--spacing-xl);
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--spacing-md);
+}
+
+.title {
+    font-size: 2.5rem;
+    color: var(--color-primary);
+    margin: 0;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    margin-top: var(--spacing-sm);
+}
+
+.error {
+    color: #ff4a4a;
+    background: rgba(255, 74, 74, 0.1);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+}
+
+.emptyState {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: var(--spacing-xl);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--color-border);
+}
+
+.slotList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.slotCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+}
+
+.slotCard:hover {
+    border-color: var(--color-primary);
+    transform: translateX(4px);
+    /* Slight nudge effect on hover */
+}
+
+.slotInfo {
+    display: flex;
+    gap: var(--spacing-xl);
+}
+
+.infoBlock {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.infoLabel {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.infoValue {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Make it responsive for mobile devices */
+@media (max-width: 600px) {
+    .slotCard {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-lg);
+    }
+
+    .slotInfo {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        width: 100%;
+    }
+
+    .bookBtn {
+        width: 100%;
+    }
+}
