@@ -178,15 +178,13 @@ function OwnerDashboard() {
   return (
     <div className={styles.container}>
       <header className={styles.header}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h1>Owner Dashboard</h1>
-            <p>Welcome back, Administrator</p>
-          </div>
-          <div className={styles.actionGroup}>
-            <Button variant="secondary" onClick={() => navigate("/DirectoryPage")}>View Directory</Button>
-            <Button variant="danger" onClick={() => { logout(); navigate("/Login"); }}>Logout</Button>
-          </div>
+        <div>
+          <h1 className={styles.title}>Owner Dashboard</h1>
+          <p className={styles.subtitle}>Welcome back, Administrator</p>
+        </div>
+        <div className={styles.actionGroup}>
+          <Button variant="secondary" onClick={() => navigate("/DirectoryPage")}>View Directory</Button>
+          <Button variant="danger" onClick={() => { logout(); navigate("/Login"); }}>Logout</Button>
         </div>
       </header>
 
@@ -248,12 +246,12 @@ function OwnerDashboard() {
         {!loading && dashboardData.slots.length === 0 && <p>No slots yet.</p>}
         <div className={styles.activityList}>
           {dashboardData.slots.map((slot) => (
-            <div key={slot.slotID} className="activity-item">
+            <div key={slot.slotID} className={styles.activityItem}>
               <span>
                 {slot.date} · {slot.timeFrom} – {slot.timeTo}
                 {!slot.isActive && ' (private)'}
               </span>
-              <span className="activity-time">
+              <span className={styles.activityTime}>
                 {slot.bookedByEmail ? `Booked by ${slot.bookedByEmail}` : 'Available'}
               </span>
               <div className={styles.actionGroup}>

@@ -63,6 +63,24 @@
     border-radius: var(--radius-xl);
 }
 
+.inviteRow {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    margin-top: var(--spacing-md);
+}
+
+.inviteInput {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 1rem;
+}
+
 .activityList {
     display: flex;
     flex-direction: column;
@@ -72,6 +90,8 @@
 .activityItem {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-md);
     padding: var(--spacing-md);
     background: var(--color-surface);
     border-radius: var(--radius-md);
@@ -80,4 +100,25 @@
 .activityTime {
     color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+.requestItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+}
+
+.requestInfo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.requestMessage {
+    color: var(--text-secondary);
+    font-style: italic;
 }

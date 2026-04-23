@@ -1,21 +1,22 @@
-import { useState,useEffect } from "react";
-import useAuth from './utils/auth'
-
-import './RegisterLogin.css'
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import useAuth from './utils/auth';
+import Button from './components/ui/Button';
+import Input from './components/ui/Input';
+import styles from './Auth.module.css';
 
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const {login, error, setError } = useAuth();
+    const { login, error, setError } = useAuth();
     const navigate = useNavigate()
     const location = useLocation()
 
-    useEffect(()=>{
+    useEffect(() => {
         document.title = "Login"
-    },[]);
+    }, []);
 
     function handleEmailChange(event) {
         setError("")
@@ -27,7 +28,8 @@ function Login() {
     }
 
 
-    async function submitForm() {
+    async function submitForm(event) {
+        event.preventDefault()
         const userdata = await login(email, password)
         if (userdata) {
             const from = location.state?.from?.pathname
@@ -44,32 +46,26 @@ function Login() {
     }
 
     return (
-        <div className="login-area">
-            <h1>Login</h1>
+        <div className={styles.authContainer}>
+            <div className={styles.authCard}>
+                <h2 className={styles.title}>Welcome Back</h2>
+                <p className={styles.subtitle}>Sign in to SOCS Booking</p>
 
-            <div className="row">
-                <div className="field">
-                    <label htmlFor="email">McGill Email</label>
-                    <input id="email" type="email" value={email} onChange={handleEmailChange} placeholder="first.last@[mail.]mcgill.ca"/>
-                </div>
+                {error && <p className={styles.error}>{error}</p>}
+
+                <form onSubmit={submitForm} className={styles.formGroup}>
+                    <Input label="McGill Email" id="email" type="email" value={email} onChange={handleEmailChange} placeholder="first.last@[mail.]mcgill.ca" required />
+                    <Input label="Password" id="password" type="password" value={password} onChange={handlePasswordChange} placeholder="••••••••" required />
+
+                    <Button type="submit" variant="primary" className={styles.submitButton}>Login</Button>
+                </form>
+
+                <p className={styles.switchText}>
+                    Don't have an account? <a href="/Register" className={styles.link}>Register here</a>
+                </p>
             </div>
-
-
-            <div className="row">
-                <div className="field">
-                    <label htmlFor="password">Password</label>
-                    <input id="password" type="password" value={password} onChange={handlePasswordChange} placeholder="Password"/>
-                </div>
-            </div>
-
-
-            {error && <p style={{ color: "red" }}>{error}</p>}
-            <button onClick={submitForm}>Login</button>
-
-
-
-        </div>);
+        </div>
+    );
 
 }
-
 export default Login;

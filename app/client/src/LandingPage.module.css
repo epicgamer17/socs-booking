@@ -1,0 +1,33 @@
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: var(--spacing-xl);
+    background: linear-gradient(180deg, var(--color-bg-dark) 0%, rgba(237, 27, 47, 0.1) 100%);
+}
+
+.title {
+    font-size: 4rem;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.highlight {
+    color: var(--color-primary);
+}
+
+.description {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin-bottom: var(--spacing-xl);
+    line-height: 1.6;
+}
+
+.actionGroup {
+    display: flex;
+    gap: var(--spacing-md);
+}
