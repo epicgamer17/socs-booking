@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from './utils/auth';
-import './index.css';
+import Button from './components/ui/Button';
+import styles from './OwnerDashboard.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -115,6 +116,54 @@ function OwnerDashboard() {
     }
   }
 
+  async function handleRequestAction(requestID, action) {
+    try {
+      const r = await fetch(`${API_URL}/request/${action}/${requestID}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`,
+        },
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data.message || `Failed to ${action} request`);
+        return;
+      }
+
+      const accepted = action === "accept";
+      const acceptedRequest = accepted
+        ? dashboardData.meetingRequests.find((req) => req.id === requestID)
+        : null;
+
+      setDashboardData((prev) => ({
+        ...prev,
+        meetingRequests: prev.meetingRequests.filter((req) => req.id !== requestID),
+        slots: accepted && acceptedRequest
+          ? [
+            ...prev.slots,
+            {
+              slotID: `pending-${requestID}`,
+              date: acceptedRequest.date,
+              timeFrom: acceptedRequest.timeFrom,
+              timeTo: acceptedRequest.timeTo,
+              isActive: 1,
+              bookedByEmail: acceptedRequest.bookedByEmail,
+            },
+          ]
+          : prev.slots,
+      }));
+
+      if (data.emailToNotify) {
+        const subject = accepted ? "Meeting Request Accepted" : "Meeting Request Declined";
+        const body = `Your meeting request on ${data.date} from ${data.timeFrom} to ${data.timeTo} has been ${accepted ? "accepted" : "declined"}.`;
+        window.location.href = `mailto:${data.emailToNotify}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      }
+    } catch {
+      setError(`Failed to ${action} request`);
+    }
+  }
+
   async function handleCopyInvite() {
     if (!inviteUrl) return;
     try {
@@ -127,53 +176,77 @@ function OwnerDashboard() {
   }
 
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
+    <div className={styles.container}>
+      <header className={styles.header}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1>Owner Dashboard</h1>
             <p>Welcome back, Administrator</p>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <button onClick={() => navigate("/DirectoryPage")} className="nav-btn">View Directory</button>
-            <button onClick={() => { logout(); navigate("/Login"); }} className="nav-btn logout">Logout</button>
+          <div className={styles.actionGroup}>
+            <Button variant="secondary" onClick={() => navigate("/DirectoryPage")}>View Directory</Button>
+            <Button variant="danger" onClick={() => { logout(); navigate("/Login"); }}>Logout</Button>
           </div>
         </div>
       </header>
 
       {error && <p style={{ color: '#ed1b2f' }}>{error}</p>}
 
-      <div className="dashboard-grid">
-        <div className="stat-card">
+      <div className={styles.grid}>
+        <div className={styles.statCard}>
           <h3>Total Bookings</h3>
-          <p className="stat-value">{totalBookings}</p>
+          <p className={styles.statValue}>{totalBookings}</p>
         </div>
-        <div className="stat-card">
+        <div className={styles.statCard}>
           <h3>Active Slots</h3>
-          <p className="stat-value">{activeSlots}</p>
+          <p className={styles.statValue}>{activeSlots}</p>
         </div>
-        <div className="stat-card">
+        <div className={styles.statCard}>
           <h3>Pending Requests</h3>
-          <p className="stat-value">{pendingRequests}</p>
+          <p className={styles.statValue}>{pendingRequests}</p>
         </div>
       </div>
 
-      <section className="dashboard-section" style={{ marginBottom: '2rem' }}>
+      <section className={styles.section} style={{ marginBottom: '2rem' }}>
         <h2>Invite Link</h2>
         <p>Share this link so students can book with you directly.</p>
-        <div className="invite-row">
-          <input className="invite-input" type="text" readOnly value={inviteUrl} />
-          <button className="nav-btn" onClick={handleCopyInvite} disabled={!inviteUrl}>
+        <div className={styles.inviteRow}>
+          <input className={styles.inviteInput} type="text" readOnly value={inviteUrl} />
+          <Button variant="primary" onClick={handleCopyInvite} disabled={!inviteUrl}>
             {copied ? 'Copied!' : 'Copy to Clipboard'}
-          </button>
+          </Button>
         </div>
       </section>
 
-      <section className="dashboard-section">
+      <section className={styles.section} style={{ marginBottom: '2rem' }}>
+        <h2>Pending Meeting Requests</h2>
+        {!loading && dashboardData.meetingRequests.length === 0 && <p>No pending requests.</p>}
+        <div className={styles.activityList}>
+          {dashboardData.meetingRequests.map((req) => (
+            <div key={req.id} className={styles.requestItem}>
+              <div className={styles.requestInfo}>
+                <strong>{req.bookedByEmail}</strong>
+                <span>{req.date} · {req.timeFrom} – {req.timeTo}</span>
+                {req.message && <span className={styles.requestMessage}>"{req.message}"</span>}
+              </div>
+              <div className={styles.actionGroup}>
+                <Button variant="primary" onClick={() => handleRequestAction(req.id, 'accept')}>
+                  Accept
+                </Button>
+                <Button variant="danger" onClick={() => handleRequestAction(req.id, 'decline')}>
+                  Decline
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.section}>
         <h2>Your Slots</h2>
         {loading && <p>Loading...</p>}
         {!loading && dashboardData.slots.length === 0 && <p>No slots yet.</p>}
-        <div className="activity-list">
+        <div className={styles.activityList}>
           {dashboardData.slots.map((slot) => (
             <div key={slot.slotID} className="activity-item">
               <span>
@@ -183,115 +256,20 @@ function OwnerDashboard() {
               <span className="activity-time">
                 {slot.bookedByEmail ? `Booked by ${slot.bookedByEmail}` : 'Available'}
               </span>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div className={styles.actionGroup}>
                 {!slot.isActive && (
-                  <button className="nav-btn" onClick={() => handleActivate(slot.slotID)}>
+                  <Button variant="primary" onClick={() => handleActivate(slot.slotID)}>
                     Activate
-                  </button>
+                  </Button>
                 )}
-                <button className="nav-btn logout" onClick={() => handleDelete(slot.slotID)}>
+                <Button variant="danger" onClick={() => handleDelete(slot.slotID)}>
                   Delete
-                </button>
+                </Button>
               </div>
             </div>
           ))}
         </div>
       </section>
-
-      <style jsx>{`
-        .dashboard-container {
-          padding: 2rem;
-          max-width: 1200px;
-          margin: 0 auto;
-          color: #fff;
-          font-family: 'Inter', sans-serif;
-        }
-        .dashboard-header {
-          margin-bottom: 3rem;
-          border-bottom: 2px solid #ed1b2f;
-          padding-bottom: 1rem;
-        }
-        .dashboard-header h1 {
-          font-size: 2.5rem;
-          margin: 0;
-          color: #ed1b2f;
-        }
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 1.5rem;
-          margin-bottom: 3rem;
-        }
-        .stat-card {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 1.5rem;
-          border-radius: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
-          transition: transform 0.3s ease;
-        }
-        .stat-card:hover {
-          transform: translateY(-5px);
-          border-color: #ed1b2f;
-        }
-        .stat-value {
-          font-size: 2rem;
-          font-weight: bold;
-          color: #ed1b2f;
-          margin: 0.5rem 0 0 0;
-        }
-        .dashboard-section {
-          background: rgba(0, 0, 0, 0.2);
-          padding: 2rem;
-          border-radius: 16px;
-        }
-        .activity-list {
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        }
-        .activity-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 1rem;
-          padding: 1rem;
-          background: rgba(255, 255, 255, 0.02);
-          border-radius: 8px;
-        }
-        .invite-row {
-          display: flex;
-          gap: 0.75rem;
-          align-items: center;
-          margin-top: 0.75rem;
-        }
-        .invite-input {
-          flex: 1;
-          padding: 0.5rem 0.75rem;
-          border-radius: 6px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          background: rgba(255, 255, 255, 0.05);
-          color: #fff;
-          font-family: monospace;
-        }
-        .nav-btn {
-          background: rgba(255, 255, 255, 0.1);
-          color: white;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          padding: 0.5rem 1rem;
-          border-radius: 6px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        .nav-btn:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: #ed1b2f;
-        }
-        .nav-btn.logout:hover {
-          background: #ed1b2f;
-          border-color: #ed1b2f;
-        }
-      `}</style>
     </div>
   );
 }

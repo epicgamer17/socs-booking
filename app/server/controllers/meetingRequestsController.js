@@ -33,17 +33,65 @@ exports.requestMeeting = async (req, res) => {
 exports.acceptMeeting = async (req, res) => {
     const ownerID = req.user.id;
     const requestID = req.params.id;
+
+    const conn = await db.getConnection();
     try {
-        const [result] = await db.query(
-            `UPDATE meetingRequests SET status = ? WHERE id = ? AND ownerID = ?`,
-            ["accepted", requestID, ownerID]
+        await conn.beginTransaction();
+
+        // Lock the pending request and pull requester email in one go
+        const [rows] = await conn.query(
+            `SELECT meetingRequests.userID,
+                    meetingRequests.date,
+                    meetingRequests.timeFrom,
+                    meetingRequests.timeTo,
+                    users.email AS bookedByEmail
+               FROM meetingRequests
+               JOIN users ON users.id = meetingRequests.userID
+              WHERE meetingRequests.id = ?
+                AND meetingRequests.ownerID = ?
+                AND meetingRequests.status = 'pending'
+              FOR UPDATE`,
+            [requestID, ownerID]
         );
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Issue with request" });
+
+        if (rows.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({ message: "Request not found or already handled" });
         }
-        return res.status(200).json({ message: "Meeting request accepted" });
+
+        const { userID, date, timeFrom, timeTo, bookedByEmail } = rows[0];
+
+        await conn.query(
+            `UPDATE meetingRequests SET status = 'accepted' WHERE id = ?`,
+            [requestID]
+        );
+
+        // Accepted requests produce an already-claimed active slot
+        const [slotResult] = await conn.query(
+            `INSERT INTO slots (ownerID, date, timeFrom, timeTo, isActive)
+             VALUES (?, ?, ?, ?, TRUE)`,
+            [ownerID, date, timeFrom, timeTo]
+        );
+
+        await conn.query(
+            `INSERT INTO bookings (slotID, userID) VALUES (?, ?)`,
+            [slotResult.insertId, userID]
+        );
+
+        await conn.commit();
+
+        return res.status(200).json({
+            message: "Meeting request accepted",
+            emailToNotify: bookedByEmail,
+            date,
+            timeFrom,
+            timeTo,
+        });
     } catch (err) {
+        await conn.rollback();
         return res.status(500).json({ message: "Failed to accept request", error: err.message });
+    } finally {
+        conn.release();
     }
 };
 
@@ -51,14 +99,35 @@ exports.declineMeeting = async (req, res) => {
     const ownerID = req.user.id;
     const requestID = req.params.id;
     try {
-        const [result] = await db.query(
-            `UPDATE meetingRequests SET status = ? WHERE id = ? AND ownerID = ?`,
-            ["declined", requestID, ownerID]
+        const [rows] = await db.query(
+            `SELECT meetingRequests.date,
+                    meetingRequests.timeFrom,
+                    meetingRequests.timeTo,
+                    users.email AS bookedByEmail
+               FROM meetingRequests
+               JOIN users ON users.id = meetingRequests.userID
+              WHERE meetingRequests.id = ?
+                AND meetingRequests.ownerID = ?
+                AND meetingRequests.status = 'pending'`,
+            [requestID, ownerID]
         );
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Issue with request" });
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Request not found or already handled" });
         }
-        return res.status(200).json({ message: "Meeting request declined" });
+
+        await db.query(
+            `UPDATE meetingRequests SET status = 'declined' WHERE id = ?`,
+            [requestID]
+        );
+
+        return res.status(200).json({
+            message: "Meeting request declined",
+            emailToNotify: rows[0].bookedByEmail,
+            date: rows[0].date,
+            timeFrom: rows[0].timeFrom,
+            timeTo: rows[0].timeTo,
+        });
     } catch (err) {
         return res.status(500).json({ message: "Failed to decline request", error: err.message });
     }
