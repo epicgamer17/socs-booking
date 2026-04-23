@@ -51,6 +51,81 @@ function OwnerDashboard() {
   const activeSlots = dashboardData.slots.filter((s) => s.isActive).length;
   const pendingRequests = dashboardData.meetingRequests.length;
 
+  // JWT payload holds { id, role, email } — decode to build the invite link
+  const ownerId = (() => {
+    try {
+      return user?.token ? JSON.parse(atob(user.token.split('.')[1])).id : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const inviteUrl = ownerId ? `${window.location.origin}/invite/${ownerId}` : '';
+  const [copied, setCopied] = useState(false);
+
+  async function handleActivate(slotID) {
+    try {
+      const r = await fetch(`${API_URL}/slots/activate/${slotID}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`,
+        },
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data.message || "Failed to activate slot");
+        return;
+      }
+      setDashboardData((prev) => ({
+        ...prev,
+        slots: prev.slots.map((s) => (s.slotID === slotID ? { ...s, isActive: 1 } : s)),
+      }));
+    } catch {
+      setError("Failed to activate slot");
+    }
+  }
+
+  async function handleDelete(slotID) {
+    const confirmed = window.confirm("Delete this slot? The booker will be notified.");
+    if (!confirmed) return;
+
+    try {
+      const r = await fetch(`${API_URL}/slots/delete/${slotID}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`,
+        },
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data.message || "Failed to delete slot");
+        return;
+      }
+      setDashboardData((prev) => ({
+        ...prev,
+        slots: prev.slots.filter((s) => s.slotID !== slotID),
+      }));
+      if (data.emailToNotify) {
+        window.location.href = `mailto:${data.emailToNotify}?subject=Booking Cancelled`;
+      }
+    } catch {
+      setError("Failed to delete slot");
+    }
+  }
+
+  async function handleCopyInvite() {
+    if (!inviteUrl) return;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError("Failed to copy to clipboard");
+    }
+  }
+
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
@@ -83,6 +158,17 @@ function OwnerDashboard() {
         </div>
       </div>
 
+      <section className="dashboard-section" style={{ marginBottom: '2rem' }}>
+        <h2>Invite Link</h2>
+        <p>Share this link so students can book with you directly.</p>
+        <div className="invite-row">
+          <input className="invite-input" type="text" readOnly value={inviteUrl} />
+          <button className="nav-btn" onClick={handleCopyInvite} disabled={!inviteUrl}>
+            {copied ? 'Copied!' : 'Copy to Clipboard'}
+          </button>
+        </div>
+      </section>
+
       <section className="dashboard-section">
         <h2>Your Slots</h2>
         {loading && <p>Loading...</p>}
@@ -92,11 +178,21 @@ function OwnerDashboard() {
             <div key={slot.slotID} className="activity-item">
               <span>
                 {slot.date} · {slot.timeFrom} – {slot.timeTo}
-                {!slot.isActive && ' (inactive)'}
+                {!slot.isActive && ' (private)'}
               </span>
               <span className="activity-time">
                 {slot.bookedByEmail ? `Booked by ${slot.bookedByEmail}` : 'Available'}
               </span>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                {!slot.isActive && (
+                  <button className="nav-btn" onClick={() => handleActivate(slot.slotID)}>
+                    Activate
+                  </button>
+                )}
+                <button className="nav-btn logout" onClick={() => handleDelete(slot.slotID)}>
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -157,9 +253,26 @@ function OwnerDashboard() {
         .activity-item {
           display: flex;
           justify-content: space-between;
+          align-items: center;
+          gap: 1rem;
           padding: 1rem;
           background: rgba(255, 255, 255, 0.02);
           border-radius: 8px;
+        }
+        .invite-row {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+          margin-top: 0.75rem;
+        }
+        .invite-input {
+          flex: 1;
+          padding: 0.5rem 0.75rem;
+          border-radius: 6px;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.05);
+          color: #fff;
+          font-family: monospace;
         }
         .nav-btn {
           background: rgba(255, 255, 255, 0.1);
