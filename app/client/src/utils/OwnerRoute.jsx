@@ -9,7 +9,7 @@ function OwnerRoute() {
     // Assuming ProtectedRoutes handles the initial 'no user' check if nested,
     // but being explicit here for safety.
     if (!user || user.role !== 'owner') {
-        return <Navigate to="/DirectoryPage" replace />;
+        return <Navigate to="/directory-page" replace />;
     }
 
     return <Outlet />;

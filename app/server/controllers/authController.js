@@ -13,7 +13,7 @@ const VALID_DEPARTMENTS = [
     "SWRK", "URBP", "WMST"
 ];
 
-//--------Registration--------   TO DO AFTER DEMO -- CHECK IF USER ALREADY REGISTERED WITH THAT EMAIL. AND ALSO SEND VERIFICATION EMAIL TO CHECK IS EMAIL USED FOR REGISTRATION ACTUALLY EXISTS. 
+//--------Registration--------   TO DO AFTER DEMO -- SEND VERIFICATION EMAIL TO CHECK IS EMAIL USED FOR REGISTRATION ACTUALLY EXISTS.
 exports.register = async (req, res) => {
 
     //remove any trailing whitespaces
@@ -62,6 +62,9 @@ exports.register = async (req, res) => {
         return res.status(201).json({ message: "User registered successfully" });
 
     } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({ message: 'Email already registered' });
+        }
         res.status(500).json({ message: 'Error creating user', error: error.message });
     }
 };

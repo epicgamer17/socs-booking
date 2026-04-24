@@ -1,0 +1,90 @@
+/* Light theme (default) — McGill-inspired palette */
+:root {
+    /* Brand */
+    --color-primary: #ed1b2f;
+    --color-primary-hover: #c41222;
+    --color-primary-soft: rgba(237, 27, 47, 0.08);
+
+    /* Surfaces */
+    --color-bg: #ffffff;
+    --color-bg-accent: #f5f3ef;
+    --color-surface: #ffffff;
+    --color-surface-hover: #fafafa;
+    --color-section-bg: #f8f7f4;
+    --color-border: #e1e1e1;
+    --color-border-strong: #c9c9c9;
+
+    /* Text */
+    --text-primary: #1d1d1d;
+    --text-secondary: #5c5c5c;
+
+    /* Status */
+    --color-success: #1f7a3c;
+    --color-success-bg: rgba(31, 122, 60, 0.08);
+    --color-danger: #b0001d;
+    --color-danger-bg: rgba(176, 0, 29, 0.08);
+
+    /* Typography */
+    --font-main: 'Helvetica Neue', Arial, 'Inter', system-ui, -apple-system, sans-serif;
+    --font-heading: 'Helvetica Neue', Arial, 'Inter', system-ui, sans-serif;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.08);
+
+    /* Landing gradient end (light wash of brand red) */
+    --color-hero-gradient-end: rgba(237, 27, 47, 0.06);
+
+    /* Spacing & Radii */
+    --radius-md: 6px;
+    --radius-lg: 10px;
+    --radius-xl: 14px;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+}
+
+/* Dark theme override */
+[data-theme="dark"] {
+    --color-primary: #ed1b2f;
+    --color-primary-hover: #c41222;
+    --color-primary-soft: rgba(237, 27, 47, 0.15);
+
+    --color-bg: #121212;
+    --color-bg-accent: #1a1a1a;
+    --color-surface: rgba(255, 255, 255, 0.05);
+    --color-surface-hover: rgba(255, 255, 255, 0.1);
+    --color-section-bg: rgba(0, 0, 0, 0.25);
+    --color-border: rgba(255, 255, 255, 0.1);
+    --color-border-strong: rgba(255, 255, 255, 0.25);
+
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+
+    --color-success: #4ade80;
+    --color-success-bg: rgba(74, 222, 128, 0.1);
+    --color-danger: #ff4a4a;
+    --color-danger-bg: rgba(255, 74, 74, 0.1);
+
+    --shadow-sm: none;
+    --shadow-md: none;
+
+    --color-hero-gradient-end: rgba(237, 27, 47, 0.1);
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: inherit;
+}
