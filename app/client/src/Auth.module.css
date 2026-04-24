@@ -13,7 +13,7 @@
     border: 1px solid var(--color-border);
     width: 100%;
     max-width: 400px;
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
 }
 
 .title {
@@ -36,8 +36,8 @@
 }
 
 .error {
-    color: #ff4a4a;
-    background: rgba(255, 74, 74, 0.1);
+    color: var(--color-danger);
+    background: var(--color-danger-bg);
     padding: var(--spacing-sm);
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-md);
@@ -46,8 +46,8 @@
 }
 
 .success {
-    color: #4ade80;
-    background: rgba(74, 222, 128, 0.1);
+    color: var(--color-success);
+    background: var(--color-success-bg);
     padding: var(--spacing-sm);
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-md);
