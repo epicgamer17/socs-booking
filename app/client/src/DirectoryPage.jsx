@@ -23,79 +23,36 @@ function DirectoryPage() {
   }
 
 
-  // useEffect(() => {
-
-  //     async function fetchOwners() {
-
-  //         const r = await fetch(`${API_URL}/slots/owners`, {
-  //             method: "GET",
-  //             headers: {
-  //                 "Content-Type": "application/json",
-  //                 "Authorization": `Bearer ${user.token}`
-  //             },
-  //         });
-
-  //         const data = await r.json();
-  //         if (!r.ok) {
-  //             setError(data.message || "Failed to fetch data")
-  //             return;
-  //         }
-  //         setOwners(data)
-  //         setFilteredOwners(data)
-
-  //     }
-
-  //     if (user) {
-  //         fetchOwners();
-
-  //     }
-
-
-
-  // }, [user])
-
   useEffect(() => {
-    const dummyData = [
-      {
-        ownerID: 1,
-        firstName: "Alice",
-        lastName: "Chen",
-        email: "alice.chen@mcgill.ca",
-        department: "COMP",
-      },
-      {
-        ownerID: 2,
-        firstName: "David",
-        lastName: "Smith",
-        email: "david.smith@mcgill.ca",
-        department: "ECSE",
-      },
-      {
-        ownerID: 3,
-        firstName: "Maria",
-        lastName: "Garcia",
-        email: "maria.garcia@mcgill.ca",
-        department: "MATH",
-      },
-      {
-        ownerID: 4,
-        firstName: "James",
-        lastName: "Lee",
-        email: "james.lee@mcgill.ca",
-        department: "PHYS",
-      },
-      {
-        ownerID: 5,
-        firstName: "Sophie",
-        lastName: "Dubois",
-        email: "sophie.dubois@mcgill.ca",
-        department: "PSYC",
-      },
-    ];
 
-    setOwners(dummyData);
-    setFilteredOwners(dummyData);
-  }, []);
+      async function fetchOwners() {
+
+          const r = await fetch(`${API_URL}/slots/owners`, {
+              method: "GET",
+              headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${user.token}`
+              },
+          });
+
+          const data = await r.json();
+          if (!r.ok) {
+              setError(data.message || "Failed to fetch data")
+              return;
+          }
+          setOwners(data)
+          setFilteredOwners(data)
+
+      }
+
+      if (user) {
+          fetchOwners();
+
+      }
+
+
+
+  }, [user])
 
 
 

@@ -10,13 +10,14 @@ import BookingPage from './BookingPage';
 import Login from './login';
 import OwnerDashboard from './OwnerDashboard';
 import { AuthProvider } from './utils/auth';
-
+import UserDashboard from './userDashboard';
 
 
 function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
+                <NavBar />
                 <Routes>
                     <Route path='/' element={<LandingPage />} />
                     <Route path='/register' element={<Register />} />
@@ -30,6 +31,7 @@ function App() {
 
                         <Route path='/directory-page' element={<DirectoryPage />} />
                         <Route path='/invite/:ownerId' element={<BookingPage />} />
+                        <Route path='/user-dashboard' element={<UserDashboard/>} />
 
 
                         <Route element={<OwnerRoute />}>
@@ -44,6 +46,7 @@ function App() {
 
     );
 }
+
 
 export default App
 
