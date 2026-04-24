@@ -1,6 +1,5 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import useAuth from './utils/auth';
 import Button from './components/ui/Button';
 import CalendarSelector from './components/CalendarSelector';
@@ -9,8 +8,7 @@ import styles from './OwnerDashboard.module.css';
 const API_URL = import.meta.env.VITE_API_URL;
 
 function OwnerDashboard() {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   const [dashboardData, setDashboardData] = useState({ slots: [], meetingRequests: [] });
   const [error, setError] = useState("");
@@ -222,10 +220,6 @@ function OwnerDashboard() {
         <div>
           <h1 className={styles.title}>Owner Dashboard</h1>
           <p className={styles.subtitle}>Welcome back, Administrator</p>
-        </div>
-        <div className={styles.actionGroup}>
-          <Button variant="secondary" onClick={() => navigate("/directory-page")}>View Directory</Button>
-          <Button variant="danger" onClick={() => { logout(); navigate("/login"); }}>Logout</Button>
         </div>
       </header>
 

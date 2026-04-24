@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
 import { useEffect, useState } from "react"
 import Button from "./components/ui/Button";
@@ -10,8 +10,18 @@ const API_URL = import.meta.env.VITE_API_URL
 function BookingPage() {
     const { ownerId } = useParams()
     const { user } = useAuth()
+    const navigate = useNavigate()
     const [slots, setSlots] = useState([])
     const [error, setError] = useState("")
+
+    function handleBack() {
+        // If the user got here from elsewhere in the app, go back; otherwise fall back to the directory.
+        if (window.history.length > 1) {
+            navigate(-1)
+        } else {
+            navigate('/directory-page')
+        }
+    }
 
 
     // useEffect(()=>{
@@ -107,6 +117,9 @@ function BookingPage() {
 
     return (
         <div className={styles.container}>
+            <button type="button" onClick={handleBack} className={styles.backLink}>
+                &larr; Back to Directory
+            </button>
             <div className={styles.header}>
                 <h1 className={styles.title}>Booking Page</h1>
                 <p className={styles.subtitle}>Select an available time slot to book your appointment.</p>

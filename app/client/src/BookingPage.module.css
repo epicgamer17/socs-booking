@@ -4,6 +4,22 @@
     margin: 0 auto;
 }
 
+.backLink {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.backLink:hover {
+    color: var(--color-primary);
+}
+
 .header {
     margin-bottom: var(--spacing-xl);
     border-bottom: 2px solid var(--color-primary);
