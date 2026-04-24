@@ -57,6 +57,9 @@ exports.submitAvailabilityVote = async (req, res) => {
       [userID, timeWindowID]
     );
   } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ message: "Vote already submitted by user for this group meeting" });
+    }
     return res.status(500).json({ message: "Group meeting vote submission failed", error: err.message });
   }
 }
