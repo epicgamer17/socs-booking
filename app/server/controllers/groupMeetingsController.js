@@ -1,22 +1,58 @@
 const db = require("../db/db");
 
-// POST /group - Owner creates a group meeting + list of available time options - Insert into group_meetings table - Insert each time option into group_slots table - requireAuth + requireOwner
+/*
+  POST /group - Owner creates a group meeting + list of available time options - Insert into groupMeetings table - Insert each time option into timeWindows table - requireAuth + requireOwner.
+
+  Expected form for req.body.timeWindows:
+    timeWindows: [
+      { date: 'YYYY-MM-DD', timeFrom: 'HH:MM:SS',  timeTo: 'HH:MM:SS'},
+      ...
+    ]
+*/
 exports.createGroupMeeting = async (req, res) => {
   const ownerID = req.user.id;
-
+  const timeWindows = req.body.timeOptions;
+  
   try {
-    ;
+    // insert group meeting into db
+    await db.query(
+      `INSERT INTO groupMeetings (ownerID) VALUES(?)`,
+      [ownerID]
+    );
+
+    // get groupMeetingID generated for newly created groupMeetings entry
+    const [rows] = await db.query(
+      `SELECT groupMeetings.id AS groupMeetingsID
+       FROM groupMeetings
+       WHERE groupMeetings.ownerID = ?
+       ORDER BY groupMeetings.createdAt DESC
+       LIMIT 1`,
+      [ownerID]
+    );
+    gmid = rows[0].groupMeetingsID;
+
+    // insert time windows into db
+    for (let i = 0; i < timeWindows.length; i++) {
+      await db.query(
+	`INSERT INTO timeWindows (groupMeetingsID, date, timeFrom, timeTo) VALUES(?, ?, ?)`,
+	[gmid, timeWindows[i].date, timeWindows[i].timeFrom, timeWindows[i].timeTo]
+      );
+    }
   } catch (err) {
-    ;
+    return res.status(500).json({ message: "Group meeting initialization failed", error: err.message });
   }
 }
 
-// POST /group/:id/vote - User selects one or more time options (can pick multiple) - Insert into group_votes, prevent duplicate votes (unique on slot+user) - requireAuth
+/*
+  POST /group/:id/vote - User selects one or more time options (can pick multiple) - Insert into userVotes, prevent duplicate votes (unique on slot+user) - requireAuth
+
+  
+*/
 exports.submitAvailabilityVote = async (req, res) => {
   ;
 }
 
-// GET /group/:id/votes - Return all time options with their vote count - SELECT group_slot_id, COUNT(*) FROM group_votes GROUP BY group_slot_id - requireAuth + requireOwner
+// GET /group/:id/votes - Return all time options with their vote count - SELECT timeWindows.id, COUNT(*) FROM userVotes GROUP BY timeWindows.id - requireAuth + requireOwner
 exports.viewVoteResults = async (req, res) => {
   ;
 }

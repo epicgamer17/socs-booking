@@ -40,13 +40,13 @@ exports.bookSlot = async (req, res) => {
 
     // verify uniqueness without UNIQUE, temporary measure
     const [verif] = await db.query(
-      `SELECT
+      `SELECT *
        FROM bookings
        WHERE bookings.slotID = ?`,
       [slotID]
     )
     if (verif.length !== 0) {
-      return res.status(404).json({ message: "Slot already booked." });
+      return res.status(409).json({ message: "Slot already booked" });
     }
 
     // book the slot
