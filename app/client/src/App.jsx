@@ -9,6 +9,7 @@ import DirectoryPage from './DirectoryPage';
 import BookingPage from './BookingPage';
 import Login from './login';
 import OwnerDashboard from './OwnerDashboard';
+import ThemeToggle from './components/ThemeToggle';
 import { AuthProvider } from './utils/auth';
 
 
@@ -17,6 +18,7 @@ function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
+                <ThemeToggle />
                 <Routes>
                     <Route path='/' element={<LandingPage />} />
                     <Route path='/register' element={<Register />} />

@@ -6,7 +6,7 @@
     align-items: center;
     text-align: center;
     padding: var(--spacing-xl);
-    background: linear-gradient(180deg, var(--color-bg-dark) 0%, rgba(237, 27, 47, 0.1) 100%);
+    background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-hero-gradient-end) 100%);
 }
 
 .title {
