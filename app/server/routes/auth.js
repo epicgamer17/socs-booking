@@ -3,12 +3,10 @@ const router = express.Router();
 const authController = require("../controllers/authController");
 const requireAuth = require("../middleware/authMiddleware");
 
-//----Auth Routes----
-
-//register new user (public route so no auth needed)
+//register new user 
 router.post("/register", authController.register);
 
-//login user (public route so no auth needed)
+//login user 
 router.post("/login", authController.login);
 
 //logout user

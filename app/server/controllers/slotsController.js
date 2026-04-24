@@ -144,7 +144,7 @@ exports.deleteSlot = async (req, res) => {
   //-----(Type 3) Create Recurring Office Hours -----
   exports.createRecurringSlots = async (req, res) => {
     const ownerID = req.user.id;
-    const days = req.body.days; // array of dates e.g. ["2026-04-27", "2026-04-29"]
+    const days = req.body.days; // array of dates 
     const weeks = req.body.weeks; // number of weeks to repeat
     const timeFrom = req.body.timeFrom;
     const timeTo = req.body.timeTo;

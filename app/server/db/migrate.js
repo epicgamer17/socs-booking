@@ -15,7 +15,6 @@ async function migrate() {
 
       console.log(`Running ${file}...`);
 
-      // split into individual statements and run each one
       const statements = sql
         .split(";")
         .map(s => s.trim())
