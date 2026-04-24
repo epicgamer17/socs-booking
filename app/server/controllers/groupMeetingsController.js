@@ -45,11 +45,20 @@ exports.createGroupMeeting = async (req, res) => {
 
 /*
   POST /group/:id/vote - User selects one or more time options (can pick multiple) - Insert into userVotes, prevent duplicate votes (unique on slot+user) - requireAuth
-
-  
 */
 exports.submitAvailabilityVote = async (req, res) => {
-  ;
+  const userID = req.user.id;
+  const timeWindowID = req.params.id;
+
+  try {
+    // insert vote submission into db
+    await db.query(
+      `INSERT INTO userVotes (userID, timeWindowID) VALUES(?, ?)`,
+      [userID, timeWindowID]
+    );
+  } catch (err) {
+    return res.status(500).json({ message: "Group meeting vote submission failed", error: err.message });
+  }
 }
 
 // GET /group/:id/votes - Return all time options with their vote count - SELECT timeWindows.id, COUNT(*) FROM userVotes GROUP BY timeWindows.id - requireAuth + requireOwner
