@@ -30,13 +30,26 @@ exports.seeMeetingRequests = async (req, res) => {
 //----- Request a Meeting -----
 exports.requestMeeting = async (req, res) => {
     const userID = req.user.id;
-    const ownerID = req.body.ownerID;
+    const ownerEmail = req.body.ownerEmail;
     const timeFrom = req.body.timeFrom;
     const timeTo = req.body.timeTo;
     const date = req.body.date;
     const message = req.body.message;
 
     try {
+
+        // look up ownerID from email
+        const [rows] = await db.query(
+            `SELECT id FROM users WHERE email = ? AND role = 'owner'`,
+            [ownerEmail]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Owner not found" });
+        }
+
+        const ownerID = rows[0].id;
+    
         await db.query(
             `INSERT INTO meetingRequests (userID, ownerID, date, timeFrom, timeTo, message)
             VALUES (?, ?, ?, ?, ?, ?)`, [userID, ownerID, date, timeFrom, timeTo, message]
