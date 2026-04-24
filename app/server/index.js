@@ -14,6 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+
 //Routers
 const authRouter = require('./routes/auth.js');
 const bookingsRouter = require('./routes/bookings.js');
@@ -21,6 +22,7 @@ const dashboardRouter = require('./routes/dashboard.js');
 //const groupMeetingsRouter = require('./routes/groupMeetings.js');
 const meetingRequestsRouter = require('./routes/meetingRequests.js');
 const slotsRouter = require('./routes/slots.js'); 
+const inviteLinkRouter = require('./routes/inviteLink.js');
 
 //Routing 
 app.use('/auth', authRouter); 
@@ -28,9 +30,8 @@ app.use('/slots', slotsRouter);
 app.use('/request', meetingRequestsRouter);
 app.use('/bookings', bookingsRouter);
 app.use('/dashboard', dashboardRouter);
+app.use('/url', inviteLinkRouter);
 
-
-//rest is to be filled in as we work on it!
 
 // Start server
 app.listen(PORT, () => {
