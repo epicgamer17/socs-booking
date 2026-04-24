@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import Button from './components/ui/Button';
 import MailtoButton from "./components/ui/MailtoButton";
 import styles from './UserDashboard.module.css';
+import CalendarSelectorBooking from "./components/CalendarSelectorBooking";
 
 
 
@@ -134,6 +135,12 @@ function UserDashboard(){
                     <p className={styles.statValue}>{bookings.length}</p>
                 </div>
             </div>
+
+            <section className={styles.section} style={{marginBottom:'2rem'}}>
+                <h2>Request Booking</h2>
+                <p>Create a booking request</p>
+                <CalendarSelectorBooking/>
+            </section>
 
 
 
