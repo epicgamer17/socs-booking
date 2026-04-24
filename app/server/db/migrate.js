@@ -7,14 +7,23 @@ const migrationsDir = path.join(__dirname, "migrations");
 
 async function migrate() {
   try {
-    const files = fs.readdirSync(migrationsDir);
+    const files = fs.readdirSync(migrationsDir).sort();
 
     for (const file of files) {
       const filePath = path.join(migrationsDir, file);
       const sql = fs.readFileSync(filePath, "utf8");
 
       console.log(`Running ${file}...`);
-      await db.query(sql);
+
+      // split into individual statements and run each one
+      const statements = sql
+        .split(";")
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      for (const statement of statements) {
+        await db.query(statement);
+      }
     }
 
     console.log("All migrations ran!");
@@ -26,4 +35,3 @@ async function migrate() {
 }
 
 migrate();
-
