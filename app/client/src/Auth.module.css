@@ -101,3 +101,18 @@
 .link:hover {
     text-decoration: underline;
 }
+
+@media (max-width: 600px) {
+    .authContainer {
+        padding: var(--spacing-md);
+        min-height: calc(100vh - 64px);
+    }
+
+    .authCard {
+        padding: var(--spacing-lg);
+    }
+
+    .title {
+        font-size: 1.6rem;
+    }
+}

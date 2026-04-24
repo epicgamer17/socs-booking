@@ -11,40 +11,35 @@ import Login from './login';
 import OwnerDashboard from './OwnerDashboard';
 import NavBar from './components/NavBar';
 import { AuthProvider } from './utils/auth';
-import UserDashboard from './userDashboard';
+import { ThemeProvider } from './utils/theme';
+
 
 
 function App() {
     return (
         <BrowserRouter>
-            <AuthProvider>
-                <NavBar />
-                <Routes>
-                    <Route path='/' element={<LandingPage />} />
-                    <Route path='/register' element={<Register />} />
-                    <Route path='/login' element={<Login />} />
+            <ThemeProvider>
+                <AuthProvider>
+                    <NavBar />
+                    <Routes>
+                        <Route path='/' element={<LandingPage />} />
+                        <Route path='/register' element={<Register />} />
+                        <Route path='/login' element={<Login />} />
+
+                        <Route element={<ProtectedRoutes />}>
+                            <Route path='/directory-page' element={<DirectoryPage />} />
+                            <Route path='/invite/:ownerId' element={<BookingPage />} />
+                            <Route path='/user-dashboard' element={<UserDashboard />} />
 
 
-
-
-
-                    <Route element={<ProtectedRoutes />}>
-
-                        <Route path='/directory-page' element={<DirectoryPage />} />
-                        <Route path='/invite/:ownerId' element={<BookingPage />} />
-                        <Route path='/user-dashboard' element={<UserDashboard/>} />
-
-
-                        <Route element={<OwnerRoute />}>
-                            <Route path='/owner-dashboard' element={<OwnerDashboard />} />
+                            <Route element={<OwnerRoute />}>
+                                <Route path='/owner-dashboard' element={<OwnerDashboard />} />
+                            </Route>
                         </Route>
-
-                    </Route>
-
-                </Routes>
-            </AuthProvider>
+                    </Routes>
+                </AuthProvider>
+            </ThemeProvider>
         </BrowserRouter>
-
     );
 }
 
