@@ -38,6 +38,17 @@ exports.bookSlot = async (req, res) => {
       return res.status(404).json({ error: "Slot does not exist or is not active" });
     }
 
+    // verify uniqueness without UNIQUE, temporary measure
+    const [verif] = await db.query(
+      `SELECT *
+       FROM bookings
+       WHERE bookings.slotID = ?`,
+      [slotID]
+    )
+    if (verif.length !== 0) {
+      return res.status(409).json({ message: "Slot already booked" });
+    }
+
     // book the slot
     // created at date already set automatically by the DB
     await db.query(

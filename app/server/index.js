@@ -18,7 +18,7 @@ app.use(cors());
 const authRouter = require('./routes/auth.js');
 const bookingsRouter = require('./routes/bookings.js');
 const dashboardRouter = require('./routes/dashboard.js');
-//const groupMeetingsRouter = require('./routes/groupMeetings.js');
+const groupMeetingsRouter = require('./routes/groupMeetings.js');
 const meetingRequestsRouter = require('./routes/meetingRequests.js');
 const slotsRouter = require('./routes/slots.js'); 
 
@@ -28,6 +28,7 @@ app.use('/slots', slotsRouter);
 app.use('/request', meetingRequestsRouter);
 app.use('/bookings', bookingsRouter);
 app.use('/dashboard', dashboardRouter);
+app.use('/groupMeetings', groupMeetingsRouter);
 
 
 //rest is to be filled in as we work on it!
