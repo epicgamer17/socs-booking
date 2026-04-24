@@ -112,8 +112,8 @@ exports.cancelBooking = async (req, res) => {
               slots.timeTo   AS timeTo,
               owners.email    AS ownerEmail
          FROM bookings
-         JOIN users AS owners ON owners.id = slots.ownerID
          JOIN slots ON slots.id = bookings.slotID
+         JOIN users AS owners ON owners.id = slots.ownerID
         WHERE bookings.userID = ? AND bookings.id = ?`,
       [userID, bookingID]
     );

@@ -78,11 +78,23 @@ exports.submitAvailabilityVote = async (req, res) => {
       return res.status(403).json({ message: "Voting period over for this group meeting" });
     }
 
+    // check whether any of the time windows don't belong here (wrong groupMeetingID)
+    const [ownedWindows] = await conn.query(
+      `SELECT *
+         FROM timeWindows
+        WHERE timeWindows.id IN (?) AND groupMeetingID = ?`,
+      [timeWindowIDs, groupMeetingID]
+    );
+    if (ownedWindows.length !== timeWindowIDs.length) {
+      return res.status(400).json({
+	message: "One or more timeWindowIDs do not belong to this group meeting"
+      });
+    }
+
     await conn.beginTransaction();
     
     // insert vote submission into db
     for (const timeWindowID of timeWindowIDs) {
-      // TODO: add a check for whether the timeWindow is associated with the group meeting
       await conn.query(
 	`INSERT INTO userVotes (userID, timeWindowID) VALUES(?, ?)`,
 	[userID, timeWindowID]
@@ -128,7 +140,53 @@ exports.viewVoteResults = async (req, res) => {
   }
 }
 
-// POST /group/:id/finalize ← HEAVIEST TASK, start this one early - Owner picks the winning time slot - Create slots + bookings for all users who voted - If is_recurring = true: create N slots (one per week for recurrence_weeks) - Build mailto: URLs for all involved users, return in response - requireAuth + requireOwner
+/*
+  POST /group/:id/finalize ← Owner picks the winning time slot - Create slots + bookings for all users who voted - If is_recurring = true: create N slots (one per week for recurrence_weeks) - Build mailto: URLs for all involved users, return in response - requireAuth + requireOwner
+
+  Expected fields in req.body:
+
+  
+ */
 exports.finalizeGroupMeeting = async (req, res) => {
-  // TODO
+  const ownerID = req.user.id;
+  const groupMeetingID = req.params.id;
+
+  const conn = db.getConnection();
+  try {
+    // check whether the current owner has the right to access that group meeting or the group meeting even exists
+    const [groupMeetingRow] = conn.await(
+      `SELECT groupMeetings.status = ?
+         FROM groupMeetings
+        WHERE groupMeetings.ownerID = ? AND groupMeetings.id = ?`,
+      [ownerID, groupMeetingID]
+    );
+    if (groupMeetingRow.length === 0) {
+      return res.status(404).json({ error: "Group meeting not found for owner" });
+    }
+
+    // and check whether the group meeting wasn't already finalized
+    const groupMeeting = groupMeetingRow[0];
+    if (groupMeeting[0].status === "selection-over") {
+      return res.status(403).json({ error: "Group meeting already finalized" });
+    }
+
+    conn.beginTransaction();
+
+    
+
+    // fetch the emails
+    const [emails] = conn.await(
+      `SELECT users.email AS email
+         FROM users
+        WHERE users.id IN (?)`
+      [userIDs]
+    );
+    
+    conn.commit();
+    return res.status(200).json({  });
+  } catch (err) {
+    conn.rollback();
+  } finally {
+    conn.release();
+  }
 }
