@@ -4,6 +4,22 @@
     margin: 0 auto;
 }
 
+.backLink {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.backLink:hover {
+    color: var(--color-primary);
+}
+
 .header {
     margin-bottom: var(--spacing-xl);
     border-bottom: 2px solid var(--color-primary);
@@ -22,8 +38,8 @@
 }
 
 .error {
-    color: #ff4a4a;
-    background: rgba(255, 74, 74, 0.1);
+    color: var(--color-danger);
+    background: var(--color-danger-bg);
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-lg);
@@ -53,6 +69,7 @@
     background: var(--color-surface);
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
     transition: all 0.2s ease;
 }
 

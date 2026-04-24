@@ -41,7 +41,7 @@
     padding: var(--spacing-lg);
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border);
-    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
     transition: transform 0.3s ease;
 }
 
@@ -58,9 +58,10 @@
 }
 
 .section {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--color-section-bg);
     padding: var(--spacing-xl);
     border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border);
 }
 
 .inviteRow {
@@ -121,4 +122,29 @@
 .requestMessage {
     color: var(--text-secondary);
     font-style: italic;
+}
+
+.pollCard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+}
+
+.pollHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pollCandidates {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.leader {
+    border: 1px solid var(--color-primary);
 }

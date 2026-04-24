@@ -1,0 +1,30 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-md);
+}
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--spacing-md);
+    align-items: end;
+}
+
+.actions {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.success {
+    color: var(--color-success);
+    font-size: 0.9rem;
+}
+
+.error {
+    color: var(--color-danger);
+    font-size: 0.9rem;
+}

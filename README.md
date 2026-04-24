@@ -152,5 +152,6 @@ window.open(mailtoUrl);
 | Node/Express | Backend server | Open source |
 | mysql2/jwt/bcrypt | Auth & DB utilities | NPM packages |
 | README.md | Basic outline | AI-generated outline and formatting |
+| AI Generated Dummy Data | (not used in final submission) |
 ---
 *Note: migrations.js script is AI-generated (short utility script).*
