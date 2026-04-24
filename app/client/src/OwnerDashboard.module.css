@@ -122,3 +122,28 @@
     color: var(--text-secondary);
     font-style: italic;
 }
+
+.pollCard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+}
+
+.pollHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pollCandidates {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.leader {
+    border: 1px solid var(--color-primary);
+}

@@ -1,8 +1,9 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from './utils/auth';
 import Button from './components/ui/Button';
+import CalendarSelector from './components/CalendarSelector';
 import styles from './OwnerDashboard.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -15,38 +16,37 @@ function OwnerDashboard() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchDashboardData() {
-      try {
-        const r = await fetch(`${API_URL}/dashboard/owner`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${user.token}`,
-          },
-        });
+  const fetchDashboardData = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const r = await fetch(`${API_URL}/dashboard/owner`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`,
+        },
+      });
 
-        const data = await r.json();
-        if (!r.ok) {
-          setError(data.message || "Failed to fetch dashboard data");
-          return;
-        }
-
-        setDashboardData({
-          slots: data.slots || [],
-          meetingRequests: data.meetingRequests || [],
-        });
-      } catch (err) {
-        setError("Failed to fetch dashboard data");
-      } finally {
-        setLoading(false);
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data.message || "Failed to fetch dashboard data");
+        return;
       }
-    }
 
-    if (user?.token) {
-      fetchDashboardData();
+      setDashboardData({
+        slots: data.slots || [],
+        meetingRequests: data.meetingRequests || [],
+      });
+    } catch {
+      setError("Failed to fetch dashboard data");
+    } finally {
+      setLoading(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const totalBookings = dashboardData.slots.filter((s) => s.bookedByEmail).length;
   const activeSlots = dashboardData.slots.filter((s) => s.isActive).length;
@@ -63,6 +63,30 @@ function OwnerDashboard() {
 
   const inviteUrl = ownerId ? `${window.location.origin}/invite/${ownerId}` : '';
   const [copied, setCopied] = useState(false);
+
+  // TODO: replace with real polls fetched from backend (e.g. GET /group-meetings/owner).
+  // Backend work needed: schema (polls, pollSlots, pollVotes), controller, routes — see groupMeetingsController.js.
+  const [polls, setPolls] = useState([
+    {
+      id: 1,
+      title: 'Capstone Kickoff',
+      candidates: [
+        { candidateID: 101, date: '2026-04-27', timeFrom: '10:00', timeTo: '11:00', votes: 4 },
+        { candidateID: 102, date: '2026-04-28', timeFrom: '14:00', timeTo: '15:00', votes: 2 },
+        { candidateID: 103, date: '2026-04-29', timeFrom: '09:00', timeTo: '10:00', votes: 5 },
+      ],
+      voterCount: 7,
+    },
+    {
+      id: 2,
+      title: 'Research Sync',
+      candidates: [
+        { candidateID: 201, date: '2026-05-04', timeFrom: '13:00', timeTo: '13:30', votes: 1 },
+        { candidateID: 202, date: '2026-05-05', timeFrom: '13:00', timeTo: '13:30', votes: 3 },
+      ],
+      voterCount: 3,
+    },
+  ]);
 
   async function handleActivate(slotID) {
     try {
@@ -164,6 +188,23 @@ function OwnerDashboard() {
     }
   }
 
+  function handleFinalizePoll(pollID, candidate) {
+    const confirmed = window.confirm(
+      `Finalize ${candidate.date} · ${candidate.timeFrom}–${candidate.timeTo} as the booked slot?`
+    );
+    if (!confirmed) return;
+
+    // TODO: POST to backend to finalize the winning candidate.
+    //   - Create a slot (active) from the candidate's date/timeFrom/timeTo.
+    //   - Create a booking per voter, or a shared booking, depending on the chosen model.
+    //   - Delete losing candidates and the poll record.
+    //   - Return { emailsToNotify: [...] } so we can mailto participants.
+    //   Suggested: POST /group-meetings/:pollID/finalize  body: { candidateID }
+    //   On success, call fetchDashboardData() to pick up the new slot.
+
+    setPolls((prev) => prev.filter((p) => p.id !== pollID));
+  }
+
   async function handleCopyInvite() {
     if (!inviteUrl) return;
     try {
@@ -213,6 +254,53 @@ function OwnerDashboard() {
           <Button variant="primary" onClick={handleCopyInvite} disabled={!inviteUrl}>
             {copied ? 'Copied!' : 'Copy to Clipboard'}
           </Button>
+        </div>
+      </section>
+
+      <section className={styles.section} style={{ marginBottom: '2rem' }}>
+        <h2>Create Slots</h2>
+        <p>Create a single slot or repeat it weekly for multiple weeks.</p>
+        <CalendarSelector onCreated={fetchDashboardData} />
+      </section>
+
+      <section className={styles.section} style={{ marginBottom: '2rem' }}>
+        <h2>Meeting Polls</h2>
+        <p>Students have voted on candidate slots. Pick the winner to finalize a shared booking.</p>
+        {polls.length === 0 && <p>No active polls.</p>}
+        <div className={styles.activityList}>
+          {polls.map((poll) => {
+            const maxVotes = Math.max(...poll.candidates.map((c) => c.votes));
+            return (
+              <div key={poll.id} className={styles.pollCard}>
+                <div className={styles.pollHeader}>
+                  <strong>{poll.title}</strong>
+                  <span className={styles.activityTime}>{poll.voterCount} voter{poll.voterCount === 1 ? '' : 's'}</span>
+                </div>
+                <div className={styles.pollCandidates}>
+                  {poll.candidates.map((candidate) => {
+                    const isLeader = candidate.votes === maxVotes && maxVotes > 0;
+                    return (
+                      <div
+                        key={candidate.candidateID}
+                        className={`${styles.activityItem} ${isLeader ? styles.leader : ''}`}
+                      >
+                        <span>
+                          {candidate.date} · {candidate.timeFrom} – {candidate.timeTo}
+                        </span>
+                        <span className={styles.activityTime}>
+                          {candidate.votes} vote{candidate.votes === 1 ? '' : 's'}
+                          {isLeader && ' · leading'}
+                        </span>
+                        <Button variant="primary" onClick={() => handleFinalizePoll(poll.id, candidate)}>
+                          Finalize
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
