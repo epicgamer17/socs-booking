@@ -7,7 +7,7 @@ function NavBar() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const isOwner = user?.role === 'owner';
-    const homeHref = !user ? '/' : isOwner ? '/owner-dashboard' : '/directory-page';
+    const homeHref = !user ? '/' : isOwner ? '/owner-dashboard' : '/user-dashboard';
 
     function handleLogout() {
         logout();
@@ -25,6 +25,9 @@ function NavBar() {
             <div className={styles.links}>
                 {user && isOwner && (
                     <NavLink to="/owner-dashboard" className={linkClass}>Dashboard</NavLink>
+                )}
+                {user && !isOwner && (
+                    <NavLink to="/user-dashboard" className={linkClass}>Dashboard</NavLink>
                 )}
                 {user && (
                     <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>

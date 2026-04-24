@@ -50,6 +50,42 @@ function UserDashboard(){
             fetchBookings();
         }
     },[user?.token]);
+
+    useEffect(() => {
+  setLoading(true);
+
+  setTimeout(() => {
+    setBookings([
+      {
+        bookingID: 1,
+        date: "2026-04-25",
+        timeFrom: "09:00",
+        timeTo: "10:00",
+        isActive: 1,
+        ownerEmail: "john.doe@mail.mcgill.ca"
+      },
+      {
+        bookingID: 2,
+        date: "2026-04-26",
+        timeFrom: "11:00",
+        timeTo: "12:00",
+        isActive: 1,
+        ownerEmail: "sarah.lee@mail.mcgill.ca"
+      },
+      {
+        bookingID: 3,
+        date: "2026-04-27",
+        timeFrom: "14:00",
+        timeTo: "15:00",
+        isActive: 0,
+        ownerEmail: "michael.brown@mail.mcgill.ca"
+      }
+    ]);
+
+    setLoading(false);
+  }, 800); // fake delay
+
+}, []);
     
     async function handleCancel(bookingID){
         const confirm = window.confirm("Are you sure you want to cancel this booking?")
@@ -116,9 +152,7 @@ function UserDashboard(){
                     <h1 className={styles.title}>User Dashboard</h1>
                     <p className={styles.subtitle}>Welcome back,Student</p>
                 </div>
-                <div className={styles.actionGroup}>
-                    <Button variant="danger" onClick={() => { logout(); navigate("/login"); }}>Logout</Button>
-                </div>
+                
             </header>
 
 
