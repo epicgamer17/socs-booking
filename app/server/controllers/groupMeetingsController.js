@@ -35,7 +35,7 @@ exports.createGroupMeeting = async (req, res) => {
     let resolvedIDs = [];
     if (invitedUserEmails.length > 0) {
       const [rows] = await conn.query(
-        `SELECT id, email FROM users WHERE email IN (?) AND role = 'user'`,
+        `SELECT id, email FROM users WHERE email IN (?) AND role = 'student'`,
         [invitedUserEmails]
       );
       const foundEmails = new Set(rows.map(r => r.email.toLowerCase()));
