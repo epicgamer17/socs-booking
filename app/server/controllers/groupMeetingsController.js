@@ -378,7 +378,7 @@ exports.finalizeGroupMeeting = async (req, res) => {
       
       const [slot] = await conn.query(
 	`INSERT INTO slots (ownerID, date, timeFrom, timeTo, isActive) VALUES(?, ?, ?, ?, ?)`,
-	[ownerID, date, winningTimeWindow.timeFrom, winningTimeWindow.timeTo, false]
+	[ownerID, date, winningTimeWindow.timeFrom, winningTimeWindow.timeTo, true]
       );
       slotIDs.push(slot.insertId);
     }

@@ -1,6 +1,7 @@
-
+// Author: Jonathan Lamontagne-Kratz
 import { useState, useEffect, useCallback } from 'react';
 import useAuth from './utils/auth';
+import useAutoRefresh from './utils/useAutoRefresh';
 import Button from './components/ui/Button';
 import MailtoButton from './components/ui/MailtoButton';
 import CalendarSelector from './components/CalendarSelector';
@@ -108,6 +109,8 @@ function OwnerDashboard() {
   useEffect(() => {
     fetchPolls();
   }, [fetchPolls]);
+
+  useAutoRefresh([fetchDashboardData, fetchPolls], 30_000);
 
   function handlePollCreated() {
     fetchPolls();

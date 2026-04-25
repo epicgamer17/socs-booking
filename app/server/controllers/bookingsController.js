@@ -34,7 +34,8 @@ exports.bookSlot = async (req, res) => {
               owners.email   AS ownerEmail
          FROM slots
          JOIN users AS owners ON owners.id = slots.ownerID
-        WHERE slots.id = ? AND slots.isActive = TRUE`,
+        WHERE slots.id = ? AND slots.isActive = TRUE
+          FOR UPDATE`,
       [slotID]
     );
     if (rows.length === 0) {

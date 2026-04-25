@@ -5,5 +5,6 @@ CREATE TABLE IF NOT EXISTS bookings (
   groupMeetingID INT,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (slotID) REFERENCES slots(id),
-  FOREIGN KEY (userID) REFERENCES users(id)
+  FOREIGN KEY (userID) REFERENCES users(id),
+  UNIQUE(slotID, userID)
 );

@@ -43,7 +43,7 @@ function CalendarSelectorBooking() {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${user.token}`,
                 },
-                body: JSON.stringify({ ownerEmail: email.trim(), message:messageToOwner, date, timeFrom, timeTo }),
+                body: JSON.stringify({ ownerEmail: email.trim(), message: messageToOwner, date, timeFrom, timeTo }),
             });
             const data = await r.json();
             if (!r.ok) {
@@ -58,14 +58,14 @@ function CalendarSelectorBooking() {
         }
 
         const params = new URLSearchParams();
-        
-        params.append("subject", `Request for meeting on ${date} (${timeFrom} to ${timeTo})`)
-        
 
-        
+        params.append("subject", `Request for meeting on ${date} (${timeFrom} to ${timeTo})`)
+
+
+
         params.append("body", messageToOwner)
 
-        const formatedParams = params.toString().replace(/\+/g,"%20");
+        const formatedParams = params.toString().replace(/\+/g, "%20");
         const mailtoUrl = `mailto:${email.trim()}?${formatedParams}`;
 
         window.open(mailtoUrl);

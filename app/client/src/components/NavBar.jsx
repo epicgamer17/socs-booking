@@ -1,3 +1,4 @@
+/* Author: Jonathan Lamontagne-Kratz */
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../utils/auth';
@@ -40,7 +41,7 @@ function NavBar() {
         <>
             <nav className={styles.nav}>
                 <NavLink to={homeHref} className={styles.brand}>
-                    <span className={styles.brandMark}>SOCS</span> Booking
+                    <span className={styles.brandMark}>myBookings</span>
                 </NavLink>
 
                 <div className={styles.desktopLinks}>
@@ -49,6 +50,9 @@ function NavBar() {
                     )}
                     {user && (
                     <NavLink to="/user-dashboard" className={linkClass}>Student Dashboard</NavLink>
+                    )}
+                    {user && !isOwner && (
+                        <NavLink to="/user-dashboard" className={linkClass}>Dashboard</NavLink>
                     )}
                     {user && (
                         <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>

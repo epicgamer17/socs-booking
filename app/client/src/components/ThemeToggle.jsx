@@ -1,3 +1,4 @@
+/* Author: Jonathan Lamontagne-Kratz */
 import useTheme from '../utils/theme';
 import styles from './ThemeToggle.module.css';
 
