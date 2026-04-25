@@ -55,6 +55,42 @@ exports.createGroupMeeting = async (req, res) => {
 }
 
 /*
+  GET /group/:id/options - User receives available time options
+*/
+exports.viewTimeOptions = async (req, res) => {
+  const userID = req.user.id;
+  const groupMeetingID = req.params.id;
+
+  try {
+    // check whether user is actually invited to vote
+    const [verif1] = await db.query(
+      `SELECT *
+         FROM userInvitations
+        WHERE userInvitations.userID = ? AND userInvitations.groupMeetingID = ?`,
+      [userID, groupMeetingID]
+    );
+    if (verif1.length === 0) {
+      return res.status(403).json({ message: "User not invited to vote for this group meeting" });
+    }
+
+    // get the options
+    const [results] = await db.query(
+      `SELECT timeWindows.id   AS id,
+              timeWindows.date AS date,
+              timeWindows.timeFrom AS timeFrom,
+              timeWindows.timeTo AS timeTo
+         FROM timeWindows
+        WHERE timeWindows.groupMeetingID = ?`,
+      [groupMeetingID]
+    );
+    
+    return res.status(200).json({ message: "Group meeting time options retrieval successful", results: results });
+  } catch (err) {
+    return res.status(500).json({ message: "Group meeting time options retrieval failed", error: err.message });
+  }
+}
+
+/*
   POST /group/:id/vote - User selects one or more time options (can pick multiple) - Insert into userVotes, prevent duplicate votes (unique on slot+user) - requireAuth
 
   Expects timeWindowIDs array in req.body.
