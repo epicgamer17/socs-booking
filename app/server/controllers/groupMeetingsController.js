@@ -52,7 +52,7 @@ exports.createGroupMeeting = async (req, res) => {
 
     // insert group meeting into db
     const [result] = await conn.query(
-      `INSERT INTO groupMeetings (ownerID) VALUES(?, ?)`,
+      `INSERT INTO groupMeetings (ownerID, title) VALUES(?, ?)`,
       [ownerID, title]
     );
     const gmid = result.insertId;
