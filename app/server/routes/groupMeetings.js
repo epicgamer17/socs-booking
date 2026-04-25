@@ -13,7 +13,7 @@ router.post("/group", requireAuth, requireOwner, groupMeetingsController.createG
 router.post("/group/:id/vote", requireAuth, groupMeetingsController.submitAvailabilityVote);
 
 // Return all time options with their vote count
-router.get("/group/:id/vote", requireAuth, requireOwner, groupMeetingsController.viewVoteResults);
+router.get("/group/:id/votes", requireAuth, requireOwner, groupMeetingsController.viewVoteResults);
 
 // Owner picks the winning time slot - Create slots + bookings for all users who voted
 router.post("/group/finalize/:id", requireAuth, requireOwner, groupMeetingsController.finalizeGroupMeeting);
