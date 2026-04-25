@@ -35,7 +35,7 @@
 - [ ] **#25** Add `UNIQUE(ownerID)` to `inviteLinks` migration.
 - [ ] **#26** Lowercase emails before insert/lookup in `authController`.
 - [ ] **#27** Defensive null checks before `.trim()` on req body fields. Currently 500s on missing fields.
-- [ ] **#29** `DirectoryPage.jsx:74` — move `document.title` assignment into a `useEffect`, stop assigning inside JSX.
+- [x] **#29** `DirectoryPage.jsx:74` — move `document.title` assignment into a `useEffect`, stop assigning inside JSX.
 - [ ] **#30** `slotsController.deleteSlot` should return `mailtoUrl` server-side instead of frontend building an empty one.
 - [ ] **#31** `createRecurringSlots` uses `toISOString().split("T")[0]` — timezone-drifts dates. Use UTC math like `CalendarSelector.jsx:10`.
 
