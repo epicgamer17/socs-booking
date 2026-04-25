@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import useAuth from './utils/auth';
 import Button from './components/ui/Button';
 import CalendarSelector from './components/CalendarSelector';
+import GroupMeetingForm from './components/GroupMeetingForm';
 import styles from './OwnerDashboard.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -50,41 +51,66 @@ function OwnerDashboard() {
   const activeSlots = dashboardData.slots.filter((s) => s.isActive).length;
   const pendingRequests = dashboardData.meetingRequests.length;
 
-  // JWT payload holds { id, role, email } — decode to build the invite link
-  const ownerId = (() => {
-    try {
-      return user?.token ? JSON.parse(atob(user.token.split('.')[1])).id : null;
-    } catch {
-      return null;
-    }
-  })();
-
-  const inviteUrl = ownerId ? `${window.location.origin}/invite/${ownerId}` : '';
+  const [inviteUrl, setInviteUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const [linkBusy, setLinkBusy] = useState(false);
 
-  // TODO: replace with real polls fetched from backend (e.g. GET /group-meetings/owner).
-  // Backend work needed: schema (polls, pollSlots, pollVotes), controller, routes — see groupMeetingsController.js.
-  const [polls, setPolls] = useState([
-    {
-      id: 1,
-      title: 'Capstone Kickoff',
-      candidates: [
-        { candidateID: 101, date: '2026-04-27', timeFrom: '10:00', timeTo: '11:00', votes: 4 },
-        { candidateID: 102, date: '2026-04-28', timeFrom: '14:00', timeTo: '15:00', votes: 2 },
-        { candidateID: 103, date: '2026-04-29', timeFrom: '09:00', timeTo: '10:00', votes: 5 },
-      ],
-      voterCount: 7,
-    },
-    {
-      id: 2,
-      title: 'Research Sync',
-      candidates: [
-        { candidateID: 201, date: '2026-05-04', timeFrom: '13:00', timeTo: '13:30', votes: 1 },
-        { candidateID: 202, date: '2026-05-05', timeFrom: '13:00', timeTo: '13:30', votes: 3 },
-      ],
-      voterCount: 3,
-    },
-  ]);
+  const fetchInviteLink = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const r = await fetch(`${API_URL}/url/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`,
+        },
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data.message || "Failed to fetch invite link");
+        return;
+      }
+      setInviteUrl(data.url);
+    } catch {
+      setError("Failed to fetch invite link");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchInviteLink();
+  }, [fetchInviteLink]);
+
+  const [polls, setPolls] = useState([]);
+  const [recurrenceByPoll, setRecurrenceByPoll] = useState({});
+
+  const fetchPolls = useCallback(async () => {
+    if (!user?.token) return;
+    try {
+      const r = await fetch(`${API_URL}/groupMeetings/group/owner`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data.message || 'Failed to fetch polls');
+        return;
+      }
+      setPolls(data.polls ?? []);
+    } catch {
+      setError('Failed to fetch polls');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchPolls();
+  }, [fetchPolls]);
+
+  function handlePollCreated() {
+    fetchPolls();
+  }
 
   async function handleActivate(slotID) {
     try {
@@ -186,21 +212,42 @@ function OwnerDashboard() {
     }
   }
 
-  function handleFinalizePoll(pollID, candidate) {
+  async function handleFinalizePoll(pollID, candidate) {
+    const weeks = recurrenceByPoll[pollID] ?? 1;
     const confirmed = window.confirm(
-      `Finalize ${candidate.date} · ${candidate.timeFrom}–${candidate.timeTo} as the booked slot?`
+      `Finalize ${candidate.date} · ${candidate.timeFrom}–${candidate.timeTo}?\n` +
+      `This will create ${weeks} slot${weeks === 1 ? '' : 's'} and book all voters.`
     );
     if (!confirmed) return;
-
-    // TODO: POST to backend to finalize the winning candidate.
-    //   - Create a slot (active) from the candidate's date/timeFrom/timeTo.
-    //   - Create a booking per voter, or a shared booking, depending on the chosen model.
-    //   - Delete losing candidates and the poll record.
-    //   - Return { emailsToNotify: [...] } so we can mailto participants.
-    //   Suggested: POST /group-meetings/:pollID/finalize  body: { candidateID }
-    //   On success, call fetchDashboardData() to pick up the new slot.
-
-    setPolls((prev) => prev.filter((p) => p.id !== pollID));
+    try {
+      const r = await fetch(`${API_URL}/groupMeetings/group/finalize/${pollID}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({
+          winningTimeWindowID: candidate.candidateID,
+          recurrenceWeeks: weeks,
+        }),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data.message || "Failed to finalize poll");
+        return;
+      }
+      setPolls((prev) => prev.filter((p) => p.id !== pollID));
+      setRecurrenceByPoll((prev) => {
+        const { [pollID]: _, ...rest } = prev;
+        return rest;
+      });
+      fetchDashboardData();
+      if (data.mailtoUrl) {
+        window.location.href = data.mailtoUrl;
+      }
+    } catch {
+      setError("Failed to finalize poll");
+    }
   }
 
   async function handleCopyInvite() {
@@ -211,6 +258,37 @@ function OwnerDashboard() {
       setTimeout(() => setCopied(false), 2000);
     } catch {
       setError("Failed to copy to clipboard");
+    }
+  }
+
+  async function handleRegenerateLink() {
+    if (!inviteUrl) {
+      fetchInviteLink();
+      return;
+    }
+    const confirmed = window.confirm("Generate a new invite link? The current one will stop working.");
+    if (!confirmed) return;
+    setLinkBusy(true);
+    try {
+      const token = inviteUrl.split('/').pop();
+      const r = await fetch(`${API_URL}/url/delete/${token}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`,
+        },
+      });
+      if (!r.ok) {
+        const data = await r.json();
+        setError(data.message || "Failed to revoke invite link");
+        return;
+      }
+      setInviteUrl('');
+      await fetchInviteLink();
+    } catch {
+      setError("Failed to regenerate invite link");
+    } finally {
+      setLinkBusy(false);
     }
   }
 
@@ -248,6 +326,9 @@ function OwnerDashboard() {
           <Button variant="primary" onClick={handleCopyInvite} disabled={!inviteUrl}>
             {copied ? 'Copied!' : 'Copy to Clipboard'}
           </Button>
+          <Button variant="danger" onClick={handleRegenerateLink} disabled={linkBusy}>
+            {linkBusy ? 'Working…' : 'Generate New Link'}
+          </Button>
         </div>
       </section>
 
@@ -255,6 +336,12 @@ function OwnerDashboard() {
         <h2>Create Slots</h2>
         <p>Create a single slot or repeat it weekly for multiple weeks.</p>
         <CalendarSelector onCreated={fetchDashboardData} />
+      </section>
+
+      <section className={styles.section} style={{ marginBottom: '2rem' }}>
+        <h2>Create Group Meeting Poll</h2>
+        <p>Propose candidate time slots and invite students to vote.</p>
+        <GroupMeetingForm onCreated={handlePollCreated} />
       </section>
 
       <section className={styles.section} style={{ marginBottom: '2rem' }}>
@@ -268,7 +355,23 @@ function OwnerDashboard() {
               <div key={poll.id} className={styles.pollCard}>
                 <div className={styles.pollHeader}>
                   <strong>{poll.title}</strong>
-                  <span className={styles.activityTime}>{poll.voterCount} voter{poll.voterCount === 1 ? '' : 's'}</span>
+                  <span className={styles.activityTime}>{poll.voterCount} vote{poll.voterCount === 1 ? '' : 's'} cast</span>
+                  <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    Recur (weeks):
+                    <input
+                      type="number"
+                      min="1"
+                      value={recurrenceByPoll[poll.id] ?? 1}
+                      onChange={(e) => {
+                        const n = parseInt(e.target.value, 10);
+                        setRecurrenceByPoll((prev) => ({
+                          ...prev,
+                          [poll.id]: Number.isFinite(n) && n > 0 ? n : 1,
+                        }));
+                      }}
+                      style={{ width: '4rem' }}
+                    />
+                  </label>
                 </div>
                 <div className={styles.pollCandidates}>
                   {poll.candidates.map((candidate) => {

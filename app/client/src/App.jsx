@@ -29,7 +29,7 @@ function App() {
 
                         <Route element={<ProtectedRoutes />}>
                             <Route path='/directory-page' element={<DirectoryPage />} />
-                            <Route path='/invite/:ownerId' element={<BookingPage />} />
+                            <Route path='/bookingPage/:token' element={<BookingPage />} />
                             <Route path='/user-dashboard' element={<UserDashboard />} />
 
 
@@ -46,21 +46,3 @@ function App() {
 
 
 export default App
-
-// import { useState } from 'react'
-// test
-// import { useState, useEffect } from 'react';
-
-// function App() {
-//   const [data, setData] = useState(null);
-
-//   useEffect(() => {
-//     fetch('http://localhost:5000/api/test')
-//       .then(res => res.json())
-//       .then(setData);
-//   }, []);
-
-//   return <pre>{JSON.stringify(data)}</pre>;
-// }
-
-// export default App;

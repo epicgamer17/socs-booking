@@ -88,7 +88,7 @@ function DirectoryPage() {
       <div className={styles.grid}>
         {filtered_owners.map((u, index) => {
           return (
-            <div key={index} className={styles.userCard} onClick={() => navigate(`/invite/${u.ownerID}`)}>
+            <div key={index} className={styles.userCard} onClick={() => navigate(`/bookingPage/${u.inviteToken}`)}>
               <p className={styles.userName}>{u.firstName} {u.lastName}</p>
               <p className={styles.userDept}>{getDepartment(u.department)}</p>
               <p>{u.email}</p>

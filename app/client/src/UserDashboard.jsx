@@ -19,52 +19,8 @@ function UserDashboard() {
     const [bookings, setBookings] = useState([])
     const [error, setError] = useState()
     const [loading, setLoading] = useState(true)
-    // const [groupMeetings, serGroupMeetings] = useState([])
-    const [selectedVotes,setSelectedVotes] = useState({})
-    const [groupMeetings, setGroupMeetings] = useState([
-    {
-        id: 1,
-        title: "Project Meeting",
-        voterCount: 3,
-        candidates: [
-            {
-                candidateID: 101,
-                date: "2026-04-28",
-                timeFrom: "10:00",
-                timeTo: "11:00",
-                votes: 2,
-            },
-            {
-                candidateID: 102,
-                date: "2026-04-28",
-                timeFrom: "14:00",
-                timeTo: "15:00",
-                votes: 1,
-            },
-        ],
-    },
-    {
-        id: 2,
-        title: "Study Group",
-        voterCount: 2,
-        candidates: [
-            {
-                candidateID: 201,
-                date: "2026-04-29",
-                timeFrom: "09:00",
-                timeTo: "10:00",
-                votes: 1,
-            },
-            {
-                candidateID: 202,
-                date: "2026-04-29",
-                timeFrom: "16:00",
-                timeTo: "17:00",
-                votes: 1,
-            },
-        ],
-    },
-]);
+    const [selectedVotes, setSelectedVotes] = useState({})
+    const [groupMeetings, setGroupMeetings] = useState([]);
     useEffect(() => {
         async function fetchBookings() {
             try {
@@ -140,21 +96,21 @@ function UserDashboard() {
 
     }
 
-    function handleVoteToggle(candidateIdVotedList,candidateID){
+    function handleVoteToggle(candidateIdVotedList, candidateID) {
         if (candidateIdVotedList.includes(candidateID)) {
-            return candidateIdVotedList.filter(i=>i!==candidateID)
-        }else{
-            return [...candidateIdVotedList,candidateID]
+            return candidateIdVotedList.filter(i => i !== candidateID)
+        } else {
+            return [...candidateIdVotedList, candidateID]
         }
 
 
     }
-    function handleSubmitVote(group,list){
+    function handleSubmitVote(group, list) {
         const confirmation = window.confirm("Are you sure you want to submit the votings?")
-        if(!confirmation){
+        if (!confirmation) {
             return;
         }
-        const newGroupList = groupMeetings.filter(g=>g.id!==group.id)
+        const newGroupList = groupMeetings.filter(g => g.id !== group.id)
         setGroupMeetings(newGroupList)
         return;
     }
@@ -202,14 +158,14 @@ function UserDashboard() {
                 <div className={styles.activityList}>
                     {groupMeetings.map((g) => {
                         const maxVotes = Math.max(...g.candidates.map((c) => c.votes));
-                        
+
                         return (
                             <div key={g.id} className={styles.pollCard}>
 
 
                                 <div className={styles.pollHeader}>
                                     <strong>{g.title}</strong>
-                                    
+
                                 </div>
 
 
@@ -228,18 +184,20 @@ function UserDashboard() {
                                                     {candidate.votes} vote{candidate.votes === 1 ? '' : 's'}
                                                     {isLeader && ' · leading'}
                                                 </span>
-                                                <Button variant="primary" onClick={()=>{setSelectedVotes((prev) => ({
-                                                        ...prev,[g.id]:handleVoteToggle(prev[g.id]||[],candidate.candidateID)
-                                                        })
-                                                )}}>
-                                                    {(selectedVotes[g.id]||[]).includes(candidate.candidateID) ? `Cancel`:`Vote`}
+                                                <Button variant="primary" onClick={() => {
+                                                    setSelectedVotes((prev) => ({
+                                                        ...prev, [g.id]: handleVoteToggle(prev[g.id] || [], candidate.candidateID)
+                                                    })
+                                                    )
+                                                }}>
+                                                    {(selectedVotes[g.id] || []).includes(candidate.candidateID) ? `Cancel` : `Vote`}
                                                 </Button>
                                             </div>
                                         );
                                     })}
                                 </div>
 
-                                <Button variant="danger" onClick={() =>handleSubmitVote(g,selectedVotes[g.id]||[])}>
+                                <Button variant="danger" onClick={() => handleSubmitVote(g, selectedVotes[g.id] || [])}>
                                     Submit Vote
                                 </Button>
 

@@ -1,15 +1,41 @@
 const db = require("../db/db");
+const crypto = require("crypto");
 
 //----- Get all Owners with Public Slots -----
 exports.getOwners = async (req, res) => {
   try {
-    const [result] = await db.query(
-      `SELECT DISTINCT users.id AS ownerID, users.firstName,
-      users.lastName, users.department, users.email FROM users
-       LEFT JOIN slots ON slots.ownerID = users.id
-       WHERE slots.isActive = TRUE AND users.role = 'owner'`
+    const [rows] = await db.query(
+      `SELECT users.id AS ownerID, users.firstName, users.lastName,
+              users.department, users.email, inviteLinks.token AS inviteToken
+         FROM users
+         JOIN slots ON slots.ownerID = users.id AND slots.isActive = TRUE
+    LEFT JOIN inviteLinks ON inviteLinks.ownerID = users.id
+        WHERE users.role = 'owner'
+     GROUP BY users.id`
     );
-    return res.status(200).json(result);
+
+    // Backfill an invite token for any owner that doesn't have one — keeps ownerIDs
+    // out of directory URLs without requiring every owner to visit their dashboard first.
+    const owners = [];
+    for (const row of rows) {
+      let token = row.inviteToken;
+      if (!token) {
+        token = crypto.randomBytes(32).toString("hex");
+        await db.query(
+          `INSERT INTO inviteLinks (ownerID, token) VALUES(?, ?)`,
+          [row.ownerID, token]
+        );
+      }
+      owners.push({
+        firstName: row.firstName,
+        lastName: row.lastName,
+        department: row.department,
+        email: row.email,
+        inviteToken: token,
+      });
+    }
+
+    return res.status(200).json(owners);
   } catch (err) {
     return res.status(500).json({ message: "Failed to retrieve owners", error: err.message });
   }

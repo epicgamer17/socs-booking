@@ -9,6 +9,9 @@ const requireOwner = require("../middleware/ownerMiddleware");
 // Owner creates a group meeting + list of available time options
 router.post("/group", requireAuth, requireOwner, groupMeetingsController.createGroupMeeting);
 
+// Owner lists all of their non-finalized group meetings (must come before any /group/:id route)
+router.get("/group/owner", requireAuth, requireOwner, groupMeetingsController.getOwnerGroupMeetings);
+
 // User selects one or more time options (can pick multiple)
 router.post("/group/:id/vote", requireAuth, groupMeetingsController.submitAvailabilityVote);
 

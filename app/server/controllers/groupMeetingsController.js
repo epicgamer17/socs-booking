@@ -4,21 +4,49 @@ const db = require("../db/db");
   POST /group - Owner creates a group meeting + list of available time options + list of invited users - Insert into groupMeetings table - Insert each time option into timeWindows table - Insert each invitee into userInvitations table - requireAuth + requireOwner.
 
   Expected fields in req.body:
-  
+
     timeWindows: [
       { date: 'YYYY-MM-DD', timeFrom: 'HH:MM:SS',  timeTo: 'HH:MM:SS' },
       ...
     ]
-      
-    invitedUserIDs: [int, ...]
+
+    invitedUserIDs:    [int, ...]      (optional)
+    invitedUserEmails: [string, ...]   (optional — resolved to user IDs server-side)
+
+    At least one of invitedUserIDs / invitedUserEmails must be non-empty.
 */
 exports.createGroupMeeting = async (req, res) => {
   const ownerID = req.user.id;
   const timeWindows = req.body.timeWindows;
-  const invitedUserIDs = req.body.invitedUserIDs;
+  const invitedUserIDsInput = req.body.invitedUserIDs ?? [];
+  const invitedUserEmails = req.body.invitedUserEmails ?? [];
+
+  if (!Array.isArray(timeWindows) || timeWindows.length === 0) {
+    return res.status(400).json({ message: "At least one timeWindow is required" });
+  }
+  if (invitedUserIDsInput.length === 0 && invitedUserEmails.length === 0) {
+    return res.status(400).json({ message: "At least one invitee is required" });
+  }
 
   const conn = await db.getConnection();
   try {
+    // resolve emails to user IDs (students only)
+    let resolvedIDs = [];
+    if (invitedUserEmails.length > 0) {
+      const [rows] = await conn.query(
+        `SELECT id, email FROM users WHERE email IN (?) AND role = 'user'`,
+        [invitedUserEmails]
+      );
+      const foundEmails = new Set(rows.map(r => r.email.toLowerCase()));
+      const missing = invitedUserEmails.filter(e => !foundEmails.has(e.toLowerCase()));
+      if (missing.length > 0) {
+        return res.status(400).json({ message: `Unknown student email(s): ${missing.join(', ')}` });
+      }
+      resolvedIDs = rows.map(r => r.id);
+    }
+
+    const invitedUserIDs = Array.from(new Set([...invitedUserIDsInput, ...resolvedIDs]));
+
     await conn.beginTransaction();
 
     // insert group meeting into db
@@ -45,7 +73,7 @@ exports.createGroupMeeting = async (req, res) => {
     }
 
     await conn.commit();
-    return res.status(201).json({ message: "Group meeting initialization successful" });
+    return res.status(201).json({ message: "Group meeting initialization successful", groupMeetingID: gmid });
   } catch (err) {
     await conn.rollback();
     return res.status(500).json({ message: "Group meeting initialization failed", error: err.message });
@@ -53,6 +81,59 @@ exports.createGroupMeeting = async (req, res) => {
     conn.release();
   }
 }
+
+/*
+  GET /group/owner - Owner lists all of their non-finalized group meetings, with each
+  candidate time window and its vote count. Shape is intentionally close to what
+  OwnerDashboard renders so no transformation is needed client-side.
+*/
+exports.getOwnerGroupMeetings = async (req, res) => {
+  const ownerID = req.user.id;
+  try {
+    const [rows] = await db.query(
+      `SELECT groupMeetings.id   AS groupMeetingID,
+              timeWindows.id     AS timeWindowID,
+              timeWindows.date   AS date,
+              timeWindows.timeFrom AS timeFrom,
+              timeWindows.timeTo   AS timeTo,
+              COUNT(userVotes.id) AS total
+         FROM groupMeetings
+         JOIN timeWindows ON timeWindows.groupMeetingID = groupMeetings.id
+    LEFT JOIN userVotes  ON userVotes.timeWindowID = timeWindows.id
+        WHERE groupMeetings.ownerID = ?
+          AND groupMeetings.status != 'selection-over'
+     GROUP BY groupMeetings.id, timeWindows.id
+     ORDER BY groupMeetings.id, timeWindows.id`,
+      [ownerID]
+    );
+
+    const byMeeting = new Map();
+    for (const row of rows) {
+      let poll = byMeeting.get(row.groupMeetingID);
+      if (!poll) {
+        poll = {
+          id: row.groupMeetingID,
+          title: `Poll #${row.groupMeetingID}`,
+          candidates: [],
+          voterCount: 0,
+        };
+        byMeeting.set(row.groupMeetingID, poll);
+      }
+      poll.candidates.push({
+        candidateID: row.timeWindowID,
+        date: row.date,
+        timeFrom: row.timeFrom,
+        timeTo: row.timeTo,
+        votes: row.total,
+      });
+      poll.voterCount += row.total;
+    }
+
+    return res.status(200).json({ polls: Array.from(byMeeting.values()) });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to fetch owner group meetings", error: err.message });
+  }
+};
 
 /*
   GET /group/:id/options - User receives available time options
