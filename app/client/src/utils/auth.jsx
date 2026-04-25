@@ -56,7 +56,6 @@ export function AuthProvider({ children }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(to_send_data)
         });
-        console.log(r)
         const data = await r.json();
         if (!r.ok) {
             setError(data.message || "Registration Failed");

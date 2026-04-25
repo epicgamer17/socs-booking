@@ -10,8 +10,8 @@
 - [x] **#9** Fix `slotsController.deleteSlot:161` — message says "Booking ... cancelled" even when nothing was booked.
 - [] **#15** Deploy to Mimi. Submission requires a live URL.
 - [ ] **#17** `bookSlot` leaves transactions open on early returns at lines 41 and 52. Move verification queries before `beginTransaction()`. Audit other transactional controllers.
-- [ ] **#28** `NavBar.jsx:47` — desktop nav has no Dashboard link for students. Mirror the mobile menu logic.
-- [ ] **#33** Add live URL to top of `README.md` once deployed.
+- [x] **#28** `NavBar.jsx:47` — desktop nav has no Dashboard link for students. Mirror the mobile menu logic.
+- [x] **#33** Add live URL to top of `README.md` once deployed.
 
 ## 🟠 Competition track only
 
@@ -29,7 +29,7 @@
 - [ ] **#18** `getOwners` in `slotsController.js:7-15` selects ungrouped columns. Add to `GROUP BY` or wrap in `MAX()`.
 - [ ] **#19** `getOwners` mutates DB on a GET. Move invite token creation to registration time.
 - [x] **#20** `auth.jsx:96` typo — comma should be semicolon.
-- [ ] **#21** Delete leftover `console.log(r)` in `auth.jsx:59`. Grep for others.
+- [x] **#21** Delete leftover `console.log(r)` in `auth.jsx:59`. Grep for others.
 - [ ] **#22** Document SQL `;`-splitting limitation in `migrate.js`.
 - [ ] **#24** Restrict CORS to deployed origin instead of `app.use(cors())`.
 - [ ] **#25** Add `UNIQUE(ownerID)` to `inviteLinks` migration.
