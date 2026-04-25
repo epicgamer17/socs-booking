@@ -48,6 +48,9 @@ function NavBar() {
                     {user && isOwner && (
                         <NavLink to="/owner-dashboard" className={linkClass}>Dashboard</NavLink>
                     )}
+                    {user && !isOwner && (
+                        <NavLink to="/user-dashboard" className={linkClass}>Dashboard</NavLink>
+                    )}
                     {user && (
                         <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>
                     )}
