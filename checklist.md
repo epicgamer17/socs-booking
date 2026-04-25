@@ -3,7 +3,7 @@
 ## 🔴 Pre-demo blockers
 
 - [x] **#1** Fix role mismatch in `groupMeetingsController.js:38` — change `role = 'user'` to `role = 'student'`. Group meeting invitations are otherwise unreachable.
-- [ ] **#2** Fix wrong URL prefix in `UserDashboard.jsx` — lines 72 and 167 use `/group/...` but server mounts at `/groupMeetings/...`. Student voting is 404'ing.
+- [x] **#2** Fix wrong URL prefix in `UserDashboard.jsx` — lines 72 and 167 use `/group/...` but server mounts at `/groupMeetings/...`. Student voting is 404'ing.
 - [x] **#4** Add `UNIQUE(slotID, userID)` to `bookings` migration + `FOR UPDATE` on slot SELECT in `bookSlot`. Prevents double-booking race during Phase 2 tryout.
 - [ ] **#5** Add `// Author: <name>` headers to every `.js`/`.jsx` file your team wrote. Spec page 5 explicitly grades this.
 - [ ] **#6** Pick an actual app name (not "SOCS Booking"). Update `index.html`, `LandingPage.jsx`, `NavBar.jsx`, `README.md`.
