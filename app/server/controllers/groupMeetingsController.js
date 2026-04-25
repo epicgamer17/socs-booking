@@ -186,7 +186,7 @@ exports.viewInvitations = async (req, res) => {
 
     return res.status(200).json(Array.from(byMeeting.values()));
   } catch (err) {
-    return res.status(500).json({ message: "Failed to fetch owner group meetings", error: err.message });
+    return res.status(500).json({ message: "Failed to fetch group meetings for user", error: err.message });
   }
 }
 
@@ -267,8 +267,17 @@ exports.submitAvailabilityVote = async (req, res) => {
 */
 exports.viewVoteResults = async (req, res) => {
   const groupMeetingID = req.params.id;
+  const ownerID = req.user.id;
 
   try {
+    const [[{ ok }]] = await db.query(
+      `SELECT EXISTS(SELECT 1 FROM groupMeetings WHERE ownerID = ? AND id = ?) AS ok`,
+      [ownerID, groupMeetingID]
+    );
+    if (!ok) {
+      return res.status(403).json({ message: "Group meeting does not belong to owner" });
+    }
+    
     const [voteResults] = await db.query(
       `SELECT timeWindows.id AS timeWindowID,
               timeWindows.date AS date,
