@@ -16,7 +16,7 @@ function CalendarSelectorBooking() {
     const [timeFrom, setTimeFrom] = useState('');
     const [timeTo, setTimeTo] = useState('');
     const [email, setEmail] = useState("");
-    const [message, setMessage] = useState("");
+    const [messageToOwner, setMessageToOwner] = useState("");
 
 
     async function handleSubmit(e) {
@@ -43,7 +43,7 @@ function CalendarSelectorBooking() {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${user.token}`,
                 },
-                body: JSON.stringify({ ownerEmail: email.trim(), message, date, timeFrom, timeTo }),
+                body: JSON.stringify({ ownerEmail: email.trim(), messageToOwner, date, timeFrom, timeTo }),
             });
             const data = await r.json();
             if (!r.ok) {
@@ -57,16 +57,29 @@ function CalendarSelectorBooking() {
             setSubmitting(false);
         }
 
+        const params = new URLSearchParams();
+        
+        params.append("subject", `Request for meeting on ${date} (${timeFrom} to ${timeTo})`)
+        
+
+        
+        params.append("body", messageToOwner)
+
+        const formatedParams = params.toString().replace(/\+/g,"%20");
+        const mailtoUrl = `mailto:${email.trim()}?${formatedParams}`;
+
+        window.open(mailtoUrl);
+
 
         setStatus({ type: 'success', message: `Booking request created successfully` });
         setDate('');
         setTimeFrom('');
         setTimeTo('');
         setEmail("")
-        setMessage("")
+        setMessageToOwner("")
 
     }
-    
+
 
     return (
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -74,11 +87,11 @@ function CalendarSelectorBooking() {
                 <Input
                     label="Message"
                     type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    value={messageToOwner}
+                    onChange={(e) => setMessageToOwner(e.target.value)}
                     placeholder="Can we discuss the project?"
                     required />
-                
+
 
             </div>
 

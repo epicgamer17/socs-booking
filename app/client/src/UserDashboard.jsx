@@ -12,107 +12,160 @@ import CalendarSelectorBooking from "./components/CalendarSelectorBooking";
 const API_URL = import.meta.env.VITE_API_URL;
 
 
-function UserDashboard(){
+function UserDashboard() {
 
     const navigate = useNavigate()
-    const{user,logout} = useAuth()
-    const[bookings,setBookings] = useState([])
-    const[error,setError] = useState()
-    const[loading,setLoading] = useState(true)
-
-    useEffect(()=>{
+    const { user, logout } = useAuth()
+    const [bookings, setBookings] = useState([])
+    const [error, setError] = useState()
+    const [loading, setLoading] = useState(true)
+    // const [groupMeetings, serGroupMeetings] = useState([])
+    const [selectedVotes,setSelectedVotes] = useState({})
+    const [groupMeetings, setGroupMeetings] = useState([
+    {
+        id: 1,
+        title: "Project Meeting",
+        voterCount: 3,
+        candidates: [
+            {
+                candidateID: 101,
+                date: "2026-04-28",
+                timeFrom: "10:00",
+                timeTo: "11:00",
+                votes: 2,
+            },
+            {
+                candidateID: 102,
+                date: "2026-04-28",
+                timeFrom: "14:00",
+                timeTo: "15:00",
+                votes: 1,
+            },
+        ],
+    },
+    {
+        id: 2,
+        title: "Study Group",
+        voterCount: 2,
+        candidates: [
+            {
+                candidateID: 201,
+                date: "2026-04-29",
+                timeFrom: "09:00",
+                timeTo: "10:00",
+                votes: 1,
+            },
+            {
+                candidateID: 202,
+                date: "2026-04-29",
+                timeFrom: "16:00",
+                timeTo: "17:00",
+                votes: 1,
+            },
+        ],
+    },
+]);
+    useEffect(() => {
         async function fetchBookings() {
-            try{
-                const r = await fetch(`${API_URL}/dashboard/student`,{
-                    method:"GET",
+            try {
+                const r = await fetch(`${API_URL}/dashboard/student`, {
+                    method: "GET",
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${user.token}`,
                     },
                 });
 
-                const data  = await r.json();
-                if(!r.ok){
+                const data = await r.json();
+                if (!r.ok) {
                     setError(data.message || "Failed to fetch bookings")
                     return;
                 }
 
                 setBookings(data);
             }
-            catch(err){
+            catch (err) {
                 setError("Failed to fetch Bookings")
             }
-            finally{
+            finally {
                 setLoading(false);
-            } 
+            }
         }
 
-        if(user?.token){
+        if (user?.token) {
             fetchBookings();
         }
-    },[user?.token]);
+    }, [user?.token]);
 
 
 
-    
-    async function handleCancel(bookingID){
+
+
+
+    async function handleCancel(bookingID, date, timeFrom, timeTo) {
         const confirm = window.confirm("Are you sure you want to cancel this booking?")
         if (!confirm) {
             return;
-            
+
         }
 
-        try{
+        try {
 
-            const r = await fetch(`${API_URL}/bookings/${bookingID}`,{
-                    method:"DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${user.token}`,
-                    },
+            const r = await fetch(`${API_URL}/bookings/${bookingID}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user.token}`,
+                },
             });
 
-            const data  = await r.json();
+            const data = await r.json();
 
-            if(!r.ok){
+            if (!r.ok) {
                 setError(data.message || "Failed to Cancel booking")
                 return;
             }
 
-            const newBookingList = bookings.filter((b)=>b.bookingID !==bookingID)
+            const newBookingList = bookings.filter((b) => b.bookingID !== bookingID)
 
             setBookings(newBookingList);
 
             if (data.emailToNotify) {
-                window.location.href = `mailto:${data.emailToNotify}?subject=Booking Cancelled`
-
-            }  
+                window.open(`mailto:${data.emailToNotify}?subject=${date}(${timeFrom}-${timeTo}) Booking Cancelled`)
+            }
         }
-        catch{
+        catch {
             setError("Failed to cancel the booking")
         }
-    
+
+    }
+
+    function handleVoteToggle(candidateIdVotedList,candidateID){
+        if (candidateIdVotedList.includes(candidateID)) {
+            return candidateIdVotedList.filter(i=>i!==candidateID)
+        }else{
+            return [...candidateIdVotedList,candidateID]
+        }
+
+
+    }
+    function handleSubmitVote(group,list){
+        const confirmation = window.confirm("Are you sure you want to submit the votings?")
+        if(!confirmation){
+            return;
+        }
+        const newGroupList = groupMeetings.filter(g=>g.id!==group.id)
+        setGroupMeetings(newGroupList)
+        return;
     }
 
 
 
 
 
+    return (
 
-
-
-
-
-
-    return(
-
-        
-
-        
-    
         <div className={styles.container}>
-
-
 
 
             <header className={styles.header}>
@@ -120,14 +173,14 @@ function UserDashboard(){
                     <h1 className={styles.title}>User Dashboard</h1>
                     <p className={styles.subtitle}>Welcome back,Student</p>
                 </div>
-                
+
             </header>
 
 
 
 
 
-            {error && <p style={{color:"red"}}>{error}</p>}
+            {error && <p style={{ color: "red" }}>{error}</p>}
 
             <div className={styles.grid}>
                 <div className={styles.statCard}>
@@ -136,10 +189,64 @@ function UserDashboard(){
                 </div>
             </div>
 
-            <section className={styles.section} style={{marginBottom:'2rem'}}>
+            <section className={styles.section} style={{ marginBottom: '2rem' }}>
                 <h2>Request Booking</h2>
                 <p>Create a booking request</p>
-                <CalendarSelectorBooking/>
+                <CalendarSelectorBooking />
+            </section>
+
+            <section className={styles.section} style={{ marginBottom: '2rem' }}>
+                <h2>Meeting Polls</h2>
+                <p>Vote for time slot(s) that works for your.</p>
+                {groupMeetings.length === 0 && <p>No active polls.</p>}
+                <div className={styles.activityList}>
+                    {groupMeetings.map((g) => {
+                        const maxVotes = Math.max(...g.candidates.map((c) => c.votes));
+                        
+                        return (
+                            <div key={g.id} className={styles.pollCard}>
+
+
+                                <div className={styles.pollHeader}>
+                                    <strong>{g.title}</strong>
+                                    
+                                </div>
+
+
+                                <div className={styles.pollCandidates}>
+                                    {g.candidates.map((candidate) => {
+                                        const isLeader = candidate.votes === maxVotes && maxVotes > 0;
+                                        return (
+                                            <div
+                                                key={candidate.candidateID}
+                                                className={`${styles.activityItem}`}
+                                            >
+                                                <span>
+                                                    {candidate.date} · {candidate.timeFrom} – {candidate.timeTo}
+                                                </span>
+                                                <span className={styles.activityTime}>
+                                                    {candidate.votes} vote{candidate.votes === 1 ? '' : 's'}
+                                                    {isLeader && ' · leading'}
+                                                </span>
+                                                <Button variant="primary" onClick={()=>{setSelectedVotes((prev) => ({
+                                                        ...prev,[g.id]:handleVoteToggle(prev[g.id]||[],candidate.candidateID)
+                                                        })
+                                                )}}>
+                                                    {(selectedVotes[g.id]||[]).includes(candidate.candidateID) ? `Cancel`:`Vote`}
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+
+                                <Button variant="danger" onClick={() =>handleSubmitVote(g,selectedVotes[g.id]||[])}>
+                                    Submit Vote
+                                </Button>
+
+                            </div>
+                        );
+                    })}
+                </div>
             </section>
 
 
@@ -148,11 +255,11 @@ function UserDashboard(){
             <section className={styles.section}>
                 <h2>Your Bookings</h2>
                 {loading && <p>Loading..</p>}
-                {!loading && bookings.length===0 && <p>No Bookings</p>}
+                {!loading && bookings.length === 0 && <p>No Bookings</p>}
 
 
                 <div className={styles.activityList}>
-                    {bookings.map((b)=>{
+                    {bookings.map((b) => {
                         return <div key={b.bookingID} className={styles.activityItem}>
                             <span>
                                 {b.date} · {b.timeFrom} - {b.timeTo}
@@ -167,7 +274,7 @@ function UserDashboard(){
                                     Mail
                                 </MailtoButton>
 
-                                <Button variant="danger" onClick={()=> handleCancel(b.bookingID)}>
+                                <Button variant="danger" onClick={() => handleCancel(b.bookingID, b.date, b.timeFrom, b.timeTo)}>
                                     Cancel
                                 </Button>
                             </div>
