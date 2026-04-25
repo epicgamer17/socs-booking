@@ -15,8 +15,10 @@ router.get("/group/owner", requireAuth, requireOwner, groupMeetingsController.ge
 // User selects one or more time options (can pick multiple)
 router.post("/group/:id/vote", requireAuth, groupMeetingsController.submitAvailabilityVote);
 
-// User receives available time options
-router.get("/group/:id/options", requireAuth, groupMeetingsController.viewTimeOptions);
+// User receives available time options for every group meeting they're invited to vote in
+router.get("/group/viewInvitations", requireAuth, groupMeetingsController.viewInvitations);
+
+// User receives available group meetings
 
 // Return all time options with their vote count
 router.get("/group/:id/votes", requireAuth, requireOwner, groupMeetingsController.viewVoteResults);

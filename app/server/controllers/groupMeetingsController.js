@@ -9,7 +9,7 @@ const db = require("../db/db");
       { date: 'YYYY-MM-DD', timeFrom: 'HH:MM:SS',  timeTo: 'HH:MM:SS' },
       ...
     ]
-
+    title:             string
     invitedUserIDs:    [int, ...]      (optional)
     invitedUserEmails: [string, ...]   (optional — resolved to user IDs server-side)
 
@@ -18,6 +18,7 @@ const db = require("../db/db");
 exports.createGroupMeeting = async (req, res) => {
   const ownerID = req.user.id;
   const timeWindows = req.body.timeWindows;
+  const title = req.body.title;
   const invitedUserIDsInput = req.body.invitedUserIDs ?? [];
   const invitedUserEmails = req.body.invitedUserEmails ?? [];
 
@@ -51,8 +52,8 @@ exports.createGroupMeeting = async (req, res) => {
 
     // insert group meeting into db
     const [result] = await conn.query(
-      `INSERT INTO groupMeetings (ownerID) VALUES(?)`,
-      [ownerID]
+      `INSERT INTO groupMeetings (ownerID) VALUES(?, ?)`,
+      [ownerID, title]
     );
     const gmid = result.insertId;
 
@@ -91,12 +92,13 @@ exports.getOwnerGroupMeetings = async (req, res) => {
   const ownerID = req.user.id;
   try {
     const [rows] = await db.query(
-      `SELECT groupMeetings.id   AS groupMeetingID,
-              timeWindows.id     AS timeWindowID,
-              timeWindows.date   AS date,
+      `SELECT groupMeetings.id     AS groupMeetingID,
+              groupMeetings.title  AS title,
+              timeWindows.id       AS timeWindowID,
+              timeWindows.date     AS date,
               timeWindows.timeFrom AS timeFrom,
               timeWindows.timeTo   AS timeTo,
-              COUNT(userVotes.id) AS total
+              COUNT(userVotes.id)  AS total
          FROM groupMeetings
          JOIN timeWindows ON timeWindows.groupMeetingID = groupMeetings.id
     LEFT JOIN userVotes  ON userVotes.timeWindowID = timeWindows.id
@@ -113,7 +115,7 @@ exports.getOwnerGroupMeetings = async (req, res) => {
       if (!poll) {
         poll = {
           id: row.groupMeetingID,
-          title: `Poll #${row.groupMeetingID}`,
+          title: row.title,
           candidates: [],
           voterCount: 0,
         };
@@ -136,38 +138,55 @@ exports.getOwnerGroupMeetings = async (req, res) => {
 };
 
 /*
-  GET /group/:id/options - User receives available time options
+  GET /group/viewInvitations - User receives available time options for every group meeting they're invited to vote in
 */
-exports.viewTimeOptions = async (req, res) => {
+exports.viewInvitations = async (req, res) => {
   const userID = req.user.id;
-  const groupMeetingID = req.params.id;
-
   try {
-    // check whether user is actually invited to vote
-    const [verif1] = await db.query(
-      `SELECT *
+    const [rows] = await db.query(
+      `SELECT groupMeetings.id     AS groupMeetingID,
+              groupMeetings.title  AS title,
+              timeWindows.id       AS timeWindowID,
+              timeWindows.date     AS date,
+              timeWindows.timeFrom AS timeFrom,
+              timeWindows.timeTo   AS timeTo,
+              COUNT(userVotes.id)  AS total
          FROM userInvitations
-        WHERE userInvitations.userID = ? AND userInvitations.groupMeetingID = ?`,
-      [userID, groupMeetingID]
+         JOIN groupMeetings ON groupMeetings.id = userInvitations.groupMeetingID
+         JOIN timeWindows   ON timeWindows.groupMeetingID = groupMeetings.id
+    LEFT JOIN userVotes ON userVotes.timeWindowID = timeWindows.id
+        WHERE userInvitations.userID = ?
+          AND groupMeetings.status != 'selection-over'
+     GROUP BY groupMeetings.id, timeWindows.id
+     ORDER BY groupMeetings.id, timeWindows.id`,
+      [userID]
     );
-    if (verif1.length === 0) {
-      return res.status(403).json({ message: "User not invited to vote for this group meeting" });
+
+    const byMeeting = new Map();
+    for (const row of rows) {
+      let poll = byMeeting.get(row.groupMeetingID);
+      if (!poll) {
+        poll = {
+          id: row.groupMeetingID,
+          title: row.title,
+          candidates: [],
+          voterCount: 0,
+        };
+        byMeeting.set(row.groupMeetingID, poll);
+      }
+      poll.candidates.push({
+        candidateID: row.timeWindowID,
+        date: row.date,
+        timeFrom: row.timeFrom,
+        timeTo: row.timeTo,
+        votes: row.total,
+      });
+      poll.voterCount += row.total;
     }
 
-    // get the options
-    const [results] = await db.query(
-      `SELECT timeWindows.id   AS id,
-              timeWindows.date AS date,
-              timeWindows.timeFrom AS timeFrom,
-              timeWindows.timeTo AS timeTo
-         FROM timeWindows
-        WHERE timeWindows.groupMeetingID = ?`,
-      [groupMeetingID]
-    );
-    
-    return res.status(200).json({ message: "Group meeting time options retrieval successful", results: results });
+    return res.status(200).json(Array.from(byMeeting.values()));
   } catch (err) {
-    return res.status(500).json({ message: "Group meeting time options retrieval failed", error: err.message });
+    return res.status(500).json({ message: "Failed to fetch owner group meetings", error: err.message });
   }
 }
 
