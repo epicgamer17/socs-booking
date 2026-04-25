@@ -94,7 +94,7 @@ export function AuthProvider({ children }) {
 
 
         }),
-            localStorage.removeItem("user")
+        localStorage.removeItem("user")
         setUser(null);
     }
 
