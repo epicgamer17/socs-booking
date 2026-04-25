@@ -10,6 +10,7 @@ import BookingPage from './BookingPage';
 import Login from './login';
 import OwnerDashboard from './OwnerDashboard';
 import NavBar from './components/NavBar';
+import UserDashboard from './userDashboard';
 import { AuthProvider } from './utils/auth';
 import { ThemeProvider } from './utils/theme';
 
