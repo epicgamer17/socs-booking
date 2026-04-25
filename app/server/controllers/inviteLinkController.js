@@ -13,7 +13,7 @@ exports.generateLink = async (req, res) => {
         // if they already have one, return it
         if (result.length > 0) {
             return res.status(200).json({
-                url: `${process.env.FRONTEND_URL}/bookingPage/${result[0].token}`
+                url: `${process.env.FRONTEND_URL}bookingPage/${result[0].token}`
             });
         }
 
@@ -25,7 +25,7 @@ exports.generateLink = async (req, res) => {
         );
 
         return res.status(201).json({
-            url: `${process.env.FRONTEND_URL}/bookingPage/${token}`
+            url: `${process.env.FRONTEND_URL}bookingPage/${token}`
         });
     } catch (err) {
         return res.status(500).json({ message: "Failed to generate link", error: err.message });
