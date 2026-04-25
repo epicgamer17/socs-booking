@@ -90,11 +90,11 @@ window.open(mailtoUrl);
 **Phase 1: Core & Auth**
 - [x] 1.1 POST /auth/register
 - [x] 1.2 POST /auth/login
-- [ ] 1.3 POST /auth/logout
+- [x] 1.3 POST /auth/logout
 - [x] 1.4 Landing Page component
-- [ ] 1.5 Register/Login validation
+- [x] 1.5 Register/Login validation
 - [x] 1.6 Directory Page (Owner listing)
-- [ ] 1.7 Invitation Route & Guards
+- [x] 1.7 Invitation Route & Guards
 
 **Phase 2: User Experience & Basic Slots**
 - [x] 2.1 GET /users/owners
@@ -106,31 +106,31 @@ window.open(mailtoUrl);
 - [x] 2.7 POST /bookings
 - [x] 2.8 GET /bookings/mine
 - [x] 2.9 DELETE /bookings/:id
-- [ ] 2.10 User Dashboard UI
-- [ ] 2.11 MailtoButton component
-- [ ] 2.12 Request Meeting UI
+- [x] 2.10 User Dashboard UI
+- [x] 2.11 MailtoButton component
+- [x] 2.12 Request Meeting UI
 - [ ] 2.13 Voting Grid selection UI
 
 **Phase 3: Owner Experience & Invitations**
 - [x] 3.1 GET /dashboard (Unified)
-- [ ] 3.2 POST /slots/:id/invite (Token)
-- [ ] 3.3 GET /slots/invite/:token
+- [x] 3.2 POST /slots/:id/invite (Token) — implemented as `POST /url/generate`
+- [x] 3.3 GET /slots/invite/:token — implemented as `GET /url/resolve/:token`
 - [x] 3.4 Owner Dashboard UI (Tabs)
-- [ ] 3.5 SlotManager toggle UI
+- [x] 3.5 SlotManager toggle UI
 - [x] 3.6 Meeting Request list view
-- [ ] 3.7 Calendar Selector form
-- [ ] 3.8 Recurring repetition input
+- [x] 3.7 Calendar Selector form
+- [x] 3.8 Recurring repetition input
 
 **Phase 4: Meeting Types & Bonuses**
-- [ ] 4.1 POST /requests
+- [x] 4.1 POST /requests — implemented as `POST /request/meeting`
 - [x] 4.2 GET /requests/inbox
 - [x] 4.3 PATCH /requests/:id/accept
 - [x] 4.4 PATCH /requests/:id/decline
-- [ ] 4.5 POST /group (Calendar method)
-- [ ] 4.6 POST /group/:id/vote
-- [ ] 4.7 GET /group/:id/votes
-- [ ] 4.8 POST /group/:id/finalize
-- [ ] 4.9 POST /officehours (Recurring)
+- [x] 4.5 POST /group (Calendar method)
+- [x] 4.6 POST /group/:id/vote — backend only; student-side UI not yet wired (see 2.13)
+- [x] 4.7 GET /group/:id/votes
+- [x] 4.8 POST /group/:id/finalize — implemented as `POST /groupMeetings/group/finalize/:id`
+- [x] 4.9 POST /officehours (Recurring) — implemented as `POST /slots/recurring` (frontend still uses `/slots/create` in a loop; bulk endpoint is unused)
 - [ ] 4.10 .ics Calendar Export
 - [ ] 4.11 Heatmap Bonus Feature
 - [ ] 4.12 McGill Tinder (Team Finder Bonus)
