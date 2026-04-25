@@ -69,7 +69,7 @@ function UserDashboard() {
         useEffect(() => {
         async function fetchGroupMeetings() {
             try {
-                const r = await fetch(`${API_URL}/group/viewInvitations`, {
+                const r = await fetch(`${API_URL}/groupMeetings/group/viewInvitations`, {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
@@ -164,7 +164,7 @@ function UserDashboard() {
 
         try {
 
-            const r = await fetch(`${API_URL}/group/${group.id}/vote`, {
+            const r = await fetch(`${API_URL}/groupMeetings/group/${group.id}/vote`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
