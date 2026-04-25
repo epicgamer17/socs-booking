@@ -304,16 +304,11 @@ exports.finalizeGroupMeeting = async (req, res) => {
     const emails = emailRows.map(r => r.email);
 
     // build mailto URLs
-    const urls = [];
     const body = `Chosen slot: ${winningTimeWindow.date.toLocaleDateString('en-CA')}, ${winningTimeWindow.timeFrom}, ${winningTimeWindow.timeTo}. Meeting will repeat for ${recurrenceWeeks} weeks.`;
     const subject = "Group Meeting Finalized";
-    for (let i = 0; i < emails.length; i++) {
-      urls.push(
-	`mailto:${emails[i]}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
-      );
-    }
+    const url = `mailto:${emails.join(',')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
-    return res.status(200).json({ message: "Group meeting finalization successful", urls: urls });
+    return res.status(200).json({ message: "Group meeting finalization successful", mailtoUrl: url });
   } catch (err) {
     await conn.rollback();
     return res.status(500).json({ message: "Group meeting finalization failed", error: err.message });
