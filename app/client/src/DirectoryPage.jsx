@@ -68,10 +68,14 @@ function DirectoryPage() {
 
 
 
+  useEffect(() => {
+    document.title = "Directory"
+  }, [])
+
   return (
     <div className={styles.container}>
       <div className={styles.pageHeader}>
-        <h1>{document.title = "Directory"}</h1>
+        <h1>Directory</h1>
 
         <select className={styles.select} value={selectedDepartment} onChange={handleSelectedDepartment}>
           <option value="ALL">All Departments</option>

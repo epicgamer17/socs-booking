@@ -21,21 +21,21 @@
 
 ## 🟡 Code quality (graded under "Quality of coding")
 
-- [ ] **#3** Standardize role label as `student` everywhere — DB, JWT, frontend localStorage, all comparisons. Currently `auth.jsx:20` uses `"user"`.
+- [x] **#3** Standardize role label as `student` everywhere — DB, JWT, frontend localStorage, all comparisons. Currently `auth.jsx:20` uses `"user"`.
 - [ ] **#8** Make Type 1 meeting request flow consistent — server should build `mailtoUrl` for owner notifications, matching the `bookSlot`/`cancelBooking` pattern.
 - [ ] **#10** `/dashboard/student` duplicates `bookingsController.viewBookings`. Delete one.
 - [ ] **#11** `/dashboard/student` doesn't enforce role. Add `requireStudent` or merge into single `/dashboard`.
 - [ ] **#12** Document logout limitation in README (JWT not actually invalidated until expiry).
 - [ ] **#18** `getOwners` in `slotsController.js:7-15` selects ungrouped columns. Add to `GROUP BY` or wrap in `MAX()`.
 - [ ] **#19** `getOwners` mutates DB on a GET. Move invite token creation to registration time.
-- [ ] **#20** `auth.jsx:96` typo — comma should be semicolon.
+- [x] **#20** `auth.jsx:96` typo — comma should be semicolon.
 - [ ] **#21** Delete leftover `console.log(r)` in `auth.jsx:59`. Grep for others.
 - [ ] **#22** Document SQL `;`-splitting limitation in `migrate.js`.
 - [ ] **#24** Restrict CORS to deployed origin instead of `app.use(cors())`.
 - [ ] **#25** Add `UNIQUE(ownerID)` to `inviteLinks` migration.
 - [ ] **#26** Lowercase emails before insert/lookup in `authController`.
 - [ ] **#27** Defensive null checks before `.trim()` on req body fields. Currently 500s on missing fields.
-- [ ] **#29** `DirectoryPage.jsx:74` — move `document.title` assignment into a `useEffect`, stop assigning inside JSX.
+- [x] **#29** `DirectoryPage.jsx:74` — move `document.title` assignment into a `useEffect`, stop assigning inside JSX.
 - [ ] **#30** `slotsController.deleteSlot` should return `mailtoUrl` server-side instead of frontend building an empty one.
 - [ ] **#31** `createRecurringSlots` uses `toISOString().split("T")[0]` — timezone-drifts dates. Use UTC math like `CalendarSelector.jsx:10`.
 
@@ -49,7 +49,7 @@
 - [ ] **#32** Expand 30% attribution table in README. Be conservative — list react-router, vite, eslint, all libs, any AI-assisted helpers.
 - [ ] **#34** Rewrite team table's "Features Worked On" as file path lists. Pair with #5 so the TA's grep matches.
 - [ ] **#35** README task list out of date. `/slots/recurring` is unused dead code (frontend loops `/slots/create` instead). Either wire it up or delete it.
-- [ ] **#36** Add `*.pdf` to `.gitignore`, `git rm --cached` the project PDF. Optional.
+- [x] **#36** Add `*.pdf` to `.gitignore`, `git rm --cached` the project PDF. Optional.
 
 ---
 
