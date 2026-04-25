@@ -43,7 +43,7 @@ function CalendarSelectorBooking() {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${user.token}`,
                 },
-                body: JSON.stringify({ ownerEmail: email.trim(), messageToOwner, date, timeFrom, timeTo }),
+                body: JSON.stringify({ ownerEmail: email.trim(), message:messageToOwner, date, timeFrom, timeTo }),
             });
             const data = await r.json();
             if (!r.ok) {

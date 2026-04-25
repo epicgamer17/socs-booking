@@ -20,7 +20,52 @@ function UserDashboard() {
     const [error, setError] = useState()
     const [loading, setLoading] = useState(true)
     const [selectedVotes, setSelectedVotes] = useState({})
-    const [groupMeetings, setGroupMeetings] = useState([]);
+    // const [groupMeetings, setGroupMeetings] = useState([]);
+
+    const [groupMeetings, setGroupMeetings] = useState([
+    {
+        id: 1,
+        title: "Project Meeting",
+        voterCount: 3,
+        candidates: [
+            {
+                candidateID: 101,
+                date: "2026-04-28",
+                timeFrom: "10:00",
+                timeTo: "11:00",
+                votes: 2,
+            },
+            {
+                candidateID: 102,
+                date: "2026-04-28",
+                timeFrom: "14:00",
+                timeTo: "15:00",
+                votes: 1,
+            },
+        ],
+    },
+    {
+        id: 2,
+        title: "Study Group",
+        voterCount: 2,
+        candidates: [
+            {
+                candidateID: 201,
+                date: "2026-04-29",
+                timeFrom: "09:00",
+                timeTo: "10:00",
+                votes: 1,
+            },
+            {
+                candidateID: 202,
+                date: "2026-04-29",
+                timeFrom: "16:00",
+                timeTo: "17:00",
+                votes: 1,
+            },
+        ],
+    },
+]);
     useEffect(() => {
         async function fetchBookings() {
             try {
@@ -105,13 +150,47 @@ function UserDashboard() {
 
 
     }
-    function handleSubmitVote(group, list) {
+    async function handleSubmitVote(group, voteList) {
+        if (voteList.length===0) {
+            setError("Please select at least one time slot.");
+            return;
+        }
         const confirmation = window.confirm("Are you sure you want to submit the votings?")
         if (!confirmation) {
             return;
         }
-        const newGroupList = groupMeetings.filter(g => g.id !== group.id)
-        setGroupMeetings(newGroupList)
+
+        try {
+
+            const r = await fetch(`${API_URL}/group/${group.id}/vote`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user.token}`,
+                },
+                
+                body:JSON.stringify({timeWindowIDs : voteList})
+                
+                
+            });
+
+            const data = await r.json();
+
+            if (!r.ok) {
+                setError(data.message || "Failed to submit votes")
+                return;
+            }
+
+            const newGroupList = groupMeetings.filter((g) => g.id !== group.id)
+            setGroupMeetings(newGroupList)
+
+
+        }
+        catch {
+            setError("Failed to submit votes")
+        }
+
+        
         return;
     }
 
