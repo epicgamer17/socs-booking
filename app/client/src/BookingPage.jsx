@@ -50,7 +50,7 @@ function BookingPage() {
 
         async function fetchSlots() {
 
-            const r = await fetch(`${API_URL}/slots/owner/${ownerId}`, {
+            const r = await fetch(`${API_URL}/slots/public/${ownerId}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
