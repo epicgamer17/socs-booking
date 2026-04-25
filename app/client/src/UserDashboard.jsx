@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
-import { useEffect, useState } from "react"
+import useAutoRefresh from "./utils/useAutoRefresh"
+import { useCallback, useEffect, useState } from "react"
 
 import Button from './components/ui/Button';
 import MailtoButton from "./components/ui/MailtoButton";
@@ -29,72 +30,67 @@ function UserDashboard() {
     const [groupMeetings, setGroupMeetings] = useState([]);
 
 
-    useEffect(() => {
-        async function fetchBookings() {
-            try {
-                const r = await fetch(`${API_URL}/dashboard/student`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${user.token}`,
-                    },
-                });
+    const fetchBookings = useCallback(async () => {
+        if (!user?.token) return;
+        try {
+            const r = await fetch(`${API_URL}/dashboard/student`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user.token}`,
+                },
+            });
 
-                const data = await r.json();
-                if (!r.ok) {
-                    setError(data.message || "Failed to fetch bookings")
-                    return;
-                }
+            const data = await r.json();
+            if (!r.ok) {
+                setError(data.message || "Failed to fetch bookings")
+                return;
+            }
 
-                setBookings(data);
-            }
-            catch (err) {
-                setError("Failed to fetch Bookings")
-            }
-            finally {
-                setLoading(false);
-            }
+            setBookings(data);
         }
-
-        if (user?.token) {
-            fetchBookings();
+        catch (err) {
+            setError("Failed to fetch Bookings")
+        }
+        finally {
+            setLoading(false);
         }
     }, [user?.token]);
 
+    useEffect(() => { fetchBookings(); }, [fetchBookings]);
 
 
 
 
 
-        useEffect(() => {
-        async function fetchGroupMeetings() {
-            try {
-                const r = await fetch(`${API_URL}/groupMeetings/group/viewInvitations`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${user.token}`,
-                    },
-                });
 
-                const data = await r.json();
-                if (!r.ok) {
-                    setError(data.message || "Failed to fetch Group meetings")
-                    return;
-                }
+    const fetchGroupMeetings = useCallback(async () => {
+        if (!user?.token) return;
+        try {
+            const r = await fetch(`${API_URL}/groupMeetings/group/viewInvitations`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user.token}`,
+                },
+            });
 
-                setGroupMeetings(data);
+            const data = await r.json();
+            if (!r.ok) {
+                setError(data.message || "Failed to fetch Group meetings")
+                return;
             }
-            catch (err) {
-                setError("Failed to fetch Group meetings")
-            }
-            
+
+            setGroupMeetings(data);
         }
-
-        if (user?.token) {
-            fetchGroupMeetings();
+        catch (err) {
+            setError("Failed to fetch Group meetings")
         }
     }, [user?.token]);
+
+    useEffect(() => { fetchGroupMeetings(); }, [fetchGroupMeetings]);
+
+    useAutoRefresh([fetchBookings, fetchGroupMeetings], 30_000);
 
 
 
