@@ -157,10 +157,14 @@ exports.deleteSlot = async (req, res) => {
         "DELETE FROM slots WHERE id = ? AND ownerID = ?",
         [slotID, ownerID]
       );
+      if (rows[0].bookedByEmail !== null) {
       return res.status(200).json({
         message: `Booking on ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been cancelled`,
         emailToNotify: rows[0].bookedByEmail
       });
+    } 
+      return res.status(200).json({ message: "Slot deleted" });
+      
     } catch (err) {
       return res.status(500).json({ message: "Failed to delete slot", error: err.message });
     }
