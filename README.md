@@ -1,5 +1,7 @@
 # SOCS Booking Application
 
+URL : https://winter2026-comp307-group12.cs.mcgill.ca/
+
 👥 **Team Roles**
 
 | Name | Role | ID | Features Worked On |
