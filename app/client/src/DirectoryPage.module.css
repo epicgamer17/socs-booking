@@ -79,3 +79,30 @@
     font-size: 0.9rem;
     margin-bottom: var(--spacing-md);
 }
+
+@media (max-width: 600px) {
+    .container {
+        padding: var(--spacing-md);
+    }
+
+    .pageHeader {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-md);
+    }
+
+    .pageHeader h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0;
+    }
+
+    .select {
+        width: 100%;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+}

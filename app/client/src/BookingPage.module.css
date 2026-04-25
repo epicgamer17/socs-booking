@@ -103,21 +103,31 @@
     font-weight: 500;
 }
 
-/* Make it responsive for mobile devices */
 @media (max-width: 600px) {
+    .container {
+        padding: var(--spacing-md);
+    }
+
+    .title {
+        font-size: 1.75rem;
+    }
+
     .slotCard {
         flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-lg);
+        align-items: stretch;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
     }
 
     .slotInfo {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         gap: var(--spacing-md);
         width: 100%;
     }
 
-    .bookBtn {
-        width: 100%;
+    .infoBlock {
+        flex: 1 1 30%;
+        min-width: 80px;
     }
 }

@@ -1,7 +1,7 @@
 const db = require("../db/db");
 const crypto = require("crypto");
 
-
+//----- Generate Invite Link -----
 exports.generateLink = async (req, res) => {
     const ownerID = req.user.id;
 
