@@ -11,7 +11,7 @@
 - [] **#15** Deploy to Mimi. Submission requires a live URL.
 - [ ] **#17** `bookSlot` leaves transactions open on early returns at lines 41 and 52. Move verification queries before `beginTransaction()`. Audit other transactional controllers.
 - [x] **#28** `NavBar.jsx:47` — desktop nav has no Dashboard link for students. Mirror the mobile menu logic.
-- [ ] **#33** Add live URL to top of `README.md` once deployed.
+- [x] **#33** Add live URL to top of `README.md` once deployed.
 
 ## 🟠 Competition track only
 
