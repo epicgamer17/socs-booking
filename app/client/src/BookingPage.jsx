@@ -52,36 +52,36 @@ function BookingPage() {
 
     },[user,ownerId])
 
-    useEffect(() => {
-        const dummySlots = [
-            {
-                id: 1,
-                date: "2026-04-22",
-                timeFrom: "10:00",
-                timeTo: "10:30",
-            },
-            {
-                id: 2,
-                date: "2026-04-22",
-                timeFrom: "11:00",
-                timeTo: "11:30",
-            },
-            {
-                id: 3,
-                date: "2026-04-23",
-                timeFrom: "09:00",
-                timeTo: "09:30",
-            },
-            {
-                id: 4,
-                date: "2026-04-23",
-                timeFrom: "14:00",
-                timeTo: "14:30",
-            },
-        ];
+    // useEffect(() => {
+    //     const dummySlots = [
+    //         {
+    //             id: 1,
+    //             date: "2026-04-22",
+    //             timeFrom: "10:00",
+    //             timeTo: "10:30",
+    //         },
+    //         {
+    //             id: 2,
+    //             date: "2026-04-22",
+    //             timeFrom: "11:00",
+    //             timeTo: "11:30",
+    //         },
+    //         {
+    //             id: 3,
+    //             date: "2026-04-23",
+    //             timeFrom: "09:00",
+    //             timeTo: "09:30",
+    //         },
+    //         {
+    //             id: 4,
+    //             date: "2026-04-23",
+    //             timeFrom: "14:00",
+    //             timeTo: "14:30",
+    //         },
+    //     ];
 
-        setSlots(dummySlots);
-    }, []);
+    //     setSlots(dummySlots);
+    // }, []);
 
     async function handleBooking(slotId) {
         const confirmation = window.confirm("Are you sure you want to book this slot?")
