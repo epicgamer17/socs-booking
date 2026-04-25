@@ -45,16 +45,16 @@ exports.getOwners = async (req, res) => {
 //----- Get all Public Available Slot of Specific Owner -----
 exports.viewOwnersSlots = async (req, res) => {
   const ownerID = req.params.ownerID
-  try{
-    const[result] = await db.query(`
+  try {
+    const [result] = await db.query(`
     SELECT * FROM slots WHERE slots.ownerID = ? 
     AND slots.isActive = TRUE
     AND slots.id NOT IN (SELECT slotID FROM bookings)`,
-    [ownerID]);
+      [ownerID]);
 
     return res.status(200).json(result);
   } catch (err) {
-    return res.status(500).json({message: "Error finding public slots", error: err.message})
+    return res.status(500).json({ message: "Error finding public slots", error: err.message })
 
   }
 }
@@ -63,30 +63,30 @@ exports.viewOwnersSlots = async (req, res) => {
 //----- Create Slot -----
 exports.createSlot = async (req, res) => {
 
-    const ownerID = req.user.id;
-    //get slot details from req body
-    const date = req.body.date;
-    const timeFrom = req.body.timeFrom;
-    const timeTo = req.body.timeTo;
-    try {
-        //insert slot into db
-        await db.query(
-            "INSERT INTO slots (ownerID, date, timeFrom, timeTo) VALUES(?,?,?,?)",
-            [ownerID, date, timeFrom, timeTo]
-        );
-        return res.status(201).json({ message: "Slot created" });
-    } catch (err) {
-        return res.status(500).json({ message: "Slot creation failed", error: err.message });
-    }
+  const ownerID = req.user.id;
+  //get slot details from req body
+  const date = req.body.date;
+  const timeFrom = req.body.timeFrom;
+  const timeTo = req.body.timeTo;
+  try {
+    //insert slot into db
+    await db.query(
+      "INSERT INTO slots (ownerID, date, timeFrom, timeTo) VALUES(?,?,?,?)",
+      [ownerID, date, timeFrom, timeTo]
+    );
+    return res.status(201).json({ message: "Slot created" });
+  } catch (err) {
+    return res.status(500).json({ message: "Slot creation failed", error: err.message });
+  }
 };
 
 //----- View all Slots and Associated Bookings -----
 exports.viewSlots = async (req, res) => {
-    const ownerID = req.user.id;
+  const ownerID = req.user.id;
 
-    try {
-        const [slots] = await db.query(
-            `SELECT 
+  try {
+    const [slots] = await db.query(
+      `SELECT 
               slots.id AS slotID,
               slots.date,
               slots.timeFrom,
@@ -97,120 +97,121 @@ exports.viewSlots = async (req, res) => {
              LEFT JOIN bookings ON slots.id = bookings.slotID 
              LEFT JOIN users ON users.id = bookings.userID
              WHERE slots.ownerID = ?`,
-            [ownerID]
-        );
+      [ownerID]
+    );
 
-        return res.status(200).json(slots);
-    } catch (err) {
-        return res.status(500).json({ message: "Failed to retrieve slots", error: err.message });
-    }
+    return res.status(200).json(slots);
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to retrieve slots", error: err.message });
+  }
 };
 
 //----- Activate a Slot ----- 
 exports.activateSlot = async (req, res) => {
-    const slotID = req.params.id;
-    const ownerID = req.user.id;
+  const slotID = req.params.id;
+  const ownerID = req.user.id;
 
-    try {
-        const [result] = await db.query(
-            "UPDATE slots SET isActive = TRUE WHERE id = ? AND ownerID = ?",
-            [slotID, ownerID]
-        );
+  try {
+    const [result] = await db.query(
+      "UPDATE slots SET isActive = TRUE WHERE id = ? AND ownerID = ?",
+      [slotID, ownerID]
+    );
 
-        //if no affected rows, activate operation was not performed
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Unauthorized or slot does not exist" });
-        }
-
-        return res.status(200).json({ message: "Slot activated" });
-
-    } catch (err) {
-        return res.status(500).json({
-            message: "Failed to activate slot", error: err.message
-        });
+    //if no affected rows, activate operation was not performed
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Unauthorized or slot does not exist" });
     }
+
+    return res.status(200).json({ message: "Slot activated" });
+
+  } catch (err) {
+    return res.status(500).json({
+      message: "Failed to activate slot", error: err.message
+    });
+  }
 };
 
 //----- Delete a Slot -----
 exports.deleteSlot = async (req, res) => {
-    const slotID = req.params.id;
-    const ownerID = req.user.id;
-    try {
-      //get slot and booker info
-      const [rows] = await db.query(
-        `SELECT slots.date, slots.timeFrom, slots.timeTo, users.email AS bookedByEmail
+  const slotID = req.params.id;
+  const ownerID = req.user.id;
+  try {
+    //get slot and booker info
+    const [rows] = await db.query(
+      `SELECT slots.date, slots.timeFrom, slots.timeTo, users.email AS bookedByEmail
          FROM slots
          LEFT JOIN bookings ON slots.id = bookings.slotID
          LEFT JOIN users ON users.id = bookings.userID
          WHERE slots.id = ? AND slots.ownerID = ?`,
-        [slotID, ownerID]
-      );
-      if (rows.length === 0) {
-        return res.status(404).json({ message: "Unauthorized or slot does not exist" });
-      }
-      //delete booking associated to slot if it exists
-      if (rows[0].bookedByEmail !== null) {
-        await db.query("DELETE FROM bookings WHERE slotID = ?", [slotID]);
-      }
-      //delete slot
-      await db.query(
-        "DELETE FROM slots WHERE id = ? AND ownerID = ?",
-        [slotID, ownerID]
-      );
-      if (rows[0].bookedByEmail !== null) {
+      [slotID, ownerID]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Unauthorized or slot does not exist" });
+    }
+    //delete booking associated to slot if it exists
+    if (rows[0].bookedByEmail !== null) {
+      await db.query("DELETE FROM bookings WHERE slotID = ?", [slotID]);
+    }
+    //delete slot
+    await db.query(
+      "DELETE FROM slots WHERE id = ? AND ownerID = ?",
+      [slotID, ownerID]
+    );
+    if (rows[0].bookedByEmail !== null) {
       return res.status(200).json({
         message: `Booking on ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been cancelled`,
         emailToNotify: rows[0].bookedByEmail
       });
-    } 
-      return res.status(200).json({ message: "Slot deleted" });
-      
-    } catch (err) {
-      return res.status(500).json({ message: "Failed to delete slot", error: err.message });
     }
-  };
+    return res.status(200).json({ message: "Slot deleted" });
 
-
-  //-----(Type 3) Create Recurring Office Hours -----
-  exports.createRecurringSlots = async (req, res) => {
-    const ownerID = req.user.id;
-    const days = req.body.days; // array of dates 
-    const weeks = req.body.weeks; // number of weeks to repeat
-    const timeFrom = req.body.timeFrom;
-    const timeTo = req.body.timeTo;
-
-    //check if required fields are provided
-    if (!days || days.length === 0 || !weeks) {
-      return res.status(400).json({ message: "Missing required fields" });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to delete slot", error: err.message });
   }
-    const conn = await db.getConnection();
-    try {
-        await conn.beginTransaction();
+};
 
-        const values = [];
 
-        //calculate all slot dates by adding 7 days per week offset
-        for (let week = 0; week < weeks; week++) {
-            for (const day of days) {
-                const slotDate = new Date(day);
-                slotDate.setDate(slotDate.getDate() + (week * 7));
-                values.push([ownerID, slotDate.toISOString().split("T")[0], timeFrom, timeTo]);
-            }
-        }
+//-----(Type 3) Create Recurring Office Hours -----
+exports.createRecurringSlots = async (req, res) => {
+  const ownerID = req.user.id;
+  const days = req.body.days; // array of dates 
+  const weeks = req.body.weeks; // number of weeks to repeat
+  const timeFrom = req.body.timeFrom;
+  const timeTo = req.body.timeTo;
 
-        //bulk insert all slots in one query
-        await conn.query(
-            `INSERT INTO slots (ownerID, date, timeFrom, timeTo) VALUES ?`,
-            [values]
-        );
+  //check if required fields are provided
+  if (!days || days.length === 0 || !weeks || !timeFrom || !timeTo) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
 
-        await conn.commit();
-        return res.status(201).json({ message: "Recurring slots created" });
-    } catch (err) {
-        await conn.rollback();
-        return res.status(500).json({ message: "Failed to create recurring slots", error: err.message });
-    } finally {
-        //release connection back to pool
-        conn.release();
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const values = [];
+
+    //calculate all slot dates by adding 7 days per week offset
+    for (let week = 0; week < weeks; week++) {
+      for (const day of days) {
+        const slotDate = new Date(day);
+        slotDate.setDate(slotDate.getDate() + (week * 7));
+        values.push([ownerID, slotDate.toISOString().split("T")[0], timeFrom, timeTo]);
+      }
     }
+
+    //bulk insert all slots in one query
+    await conn.query(
+      `INSERT INTO slots (ownerID, date, timeFrom, timeTo) VALUES ?`,
+      [values]
+    );
+
+    await conn.commit();
+    return res.status(201).json({ message: "Recurring slots created" });
+  } catch (err) {
+    await conn.rollback();
+    return res.status(500).json({ message: "Failed to create recurring slots", error: err.message });
+  } finally {
+    //release connection back to pool
+    conn.release();
+  }
 };
