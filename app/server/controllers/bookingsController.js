@@ -21,9 +21,12 @@ exports.bookSlot = async (req, res) => {
   const userID = req.user.id;
   const slotID = req.params.slotID;
 
+  const conn = await db.getConnection();
   try {
+    await conn.beginTransaction();
+    
     // verify slot exists
-    const [rows] = await db.query(
+    const [rows] = await conn.query(
       `SELECT slots.id,
               slots.date     AS date,
               slots.timeFrom AS timeFrom,
@@ -31,7 +34,7 @@ exports.bookSlot = async (req, res) => {
               owners.email   AS ownerEmail
          FROM slots
          JOIN users AS owners ON owners.id = slots.ownerID
-        WHERE slots.id = ? AND isActive = TRUE`,
+        WHERE slots.id = ? AND slots.isActive = TRUE`,
       [slotID]
     );
     if (rows.length === 0) {
@@ -39,22 +42,24 @@ exports.bookSlot = async (req, res) => {
     }
 
     // verify uniqueness without UNIQUE, temporary measure
-    const [verif] = await db.query(
+    const [verif] = await conn.query(
       `SELECT *
        FROM bookings
        WHERE bookings.slotID = ?`,
       [slotID]
     )
     if (verif.length !== 0) {
-      return res.status(409).json({ message: "Slot already booked" });
+      return res.status(409).json({ error: "Slot already booked" });
     }
 
     // book the slot
     // created at date already set automatically by the DB
-    await db.query(
+    await conn.query(
       "INSERT INTO bookings (slotID, userID) VALUES(?,?)",
       [slotID, userID]
     );
+
+    await conn.commit();
 
     // return info on booked slot and notify owner by email
     return res.status(201).json({
@@ -63,10 +68,13 @@ exports.bookSlot = async (req, res) => {
     });
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
+      await conn.rollback();
       // needs UNIQUE(slotID) for this branch to ever trigger
       return res.status(409).json({ message: "Slot already booked" });
     }
     return res.status(500).json({ message: "Slot booking failed", error: err.message });
+  } finally {
+    conn.release();
   }
 }
 
@@ -119,7 +127,7 @@ exports.cancelBooking = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: "Unauthorized or booking doesn't exist" });
+      return res.status(404).json({ error: "Unauthorized or booking doesn't exist" });
     }
 
     // delete booking

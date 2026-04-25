@@ -24,33 +24,33 @@ function BookingPage() {
     }
 
 
-    // useEffect(()=>{
+    useEffect(()=>{
 
-    //     async function fetchSlots() {
+        async function fetchSlots() {
 
-    //         const r = await fetch(`${API_URL}/slots/owner/${ownerId}`, {
-    //             method: "GET",
-    //             headers: {
-    //                 "Content-Type": "application/json",
-    //                 "Authorization": `Bearer ${user.token}`
-    //             },
-    //         });
+            const r = await fetch(`${API_URL}/slots/owner/${ownerId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user.token}`
+                },
+            });
 
-    //         const data = await r.json();
-    //         if (!r.ok) {
-    //             setError(data.message || "Failed to fetch data")
-    //             return;
-    //         }
-    //         setSlots(data)
+            const data = await r.json();
+            if (!r.ok) {
+                setError(data.message || "Failed to fetch data")
+                return;
+            }
+            setSlots(data)
 
-    //     }
+        }
 
-    //     if (user?.token && ownerId) {
-    //         fetchSlots();
+        if (user?.token && ownerId) {
+            fetchSlots();
 
-    //     }
+        }
 
-    // },[user,ownerId])
+    },[user,ownerId])
 
     useEffect(() => {
         const dummySlots = [
@@ -89,13 +89,12 @@ function BookingPage() {
             return;
         }
 
-        const r = await fetch(`${API_URL}/bookings`, {
+      const r = await fetch(`${API_URL}/bookings/${slotId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${user.token}`
             },
-            body: JSON.stringify({ id: slotId }),
         });
 
         const data = await r.json();
