@@ -19,53 +19,16 @@ function UserDashboard() {
     const [bookings, setBookings] = useState([])
     const [error, setError] = useState()
     const [loading, setLoading] = useState(true)
-    const [selectedVotes, setSelectedVotes] = useState({})
-    // const [groupMeetings, setGroupMeetings] = useState([]);
 
-    const [groupMeetings, setGroupMeetings] = useState([
-    {
-        id: 1,
-        title: "Project Meeting",
-        voterCount: 3,
-        candidates: [
-            {
-                candidateID: 101,
-                date: "2026-04-28",
-                timeFrom: "10:00",
-                timeTo: "11:00",
-                votes: 2,
-            },
-            {
-                candidateID: 102,
-                date: "2026-04-28",
-                timeFrom: "14:00",
-                timeTo: "15:00",
-                votes: 1,
-            },
-        ],
-    },
-    {
-        id: 2,
-        title: "Study Group",
-        voterCount: 2,
-        candidates: [
-            {
-                candidateID: 201,
-                date: "2026-04-29",
-                timeFrom: "09:00",
-                timeTo: "10:00",
-                votes: 1,
-            },
-            {
-                candidateID: 202,
-                date: "2026-04-29",
-                timeFrom: "16:00",
-                timeTo: "17:00",
-                votes: 1,
-            },
-        ],
-    },
-]);
+
+    const [selectedVotes, setSelectedVotes] = useState({})
+    const [errorTimeSlot, setErrorTimeSlot] = useState({})
+
+
+    
+    const [groupMeetings, setGroupMeetings] = useState([]);
+
+
     useEffect(() => {
         async function fetchBookings() {
             try {
@@ -95,6 +58,41 @@ function UserDashboard() {
 
         if (user?.token) {
             fetchBookings();
+        }
+    }, [user?.token]);
+
+
+
+
+
+
+        useEffect(() => {
+        async function fetchGroupMeetings() {
+            try {
+                const r = await fetch(`${API_URL}/group/viewInvitations`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${user.token}`,
+                    },
+                });
+
+                const data = await r.json();
+                if (!r.ok) {
+                    setError(data.message || "Failed to fetch Group meetings")
+                    return;
+                }
+
+                setGroupMeetings(data);
+            }
+            catch (err) {
+                setError("Failed to fetch Group meetings")
+            }
+            
+        }
+
+        if (user?.token) {
+            fetchGroupMeetings();
         }
     }, [user?.token]);
 
@@ -142,6 +140,7 @@ function UserDashboard() {
     }
 
     function handleVoteToggle(candidateIdVotedList, candidateID) {
+        setErrorTimeSlot({});
         if (candidateIdVotedList.includes(candidateID)) {
             return candidateIdVotedList.filter(i => i !== candidateID)
         } else {
@@ -151,8 +150,11 @@ function UserDashboard() {
 
     }
     async function handleSubmitVote(group, voteList) {
+        setErrorTimeSlot({});
         if (voteList.length===0) {
-            setError("Please select at least one time slot.");
+            setErrorTimeSlot({
+                groupID:group.id,
+                message:"Please select at least one time slot."});
             return;
         }
         const confirmation = window.confirm("Are you sure you want to submit the votings?")
@@ -177,7 +179,9 @@ function UserDashboard() {
             const data = await r.json();
 
             if (!r.ok) {
-                setError(data.message || "Failed to submit votes")
+                setErrorTimeSlot({
+                groupID:group.id,
+                message:data.message || "Failed to submit votes"});
                 return;
             }
 
@@ -187,7 +191,9 @@ function UserDashboard() {
 
         }
         catch {
-            setError("Failed to submit votes")
+            setErrorTimeSlot({
+                groupID:group.id,
+                message:"Failed to submit votes"});
         }
 
         
@@ -279,6 +285,7 @@ function UserDashboard() {
                                 <Button variant="danger" onClick={() => handleSubmitVote(g, selectedVotes[g.id] || [])}>
                                     Submit Vote
                                 </Button>
+                                {errorTimeSlot.groupID===g.id && <p style={{ color: "red" }}>{errorTimeSlot.message}</p>}
 
                             </div>
                         );
