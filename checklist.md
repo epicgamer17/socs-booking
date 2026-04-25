@@ -49,7 +49,7 @@
 - [ ] **#32** Expand 30% attribution table in README. Be conservative — list react-router, vite, eslint, all libs, any AI-assisted helpers.
 - [ ] **#34** Rewrite team table's "Features Worked On" as file path lists. Pair with #5 so the TA's grep matches.
 - [ ] **#35** README task list out of date. `/slots/recurring` is unused dead code (frontend loops `/slots/create` instead). Either wire it up or delete it.
-- [ ] **#36** Add `*.pdf` to `.gitignore`, `git rm --cached` the project PDF. Optional.
+- [x] **#36** Add `*.pdf` to `.gitignore`, `git rm --cached` the project PDF. Optional.
 
 ---
 
