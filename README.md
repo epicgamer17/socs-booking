@@ -1,4 +1,4 @@
-# SOCS Booking Application
+# myBookings Application
 
 URL : https://winter2026-comp307-group12.cs.mcgill.ca/
 

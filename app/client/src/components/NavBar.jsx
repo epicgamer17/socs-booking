@@ -41,7 +41,7 @@ function NavBar() {
         <>
             <nav className={styles.nav}>
                 <NavLink to={homeHref} className={styles.brand}>
-                    <span className={styles.brandMark}>SOCS</span> Booking
+                    <span className={styles.brandMark}>myBookings</span>
                 </NavLink>
 
                 <div className={styles.desktopLinks}>

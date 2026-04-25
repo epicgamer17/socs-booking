@@ -91,7 +91,7 @@ function Register() {
         <div className={styles.authContainer}>
             <div className={styles.authCard}>
                 <h2 className={styles.title}>Create Account</h2>
-                <p className={styles.subtitle}>Join SOCS Booking</p>
+                <p className={styles.subtitle}>Join myBookings</p>
 
                 {error && <p className={styles.error}>{error}</p>}
                 {isRegistered && <p className={styles.success}>Registration Successful</p>}

@@ -9,10 +9,9 @@ function LandingPage() {
         return (
                 <div className={styles.hero}>
                         <h1 className={styles.title}>
-                                SOCS <span className={styles.highlight}>Booking</span>
+                                myBookings
                         </h1>
                         <p className={styles.description}>
-                                The official booking application for the McGill School of Computer Science.
                                 Connect with professors, schedule office hours, and manage your meetings all in one place.
                         </p>
                         <div className={styles.actionGroup}>

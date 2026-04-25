@@ -49,7 +49,7 @@ function Login() {
         <div className={styles.authContainer}>
             <div className={styles.authCard}>
                 <h2 className={styles.title}>Welcome Back</h2>
-                <p className={styles.subtitle}>Sign in to SOCS Booking</p>
+                <p className={styles.subtitle}>Sign in to myBookings</p>
 
                 {error && <p className={styles.error}>{error}</p>}
 

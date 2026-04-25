@@ -1,4 +1,4 @@
-# SOCS Booking — Fix Checklist
+# myBookings — Fix Checklist
 
 ## 🔴 Pre-demo blockers
 
@@ -6,7 +6,7 @@
 - [x] **#2** Fix wrong URL prefix in `UserDashboard.jsx` — lines 72 and 167 use `/group/...` but server mounts at `/groupMeetings/...`. Student voting is 404'ing.
 - [x] **#4** Add `UNIQUE(slotID, userID)` to `bookings` migration + `FOR UPDATE` on slot SELECT in `bookSlot`. Prevents double-booking race during Phase 2 tryout.
 - [ ] **#5** Add `// Author: <name>` headers to every `.js`/`.jsx` file your team wrote. Spec page 5 explicitly grades this.
-- [ ] **#6** Pick an actual app name (not "SOCS Booking"). Update `index.html`, `LandingPage.jsx`, `NavBar.jsx`, `README.md`.
+- [x] **#6** Pick an actual app name (not "SOCS Booking"). Update `index.html`, `LandingPage.jsx`, `NavBar.jsx`, `README.md`.
 - [x] **#9** Fix `slotsController.deleteSlot:161` — message says "Booking ... cancelled" even when nothing was booked.
 - [] **#15** Deploy to Mimi. Submission requires a live URL.
 - [ ] **#17** `bookSlot` leaves transactions open on early returns at lines 41 and 52. Move verification queries before `beginTransaction()`. Audit other transactional controllers.
