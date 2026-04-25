@@ -8,7 +8,7 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem("user");
+        const savedUser = localStorage.getItem("student");
         return savedUser ? JSON.parse(savedUser) : null;
 
 
@@ -17,7 +17,7 @@ export function AuthProvider({ children }) {
 
     function getRoleFromEmail(email) {
         const r = email.trim().toLowerCase();
-        if (r.endsWith("@mail.mcgill.ca")) return "user";
+        if (r.endsWith("@mail.mcgill.ca")) return "student";
         if (r.endsWith("@mcgill.ca")) return "owner";
         return null;
     }
@@ -82,7 +82,7 @@ export function AuthProvider({ children }) {
         }
 
         const userData = { email, role: getRoleFromEmail(email), token: data.token };
-        localStorage.setItem("user", JSON.stringify(userData))
+        localStorage.setItem("student", JSON.stringify(userData))
         setUser(userData);
         return userData;
     }
@@ -94,7 +94,7 @@ export function AuthProvider({ children }) {
 
 
         });
-        localStorage.removeItem("user")
+        localStorage.removeItem("student")
         setUser(null);
     }
 

@@ -21,7 +21,7 @@
 
 ## 🟡 Code quality (graded under "Quality of coding")
 
-- [ ] **#3** Standardize role label as `student` everywhere — DB, JWT, frontend localStorage, all comparisons. Currently `auth.jsx:20` uses `"user"`.
+- [x] **#3** Standardize role label as `student` everywhere — DB, JWT, frontend localStorage, all comparisons. Currently `auth.jsx:20` uses `"user"`.
 - [ ] **#8** Make Type 1 meeting request flow consistent — server should build `mailtoUrl` for owner notifications, matching the `bookSlot`/`cancelBooking` pattern.
 - [ ] **#10** `/dashboard/student` duplicates `bookingsController.viewBookings`. Delete one.
 - [ ] **#11** `/dashboard/student` doesn't enforce role. Add `requireStudent` or merge into single `/dashboard`.
