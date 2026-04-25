@@ -61,10 +61,15 @@ exports.bookSlot = async (req, res) => {
 
     await conn.commit();
 
+    const subject = "Slot booked";
+    const body = `Slot on ${rows[0].date.toLocaleDateString('en-CA')} from ${rows[0].timeFrom} to ${rows[0].timeTo} booked.`;
+    const mailtoUrl = `mailto:${rows[0].ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
     // return info on booked slot and notify owner by email
     return res.status(201).json({
       message: `Booking on slot at ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been created`,
-      emailToNotify: rows[0].ownerEmail
+      emailToNotify: rows[0].ownerEmail,
+      mailtoUrl: mailtoUrl,
     });
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
@@ -136,10 +141,15 @@ exports.cancelBooking = async (req, res) => {
       [bookingID, userID]
     );
 
+    const subject = "Booking Cancelled";
+    const body = `Booking on ${rows[0].date.toLocaleDateString('en-CA')} from ${rows[0].timeFrom} to ${rows[0].timeTo} cancelled.`;
+    const mailtoUrl = `mailto:${rows[0].ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
     // return info on deleted booking and notify owner by email
     return res.status(200).json({
       message: `Booking on ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been cancelled`,
-      emailToNotify: rows[0].ownerEmail
+      emailToNotify: rows[0].ownerEmail,
+      mailtoUrl: mailtoUrl,
     });
   } catch (err) {
     return res.status(500).json({ message: "Failed to cancel booking", error: err.message });
