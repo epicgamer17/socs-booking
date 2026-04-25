@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import useAuth from './utils/auth';
 import Button from './components/ui/Button';
+import MailtoButton from './components/ui/MailtoButton';
 import CalendarSelector from './components/CalendarSelector';
 import GroupMeetingForm from './components/GroupMeetingForm';
 import styles from './OwnerDashboard.module.css';
@@ -444,6 +445,15 @@ function OwnerDashboard() {
                   <Button variant="primary" onClick={() => handleActivate(slot.slotID)}>
                     Activate
                   </Button>
+                )}
+                {slot.bookedByEmail && (
+                  <MailtoButton
+                    variant="primary"
+                    email={slot.bookedByEmail}
+                    subject={`Regarding your booking on ${slot.date} (${slot.timeFrom}-${slot.timeTo})`}
+                  >
+                    Mail
+                  </MailtoButton>
                 )}
                 <Button variant="danger" onClick={() => handleDelete(slot.slotID)}>
                   Delete

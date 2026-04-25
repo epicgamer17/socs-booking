@@ -37,7 +37,7 @@ function CalendarSelectorBooking() {
 
 
         try {
-            const r = await fetch(`${API_URL}/requests`, {
+            const r = await fetch(`${API_URL}/request/meeting`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
