@@ -1,3 +1,4 @@
+/* Author: Jonathan Lamontagne-Kratz */
 import { createContext, useContext, useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'theme';

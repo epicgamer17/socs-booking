@@ -1,3 +1,4 @@
+/* Author: Jonathan Lamontagne-Kratz */
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import useAuth from '../utils/auth';
