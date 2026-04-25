@@ -49,12 +49,18 @@ exports.requestMeeting = async (req, res) => {
         }
 
         const ownerID = rows[0].id;
-    
+
         await db.query(
             `INSERT INTO meetingRequests (userID, ownerID, date, timeFrom, timeTo, message)
             VALUES (?, ?, ?, ?, ?, ?)`, [userID, ownerID, date, timeFrom, timeTo, message]
         );
-        return res.status(201).json({ message: "Meeting request sent" });
+        return res.status(201).json({
+            message: "Meeting request sent",
+            emailToNotify: ownerEmail,
+            date,
+            timeFrom,
+            timeTo
+        });
     } catch (err) {
         return res.status(500).json({ message: "unable to query db", error: err.message });
     }
