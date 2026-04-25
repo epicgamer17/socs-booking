@@ -153,5 +153,6 @@ window.open(mailtoUrl);
 | mysql2/jwt/bcrypt | Auth & DB utilities | NPM packages |
 | README.md | Basic outline | AI-generated outline and formatting |
 | AI Generated Dummy Data | (not used in final submission) |
+| Merge conflict resolution | `db/migrations/05_groupMeetings.sql` after master was merged into feature branch | AI assistance |
 ---
 *Note: migrations.js script is AI-generated (short utility script).*
