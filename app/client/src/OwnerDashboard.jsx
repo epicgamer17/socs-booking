@@ -300,7 +300,7 @@ function OwnerDashboard() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>Owner Dashboard</h1>
+          <h1 className={styles.title}>Staff Dashboard</h1>
           <p className={styles.subtitle}>Welcome back, Administrator</p>
         </div>
       </header>

@@ -207,7 +207,7 @@ function UserDashboard() {
 
             <header className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>User Dashboard</h1>
+                    <h1 className={styles.title}>Student Dashboard</h1>
                     <p className={styles.subtitle}>Welcome back,Student</p>
                 </div>
 
