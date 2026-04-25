@@ -38,17 +38,17 @@ export function AuthProvider({ children }) {
         return true;
     }
 
-    async function register(email,firstName,lastName,password,department) {
+    async function register(email, firstName, lastName, password, department) {
         setError("");
         if (!checkEmailPassword(email, password)) return false;
 
         const to_send_data = {
-            email,firstName,lastName,password
+            email, firstName, lastName, password
         }
 
-        if (getRoleFromEmail(email)==="owner") {
+        if (getRoleFromEmail(email) === "owner") {
             to_send_data.department = department;
-            
+
         }
 
         const r = await fetch(`${API_URL}/auth/register`, {
@@ -93,7 +93,7 @@ export function AuthProvider({ children }) {
             headers: { "Authorization": `Bearer ${user.token}` }
 
 
-        }),
+        });
         localStorage.removeItem("user")
         setUser(null);
     }
