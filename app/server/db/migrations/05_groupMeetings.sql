@@ -37,3 +37,6 @@ CREATE TABLE IF NOT EXISTS userVotes (
   FOREIGN KEY (timeWindowID) REFERENCES timeWindows(id) ON DELETE CASCADE,
   UNIQUE(userID, timeWindowID)
 );
+
+ALTER TABLE bookings
+  ADD FOREIGN KEY (groupMeetingID) REFERENCES groupMeetings(id) ON DELETE SET NULL;
