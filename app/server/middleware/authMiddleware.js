@@ -1,3 +1,4 @@
+//Sophia Hussain
 const jwt = require("jsonwebtoken");
 
 const requireAuth = (req, res, next) => { 

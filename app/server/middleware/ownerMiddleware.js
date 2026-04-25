@@ -1,4 +1,4 @@
-
+//Thomas Nguyen
 
 const requireOwner = (req, res, next) => {
     if (req.user.role !== "owner") {
