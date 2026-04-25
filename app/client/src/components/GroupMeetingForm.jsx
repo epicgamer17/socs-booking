@@ -12,6 +12,7 @@ function emptyWindow() {
 
 function GroupMeetingForm({ onCreated }) {
     const { user } = useAuth();
+    const [title, setTitle] = useState('');
     const [windows, setWindows] = useState([emptyWindow()]);
     const [emailsText, setEmailsText] = useState('');
     const [submitting, setSubmitting] = useState(false);
@@ -40,6 +41,11 @@ function GroupMeetingForm({ onCreated }) {
         e.preventDefault();
         setStatus(null);
 
+        if (!title.trim()) {
+            setStatus({ type: 'error', message: 'Enter a poll title.' });
+            return;
+        }
+
         const emails = parseEmails(emailsText);
         if (emails.length === 0) {
             setStatus({ type: 'error', message: 'Add at least one student email.' });
@@ -66,6 +72,7 @@ function GroupMeetingForm({ onCreated }) {
                     Authorization: `Bearer ${user.token}`,
                 },
                 body: JSON.stringify({
+                    title: title,
                     timeWindows: windows,
                     invitedUserEmails: emails,
                 }),
@@ -76,6 +83,7 @@ function GroupMeetingForm({ onCreated }) {
                 return;
             }
             setStatus({ type: 'success', message: 'Poll created. Students can now vote.' });
+            setTitle('');
             setWindows([emptyWindow()]);
             setEmailsText('');
             onCreated?.(data.groupMeetingID);
@@ -88,6 +96,15 @@ function GroupMeetingForm({ onCreated }) {
 
     return (
         <form className={styles.form} onSubmit={handleSubmit}>
+            <Input
+                label="Poll Title"
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Weekly office hours - Week of April 25"
+                required
+            />
+
             {windows.map((w, i) => (
                 <div key={i} className={styles.row}>
                     <Input
