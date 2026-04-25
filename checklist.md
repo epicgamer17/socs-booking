@@ -29,7 +29,7 @@
 - [ ] **#18** `getOwners` in `slotsController.js:7-15` selects ungrouped columns. Add to `GROUP BY` or wrap in `MAX()`.
 - [ ] **#19** `getOwners` mutates DB on a GET. Move invite token creation to registration time.
 - [x] **#20** `auth.jsx:96` typo — comma should be semicolon.
-- [ ] **#21** Delete leftover `console.log(r)` in `auth.jsx:59`. Grep for others.
+- [x] **#21** Delete leftover `console.log(r)` in `auth.jsx:59`. Grep for others.
 - [ ] **#22** Document SQL `;`-splitting limitation in `migrate.js`.
 - [ ] **#24** Restrict CORS to deployed origin instead of `app.use(cors())`.
 - [ ] **#25** Add `UNIQUE(ownerID)` to `inviteLinks` migration.
