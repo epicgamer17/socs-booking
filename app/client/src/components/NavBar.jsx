@@ -45,7 +45,10 @@ function NavBar() {
 
                 <div className={styles.desktopLinks}>
                     {user && isOwner && (
-                        <NavLink to="/owner-dashboard" className={linkClass}>Dashboard</NavLink>
+                        <NavLink to="/owner-dashboard" className={linkClass}>Staff Dashboard</NavLink>
+                    )}
+                    {user && (
+                    <NavLink to="/user-dashboard" className={linkClass}>Student Dashboard</NavLink>
                     )}
                     {user && (
                         <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>
@@ -86,10 +89,11 @@ function NavBar() {
                 aria-hidden={!isOpen}
             >
                 {user && isOwner && (
-                    <NavLink to="/owner-dashboard" className={linkClass}>Dashboard</NavLink>
+                    <NavLink to="/owner-dashboard" className={linkClass}>Staff Dashboard</NavLink>
+                    
                 )}
-                {user && !isOwner && (
-                    <NavLink to="/user-dashboard" className={linkClass}>Dashboard</NavLink>
+                {user && (
+                    <NavLink to="/user-dashboard" className={linkClass}>Student Dashboard</NavLink>
                 )}
                 {user && (
                     <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>
