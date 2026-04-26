@@ -308,6 +308,7 @@ exports.viewVoteResults = async (req, res) => {
  */
 exports.finalizeGroupMeeting = async (req, res) => {
   const ownerID = req.user.id;
+  const ownerEmail = req.user.email;
   const groupMeetingID = req.params.id;
   const recurrenceWeeks = req.body.recurrenceWeeks ?? 1;
   const winningTimeWindowID = req.body.winningTimeWindowID;
@@ -363,7 +364,12 @@ exports.finalizeGroupMeeting = async (req, res) => {
          WHERE groupMeetings.id = ?`,
 	[groupMeetingID]
       );
-      return res.status(200).json({ message: "No votes submitted, but group meeting finalized." });
+
+      const body = `Group meeting finalized without any votes.`;
+      const subject = "Group Meeting Finalized";
+      const url = `mailto:${ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      
+      return res.status(200).json({ message: "No votes submitted, but group meeting finalized.", mailtoUrl: url });
     }
     
     const userIDs = userRows.map(r => r.userID);
@@ -416,7 +422,7 @@ exports.finalizeGroupMeeting = async (req, res) => {
     // build mailto URLs
     const body = `Chosen slot: ${winningTimeWindow.date.toLocaleDateString('en-CA')}, ${winningTimeWindow.timeFrom}, ${winningTimeWindow.timeTo}. Meeting will repeat for ${recurrenceWeeks} weeks.`;
     const subject = "Group Meeting Finalized";
-    const url = `mailto:${emails.join(',')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const url = `mailto:${emails.join(',')},${ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     
     return res.status(200).json({ message: "Group meeting finalization successful", mailtoUrl: url });
   } catch (err) {
