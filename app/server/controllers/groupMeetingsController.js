@@ -1,4 +1,4 @@
-//Thomas Nguyen
+//Thomas Nguyen, Jonathan Lamontagne-Kratz
 const db = require("../db/db");
 
 /*
