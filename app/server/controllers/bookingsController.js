@@ -18,6 +18,10 @@
 
 const db = require("../db/db");
 
+/*
+  POST /:slotID - user books a slot
+  Note: finalizing a group meeting has nothing to do with this endpoint.
+ */
 exports.bookSlot = async (req, res) => {
   const userID = req.user.id;
   const slotID = req.params.slotID;
@@ -25,7 +29,7 @@ exports.bookSlot = async (req, res) => {
   const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
-    
+
     // verify slot exists
     const [rows] = await conn.query(
       `SELECT slots.id,
@@ -40,17 +44,20 @@ exports.bookSlot = async (req, res) => {
       [slotID]
     );
     if (rows.length === 0) {
+      await conn.rollback();
       return res.status(404).json({ error: "Slot does not exist or is not active" });
     }
 
-    // verify uniqueness without UNIQUE, temporary measure
+    // enforces one-booking-per-slot for bookings created through this endpoint
+    // (only way to create many bookings for one slot is through finalizing a group meeting: POST /group/:id/finalize)
     const [verif] = await conn.query(
       `SELECT *
        FROM bookings
        WHERE bookings.slotID = ?`,
       [slotID]
-    )
+    );
     if (verif.length !== 0) {
+      await conn.rollback();
       return res.status(409).json({ error: "Slot already booked" });
     }
 
@@ -76,7 +83,6 @@ exports.bookSlot = async (req, res) => {
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
       await conn.rollback();
-      // needs UNIQUE(slotID) for this branch to ever trigger
       return res.status(409).json({ message: "Slot already booked" });
     }
     return res.status(500).json({ message: "Slot booking failed", error: err.message });
