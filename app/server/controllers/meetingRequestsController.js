@@ -23,7 +23,8 @@ exports.seeMeetingRequests = async (req, res) => {
         );
         return res.status(200).json(result);
     } catch (err) {
-        return res.status(500).json({ message: "Failed to retrieve meeting requests", error: err.message });
+        console.error("[meetingRequestsController.seeMeetingRequests]", err);
+        return res.status(500).json({ message: "Failed to retrieve meeting requests" });
     }
 };
 
@@ -63,7 +64,8 @@ exports.requestMeeting = async (req, res) => {
             timeTo
         });
     } catch (err) {
-        return res.status(500).json({ message: "unable to query db", error: err.message });
+        console.error("[meetingRequestsController.requestMeeting]", err);
+        return res.status(500).json({ message: "unable to query db" });
     }
 };
 
@@ -128,7 +130,8 @@ exports.acceptMeeting = async (req, res) => {
         });
     } catch (err) {
         await conn.rollback();
-        return res.status(500).json({ message: "Failed to accept request", error: err.message });
+        console.error("[meetingRequestsController.acceptMeeting]", err);
+        return res.status(500).json({ message: "Failed to accept request" });
     } finally {
         conn.release();
     }
@@ -169,6 +172,7 @@ exports.declineMeeting = async (req, res) => {
             timeTo: rows[0].timeTo,
         });
     } catch (err) {
-        return res.status(500).json({ message: "Failed to decline request", error: err.message });
+        console.error("[meetingRequestsController.declineMeeting]", err);
+        return res.status(500).json({ message: "Failed to decline request" });
     }
 };

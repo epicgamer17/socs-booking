@@ -84,12 +84,13 @@ exports.register = async (req, res) => {
    
            return res.status(201).json({ message: "User registered successfully. Please check your email to verify your account." });
    
-    } catch (error) {
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ message: 'Email already registered' });
-        }
-        res.status(500).json({ message: 'Error creating user', error: error.message });
+    } catch (err) {
+    console.error("[authController.register]", err);
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ message: 'Email already registered' });
     }
+    res.status(500).json({ message: 'Error creating user' });
+  }
 };
 
 //--------Verify Email--------
@@ -97,19 +98,20 @@ exports.verifyEmail = async (req, res) => {
   const { token } = req.params;
 
   try {
-      const [result] = await db.query(
-          "UPDATE users SET isVerified = TRUE, verifyToken = NULL WHERE verifyToken = ?",
-          [token]
-      );
+    const [result] = await db.query(
+      "UPDATE users SET isVerified = TRUE, verifyToken = NULL WHERE verifyToken = ?",
+      [token]
+    );
 
-      if (result.affectedRows === 0) {
-          return res.status(400).json({ message: "Invalid or expired verification link" });
-      }
+    if (result.affectedRows === 0) {
+      return res.status(400).json({ message: "Invalid or expired verification link" });
+    }
 
-      return res.status(200).json({ message: "Email verified successfully. You can now log in." });
+    return res.status(200).json({ message: "Email verified successfully. You can now log in." });
 
   } catch (err) {
-      return res.status(500).json({ message: "Verification failed", error: err.message });
+      console.error("[authController.verifyEmail]", err);
+      return res.status(500).json({ message: "Verification failed" });
   }
 };
 
@@ -165,8 +167,9 @@ exports.login = async (req, res) => {
 
     return res.status(200).json({ message: "User logged in successfully", token });
 
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+  } catch (err) {
+    console.error("[authController.login]", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
