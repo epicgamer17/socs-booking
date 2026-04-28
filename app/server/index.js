@@ -37,6 +37,20 @@ app.use('/dashboard', dashboardRouter);
 app.use('/url', inviteLinkRouter);
 app.use('/groupMeetings', groupMeetingsRouter);
 
+// wiring for HTTPS
+// BEGIN: AI-generated code
+const path = require('path');
+
+// Serve built React app
+const clientDist = path.join(__dirname, '../client/dist');
+app.use(express.static(clientDist));
+
+// SPA fallback — any non-API GET goes to index.html so React Router can handle it
+app.get(/^\/(?!auth|slots|request|bookings|dashboard|url|groupMeetings).*/, (req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'));
+});
+// END: AI-generated code
+
 
 // Start server
 app.listen(PORT, () => {

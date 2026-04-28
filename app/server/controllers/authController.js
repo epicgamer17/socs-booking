@@ -108,6 +108,14 @@ exports.login = async (req, res) => {
 
     // login successful: send back JWT token expiring in 1h
     const token = jwt.sign({ id: user.id, role: user.role, email: email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60,   // 1h, like the cookie
+    });
+
     return res.status(200).json({ message: "User logged in successfully", token });
 
   } catch (error) {
