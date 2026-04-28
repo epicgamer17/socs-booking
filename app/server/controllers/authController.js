@@ -19,10 +19,10 @@ const VALID_DEPARTMENTS = [
 exports.register = async (req, res) => {
 
     //remove any trailing whitespaces
-    const email = req.body.email.trim();
-    const password = req.body.password.trim();
-    const firstName = req.body.firstName.trim();
-    const lastName = req.body.lastName.trim();
+    const email = (req.body.email || "").trim().toLowerCase();
+    const password = req.body.password;
+    const firstName = (req.body.firstName || "").trim();
+    const lastName = (req.body.lastName || "").trim();
     //if department value provided then remove trailing whitespaces
     const department = req.body.department ? req.body.department.trim() : null;
     //check if email and password, first name, last name provided
@@ -71,56 +71,53 @@ exports.register = async (req, res) => {
     }
 };
 
-
-
 //--------Login--------
 exports.login = async (req, res) => {
-    //remove any trailing whitespaces
-    const email = req.body.email.trim();
-    const enteredPassword = req.body.password.trim();
+  //remove any trailing whitespaces
+  const email = (req.body.email || "").trim().toLowerCase();
+  const enteredPassword = req.body.password;
 
-    //check if email and password provided
-    if (!email || !enteredPassword) {
-        return res.status(400).json({ message: "missing fields" });
-    }
+  //check if email and password provided
+  if (!email || !enteredPassword) {
+    return res.status(400).json({ message: "missing fields" });
+  }
 
-    try {
-        // fetch user credentials
-        const [users] = await db.query(
-            `SELECT 
-              users.password AS hashedPassword,
+  try {
+    // fetch user credentials
+    const [users] = await db.query(
+      `SELECT users.password AS hashedPassword,
               users.id AS id,
               users.role as role
-             FROM users
-             WHERE users.email = ?`,
-            [email]
-        );
+         FROM users
+        WHERE users.email = ?`,
+      [email]
+    );
 
-        const user = users[0];
-        if (!user) {
-            // no user found
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
-
-        const hashedPassword = user.hashedPassword;
-
-        if (!(await bcrypt.compare(enteredPassword, hashedPassword))) {
-            // wrong password
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
-
-        // login successful: send back JWT token expiring in 1h
-      const token = jwt.sign({ id: user.id, role: user.role, email: email }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        return res.status(200).json({ message: "User logged in successfully", token });
-
-    } catch (error) {
-        res.status(500).json({ message: 'Invalid credentials', error: error.message });
+    const user = users[0];
+    if (!user) {
+      // no user found
+      return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    const hashedPassword = user.hashedPassword;
+
+    if (!(await bcrypt.compare(enteredPassword, hashedPassword))) {
+      // wrong password
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // login successful: send back JWT token expiring in 1h
+    const token = jwt.sign({ id: user.id, role: user.role, email: email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    return res.status(200).json({ message: "User logged in successfully", token });
+
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
 
 
 //--------Logout--------
 exports.logout = async (_, res) => {
-    res.status(200).json({ message: 'Logout successful' });
+  res.status(200).json({ message: "Logout successful" });
 };
 
