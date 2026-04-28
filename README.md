@@ -46,6 +46,12 @@ Use these commands to run the project locally and test the code running on the S
    # Test at: http://localhost:5173/
    ```
 
+For enabling access to the site through the URL, do this on Mimi:
+```bash
+cd socs-booking/app/server
+npm start
+```
+
 📡 **Backend Routes & API Guide**
 
 ### Authentication Overview
