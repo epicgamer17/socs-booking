@@ -1,3 +1,5 @@
+/* Author: Tanav Bansal*/
+
 import { useState } from 'react';
 import useAuth from '../utils/auth';
 import Button from './ui/Button';

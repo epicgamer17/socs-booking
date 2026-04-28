@@ -1,3 +1,5 @@
+/* Author: Tanav Bansal*/
+
 export const DEPARTMENT_OPTIONS = [
   { code: "ACCT", label: "Accounting" },
   { code: "AEBI", label: "Biology (Agric & Envir Sc)" },

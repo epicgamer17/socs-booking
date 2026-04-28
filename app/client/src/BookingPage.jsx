@@ -1,3 +1,5 @@
+/* Author: Tanav Bansal*/
+
 import { useParams, useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
 import { useEffect, useState } from "react"

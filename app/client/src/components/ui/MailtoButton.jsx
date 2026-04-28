@@ -1,3 +1,4 @@
+/* Author: Tanav Bansal*/
 
 import React from 'react';
 import Button from './Button';

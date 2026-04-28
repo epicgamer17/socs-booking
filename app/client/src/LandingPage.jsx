@@ -1,3 +1,5 @@
+/* Author: Tanav Bansal*/
+
 import { useNavigate } from 'react-router-dom'
 import Button from './components/ui/Button';
 import styles from './LandingPage.module.css';

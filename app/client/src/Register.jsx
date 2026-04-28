@@ -1,3 +1,5 @@
+/* Author: Tanav Bansal*/
+
 import { useEffect, useState } from "react";
 import useAuth from './utils/auth';
 import { DEPARTMENT_OPTIONS, getDepartment } from "./utils/departments";
