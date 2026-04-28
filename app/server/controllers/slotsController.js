@@ -38,7 +38,8 @@ exports.getOwners = async (req, res) => {
 
     return res.status(200).json(owners);
   } catch (err) {
-    return res.status(500).json({ message: "Failed to retrieve owners", error: err.message });
+    console.error("[slotsController.getOwners]", err);
+    return res.status(500).json({ message: "Failed to retrieve owners" });
   }
 };
 
@@ -55,7 +56,8 @@ exports.viewOwnersSlots = async (req, res) => {
 
     return res.status(200).json(result);
   } catch (err) {
-    return res.status(500).json({ message: "Error finding public slots", error: err.message })
+    console.error("[slotsController.viewOwnersSlots]", err);
+    return res.status(500).json({ message: "Error finding public slots" })
 
   }
 }
@@ -77,7 +79,8 @@ exports.createSlot = async (req, res) => {
     );
     return res.status(201).json({ message: "Slot created" });
   } catch (err) {
-    return res.status(500).json({ message: "Slot creation failed", error: err.message });
+    console.error("[slotsController.createSlot]", err);
+    return res.status(500).json({ message: "Slot creation failed" });
   }
 };
 
@@ -103,7 +106,8 @@ exports.viewSlots = async (req, res) => {
 
     return res.status(200).json(slots);
   } catch (err) {
-    return res.status(500).json({ message: "Failed to retrieve slots", error: err.message });
+    console.error("[slotsController.viewSlots]", err);
+    return res.status(500).json({ message: "Failed to retrieve slots" });
   }
 };
 
@@ -126,8 +130,9 @@ exports.activateSlot = async (req, res) => {
     return res.status(200).json({ message: "Slot activated" });
 
   } catch (err) {
+    console.error("[slotsController.activateSlot]", err);
     return res.status(500).json({
-      message: "Failed to activate slot", error: err.message
+      message: "Failed to activate slot"
     });
   }
 };
@@ -167,7 +172,8 @@ exports.deleteSlot = async (req, res) => {
     return res.status(200).json({ message: "Slot deleted" });
 
   } catch (err) {
-    return res.status(500).json({ message: "Failed to delete slot", error: err.message });
+    console.error("[slotsController.deleteSlot]", err);
+    return res.status(500).json({ message: "Failed to delete slot" });
   }
 };
 
@@ -210,7 +216,8 @@ exports.createRecurringSlots = async (req, res) => {
     return res.status(201).json({ message: "Recurring slots created" });
   } catch (err) {
     await conn.rollback();
-    return res.status(500).json({ message: "Failed to create recurring slots", error: err.message });
+    console.error("[slotsController.createRecurringSlots]", err);
+    return res.status(500).json({ message: "Failed to create recurring slots" });
   } finally {
     //release connection back to pool
     conn.release();

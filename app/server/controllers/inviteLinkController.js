@@ -29,7 +29,8 @@ exports.generateLink = async (req, res) => {
             url: `${process.env.FRONTEND_URL}bookingPage/${token}`
         });
     } catch (err) {
-        return res.status(500).json({ message: "Failed to generate link", error: err.message });
+        console.error("[inviteLinkController.generateLink]", err);
+        return res.status(500).json({ message: "Failed to generate link" });
     }
 
 };
@@ -51,7 +52,8 @@ exports.resolveLink = async (req, res) => {
         return res.status(200).json({ ownerID: result[0].ownerID });
 
     } catch (err) {
-        return res.status(500).json({ message: "Failed to resolve link", error: err.message });
+        console.error("[inviteLinkController.resolveLink]", err);
+        return res.status(500).json({ message: "Failed to resolve link" });
     }
 };
 
@@ -72,7 +74,8 @@ exports.deleteLink = async (req, res) => {
         return res.status(200).json({ message: "Invite link deleted" });
 
     } catch (err) {
-        return res.status(500).json({ message: "Failed to delete link", error: err.message });
+      console.error("[inviteLinkController.deleteLink]", err);
+      return res.status(500).json({ message: "Failed to delete link" });
     }
 };
 
