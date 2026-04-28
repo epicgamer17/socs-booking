@@ -1,4 +1,4 @@
-//Sophia Hussain (Registration) Thomas Nguyen(login/logout)
+//Sophia Hussain (Registration + verify email) Thomas Nguyen(login/logout)
 
 const db = require("../db/db");
 const bcrypt = require("bcrypt");
@@ -125,7 +125,7 @@ exports.login = async (req, res) => {
     const [users] = await db.query(
       `SELECT users.password AS hashedPassword,
               users.id AS id,
-              users.role as role
+              users.role as role,
               users.isVerified AS isVerified
          FROM users
         WHERE users.email = ?`,
