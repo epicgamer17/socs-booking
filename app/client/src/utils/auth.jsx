@@ -52,50 +52,74 @@ export function AuthProvider({ children }) {
 
         }
 
-        const r = await fetch(`${API_URL}/auth/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(to_send_data)
-        });
-        const data = await r.json();
-        if (!r.ok) {
-            setError(data.message || "Registration Failed");
-            return false;
+        try {
+            const r = await fetch(`${API_URL}/auth/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(to_send_data)
+            });
+            const data = await r.json();
+            if (!r.ok) {
+                setError(data.message || "Registration Failed");
+                return false;
+            }
+            return true;
         }
-        return true;
+        catch{
+            setError("Registration Failed");
+            return false;
+
+        }
     }
 
     async function login(email, password) {
         setError("");
         if (!checkEmailPassword(email, password)) return false;
+        try {
+            const r = await fetch(`${API_URL}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
 
-        const r = await fetch(`${API_URL}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
-        });
+            const data = await r.json();
+            if (!r.ok) {
+                setError(data.message || "Login Failed");
+                return false;
+            }
 
-        const data = await r.json();
-        if (!r.ok) {
-            setError(data.message || "Login Failed");
-            return false;
+            const userData = { email, role: getRoleFromEmail(email), token: data.token };
+            localStorage.setItem("student", JSON.stringify(userData))
+            setUser(userData);
+            return userData;
         }
+        catch{
+            setError("Login Failed");
+            return false;
 
-        const userData = { email, role: getRoleFromEmail(email), token: data.token };
-        localStorage.setItem("student", JSON.stringify(userData))
-        setUser(userData);
-        return userData;
+        }
+        
     }
 
     async function logout() {
-        await fetch(`${API_URL}/auth/logout`, {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${user.token}` }
+        try {
+            await fetch(`${API_URL}/auth/logout`, {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${user.token}` }
 
 
-        });
-        localStorage.removeItem("student")
-        setUser(null);
+            });
+            
+        }
+        catch{
+            console.log("Logout Failed");
+            
+        }
+        finally{
+            localStorage.removeItem("student")
+            setUser(null);
+
+        }
     }
 
     return (
