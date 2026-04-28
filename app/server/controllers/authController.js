@@ -3,6 +3,11 @@
 const db = require("../db/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { Resend } = require("resend");
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 //Valid Department Codes 
 const VALID_DEPARTMENTS = [
@@ -15,7 +20,7 @@ const VALID_DEPARTMENTS = [
     "SWRK", "URBP", "WMST"
 ];
 
-//--------Registration--------   TO DO AFTER DEMO -- SEND VERIFICATION EMAIL TO CHECK IS EMAIL USED FOR REGISTRATION ACTUALLY EXISTS.
+//--------Registration--------  
 exports.register = async (req, res) => {
 
     //remove any trailing whitespaces
@@ -23,8 +28,7 @@ exports.register = async (req, res) => {
     const password = req.body.password;
     const firstName = (req.body.firstName || "").trim();
     const lastName = (req.body.lastName || "").trim();
-    //if department value provided then remove trailing whitespaces
-    const department = req.body.department ? req.body.department.trim() : null;
+    const department = req.body.department;
     //check if email and password, first name, last name provided
     if (!email || !password || !firstName || !lastName) {
         return res.status(400).json({ message: "missing mandatory fields" });
@@ -41,7 +45,6 @@ exports.register = async (req, res) => {
     }
 
     //if invalid department
-
     if (department && !VALID_DEPARTMENTS.includes(department)) {
         return res.status(400).json({ message: "Invalid department code" })
     }
@@ -55,20 +58,55 @@ exports.register = async (req, res) => {
     try {
         //encrypt password using bcrypt
         const hashedPassword = await bcrypt.hash(password, 10);
+        const verifyToken = crypto.randomBytes(32).toString("hex");
 
         //add valid user to db
         await db.query(
-            "INSERT INTO users (email, firstName, lastName, department, password, role) VALUES( ?, ?, ?, ?, ?, ? )",
-            [email, firstName, lastName, department, hashedPassword, role]
+            "INSERT INTO users (email, firstName, lastName, department, password, role, verifyToken) VALUES( ?, ?, ?, ?, ?, ?, ? )",
+            [email, firstName, lastName, department, hashedPassword, role, verifyToken]
         );
-        return res.status(201).json({ message: "User registered successfully" });
-
+        
+           // send verification email
+           const verifyURL = `${process.env.FRONTEND_URL}/verify/${verifyToken}`;
+           await resend.emails.send({
+               from: "onboarding@resend.dev",
+               to: email,
+               subject: "Verify your SOCS Booking account",
+               html: `<p>Hi ${firstName},</p>
+                      <p>Please verify your McGill Booking account by clicking the link below:</p>
+                      <a href="${verifyURL}">${verifyURL}</a>
+                      <p>If you did not create an account, ignore this email.</p>`
+           });
+   
+           return res.status(201).json({ message: "User registered successfully. Please check your email to verify your account." });
+   
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
             return res.status(409).json({ message: 'Email already registered' });
         }
         res.status(500).json({ message: 'Error creating user', error: error.message });
     }
+};
+
+//--------Verify Email--------
+exports.verifyEmail = async (req, res) => {
+  const { token } = req.params;
+
+  try {
+      const [result] = await db.query(
+          "UPDATE users SET isVerified = TRUE, verifyToken = NULL WHERE verifyToken = ?",
+          [token]
+      );
+
+      if (result.affectedRows === 0) {
+          return res.status(400).json({ message: "Invalid or expired verification link" });
+      }
+
+      return res.status(200).json({ message: "Email verified successfully. You can now log in." });
+
+  } catch (err) {
+      return res.status(500).json({ message: "Verification failed", error: err.message });
+  }
 };
 
 //--------Login--------
@@ -88,6 +126,7 @@ exports.login = async (req, res) => {
       `SELECT users.password AS hashedPassword,
               users.id AS id,
               users.role as role
+              users.isVerified AS isVerified
          FROM users
         WHERE users.email = ?`,
       [email]
@@ -106,6 +145,10 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+     // check email is verified before allowing login
+     if (!user.isVerified) {
+      return res.status(403).json({ message: "Please verify your email before logging in" });
+  }
     // login successful: send back JWT token expiring in 1h
     const token = jwt.sign({ id: user.id, role: user.role, email: email }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
