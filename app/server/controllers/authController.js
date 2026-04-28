@@ -4,9 +4,14 @@ const db = require("../db/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const { Resend } = require("resend");
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require("nodemailer");
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 
 //Valid Department Codes 
@@ -68,15 +73,14 @@ exports.register = async (req, res) => {
         
            // send verification email
            const verifyURL = `${process.env.FRONTEND_URL}/verify/${verifyToken}`;
-           await resend.emails.send({
-               from: "onboarding@resend.dev",
-               to: email,
-               subject: "Verify your SOCS Booking account",
-               html: `<p>Hi ${firstName},</p>
-                      <p>Please verify your McGill Booking account by clicking the link below:</p>
-                      <a href="${verifyURL}">${verifyURL}</a>
-                      <p>If you did not create an account, ignore this email.</p>`
-           });
+           await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Verify your SOCS Booking account",
+            html: `<p>Hi ${firstName},</p>
+                   <p>Please verify your McGill Booking account by clicking the link below:</p>
+                   <a href="${verifyURL}">${verifyURL}</a>`
+        });
    
            return res.status(201).json({ message: "User registered successfully. Please check your email to verify your account." });
    
