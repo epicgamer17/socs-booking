@@ -47,7 +47,7 @@ function UserDashboard() {
                 return;
             }
 
-            setBookings(data);
+            setBookings(data.bookingRows);
         }
         catch (err) {
             setError("Failed to fetch Bookings")

@@ -5,14 +5,14 @@
 
 const db = require("../db/db");
 
-// return their slots + who booked each + pending meeting requests
-// heavily reusing code from slotsController.js
+// return their slots + who booked each + pending meeting requests + their live group meeting polls
+// heavily reusing code from slotsController.js, meetingRequestsController.js, and groupMeetingsController.js
 exports.dashboardDataForOwner = async (req, res) => {
   const ownerID = req.user.id;
 
   try {
     // get the slots and associated bookings
-    const [rows1] = await db.query(
+    const [slotsBookingsRows] = await db.query(
       `SELECT
         slots.id AS slotID,
         slots.date,
@@ -28,7 +28,7 @@ exports.dashboardDataForOwner = async (req, res) => {
     );
 
     // get pending meeting requests
-    const [rows2] = await db.query(
+    const [meetingRequestRows] = await db.query(
       `SELECT
         meetingRequests.id,
         meetingRequests.userID,
@@ -43,19 +43,62 @@ exports.dashboardDataForOwner = async (req, res) => {
       ["pending", ownerID]
     );
 
-    return res.status(200).json({ slots: rows1, meetingRequests: rows2 });
+    // fetch group meeting non-finalized poll data
+    const [groupMeetingRows] = await db.query(
+      `SELECT groupMeetings.id     AS groupMeetingID,
+              groupMeetings.title  AS title,
+              timeWindows.id       AS timeWindowID,
+              timeWindows.date     AS date,
+              timeWindows.timeFrom AS timeFrom,
+              timeWindows.timeTo   AS timeTo,
+              COUNT(userVotes.id)  AS total
+         FROM groupMeetings
+         JOIN timeWindows ON timeWindows.groupMeetingID = groupMeetings.id
+    LEFT JOIN userVotes  ON userVotes.timeWindowID = timeWindows.id
+        WHERE groupMeetings.ownerID = ?
+          AND groupMeetings.status != 'selection-over'
+     GROUP BY groupMeetings.id, timeWindows.id
+     ORDER BY groupMeetings.id, timeWindows.id`,
+      [ownerID]
+    );
+
+    const byMeeting = new Map();
+    for (const row of groupMeetingRows) {
+      let poll = byMeeting.get(row.groupMeetingID);
+      if (!poll) {
+        poll = {
+          id: row.groupMeetingID,
+          title: row.title,
+          candidates: [],
+          voterCount: 0,
+        };
+        byMeeting.set(row.groupMeetingID, poll);
+      }
+      poll.candidates.push({
+        candidateID: row.timeWindowID,
+        date: row.date,
+        timeFrom: row.timeFrom,
+        timeTo: row.timeTo,
+        votes: row.total,
+      });
+      poll.voterCount += row.total;
+    }
+
+    return res.status(200).json({ slots: slotsBookingsRows, meetingRequests: meetingRequestRows, polls: Array.from(byMeeting.values()) });
   } catch (err) {
     return res.status(500).json({ message: "Failed to retrieve owner dashboard data.", error: err.message });
   }
 }
 
-// return all bookings they made
+// return all bookings they made + all the group meeting polls they're invited to
+// heavily reusing code from slotsController.js and groupMeetingsController.js
 exports.dashboardDataForStudent = async (req, res) => {
   // near exact duplicate of bookingsController.viewBookings (as of PR #43)
   const userID = req.user.id;
 
   try {
-    const [bookings] = await db.query(
+    // fetch the bookings
+    const [bookingRows] = await db.query(
       `SELECT bookings.id        AS bookingID,
               bookings.slotID    AS slotID,
               bookings.userID    AS userID,
@@ -72,8 +115,50 @@ exports.dashboardDataForStudent = async (req, res) => {
       [userID]
     );
 
+    // fetch the group meeting poll data
+    const [groupMeetingRows] = await db.query(
+      `SELECT groupMeetings.id     AS groupMeetingID,
+              groupMeetings.title  AS title,
+              timeWindows.id       AS timeWindowID,
+              timeWindows.date     AS date,
+              timeWindows.timeFrom AS timeFrom,
+              timeWindows.timeTo   AS timeTo,
+              COUNT(userVotes.id)  AS total
+         FROM userInvitations
+         JOIN groupMeetings ON groupMeetings.id = userInvitations.groupMeetingID
+         JOIN timeWindows   ON timeWindows.groupMeetingID = groupMeetings.id
+    LEFT JOIN userVotes ON userVotes.timeWindowID = timeWindows.id
+        WHERE userInvitations.userID = ?
+          AND groupMeetings.status != 'selection-over'
+     GROUP BY groupMeetings.id, timeWindows.id
+     ORDER BY groupMeetings.id, timeWindows.id`,
+      [userID]
+    );
+
+    const byMeeting = new Map();
+    for (const row of groupMeetingRows) {
+      let poll = byMeeting.get(row.groupMeetingID);
+      if (!poll) {
+        poll = {
+          id: row.groupMeetingID,
+          title: row.title,
+          candidates: [],
+          voterCount: 0,
+        };
+        byMeeting.set(row.groupMeetingID, poll);
+      }
+      poll.candidates.push({
+        candidateID: row.timeWindowID,
+        date: row.date,
+        timeFrom: row.timeFrom,
+        timeTo: row.timeTo,
+        votes: row.total,
+      });
+      poll.voterCount += row.total;
+    }
+
     // return the info about the bookings to the booker
-    return res.status(200).json(bookings);    
+    return res.status(200).json({ bookingRows: bookingRows, groupMeetingRows: Array.from(byMeeting.values())});
   } catch (err) {
     return res.status(500).json({ message: "Failed to retrieve student dashboard data", error: err.message });
   }
