@@ -31,7 +31,7 @@
 - [x] **#20** `auth.jsx:96` typo — comma should be semicolon.
 - [x] **#21** Delete leftover `console.log(r)` in `auth.jsx:59`. Grep for others.
 - [ ] **#22** Document SQL `;`-splitting limitation in `migrate.js`.
-- [ ] **#24** Restrict CORS to deployed origin instead of `app.use(cors())`.
+- [x] **#24** Restrict CORS to deployed origin instead of `app.use(cors())`.
 - [ ] **#25** Add `UNIQUE(ownerID)` to `inviteLinks` migration.
 - [ ] **#26** Lowercase emails before insert/lookup in `authController`.
 - [ ] **#27** Defensive null checks before `.trim()` on req body fields. Currently 500s on missing fields.
