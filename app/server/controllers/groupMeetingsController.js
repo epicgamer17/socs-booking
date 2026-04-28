@@ -78,7 +78,8 @@ exports.createGroupMeeting = async (req, res) => {
     return res.status(201).json({ message: "Group meeting initialization successful", groupMeetingID: gmid });
   } catch (err) {
     await conn.rollback();
-    return res.status(500).json({ message: "Group meeting initialization failed", error: err.message });
+    console.error("[groupMeetingsController.createGroupMeeting]", err);
+    return res.status(500).json({ message: "Group meeting initialization failed" });
   } finally {
     conn.release();
   }
@@ -134,7 +135,8 @@ exports.getOwnerGroupMeetings = async (req, res) => {
 
     return res.status(200).json({ polls: Array.from(byMeeting.values()) });
   } catch (err) {
-    return res.status(500).json({ message: "Failed to fetch owner group meetings", error: err.message });
+    console.error("[groupMeetingsController.getOwnerGroupMeetings]", err);
+    return res.status(500).json({ message: "Failed to fetch owner group meetings" });
   }
 };
 
@@ -187,7 +189,8 @@ exports.viewInvitations = async (req, res) => {
 
     return res.status(200).json(Array.from(byMeeting.values()));
   } catch (err) {
-    return res.status(500).json({ message: "Failed to fetch group meetings for user", error: err.message });
+    console.error("[groupMeetingsController.viewInvitations]", err);
+    return res.status(500).json({ message: "Failed to fetch group meetings for non-owner" });
   }
 }
 
@@ -202,7 +205,7 @@ exports.submitAvailabilityVote = async (req, res) => {
   const groupMeetingID = req.params.id;
 
   const conn = await db.getConnection();
-  try {    
+  try {
     // check whether user is actually invited to vote
     const [verif1] = await conn.query(
       `SELECT *
@@ -213,7 +216,7 @@ exports.submitAvailabilityVote = async (req, res) => {
     if (verif1.length === 0) {
       return res.status(403).json({ message: "User not invited to vote for this group meeting" });
     }
-    
+
     // check whether it's still voting period for the group meeting in question
     const [verif2] = await conn.query(
       `SELECT groupMeetings.status AS status
@@ -222,7 +225,7 @@ exports.submitAvailabilityVote = async (req, res) => {
       [groupMeetingID]
     );
     if (verif2.length === 0) {
-      return res.status(404).json({ error: "Group meeting with requested ID not found" });
+      return res.status(404).json({ message: "Group meeting with requested ID not found" });
     } else if (verif2[0].status === "selection-over") {
       return res.status(403).json({ message: "Voting period over for this group meeting" });
     }
@@ -241,7 +244,7 @@ exports.submitAvailabilityVote = async (req, res) => {
     }
 
     await conn.beginTransaction();
-    
+
     // insert vote submission into db
     for (const timeWindowID of timeWindowIDs) {
       await conn.query(
@@ -254,10 +257,11 @@ exports.submitAvailabilityVote = async (req, res) => {
     return res.status(201).json({ message: "Vote submission successful" });
   } catch (err) {
     await conn.rollback();
+    console.error("[groupMeetingsController.submitAvailabilityVote]", err);
     if (err.code === "ER_DUP_ENTRY") {
       return res.status(409).json({ message: "Vote already submitted by user for this group meeting" });
     }
-    return res.status(500).json({ message: "Group meeting vote submission failed", error: err.message });
+    return res.status(500).json({ message: "Group meeting vote submission failed" });
   } finally {
     conn.release();
   }
@@ -278,7 +282,7 @@ exports.viewVoteResults = async (req, res) => {
     if (!ok) {
       return res.status(403).json({ message: "Group meeting does not belong to owner" });
     }
-    
+
     const [voteResults] = await db.query(
       `SELECT timeWindows.id AS timeWindowID,
               timeWindows.date AS date,
@@ -291,10 +295,11 @@ exports.viewVoteResults = async (req, res) => {
         GROUP BY timeWindows.id`,
       [groupMeetingID]
     );
-    
+
     return res.status(200).json({ voteResults: voteResults });
   } catch (err) {
-    return res.status(500).json({ message: "Group meeting vote results querying failed", error: err.message });
+    console.error("[groupMeetingsController.submitAvailabilityVote]", err);
+    return res.status(500).json({ message: "Group meeting vote results querying failed" });
   }
 }
 
@@ -304,7 +309,7 @@ exports.viewVoteResults = async (req, res) => {
   Expected fields in req.body:
   - recurrenceWeeks (int) <- optional
   - winningTimeWindowID (int) <- owner's pick
-  
+
  */
 exports.finalizeGroupMeeting = async (req, res) => {
   const ownerID = req.user.id;
@@ -322,15 +327,15 @@ exports.finalizeGroupMeeting = async (req, res) => {
         WHERE groupMeetings.ownerID = ? AND groupMeetings.id = ?`,
       [ownerID, groupMeetingID]
     );
-    // TODO: differentiate between "meeting not found" and "meeting does not belong to owner"
+    // TODO: differentiate between "meeting not found" and "meeting does not belong to owner", if that matters enough
     if (groupMeetingRow.length === 0) {
-      return res.status(404).json({ error: "Group meeting not found for owner" });
+      return res.status(404).json({ message: "Group meeting not found for owner" });
     }
 
     // and check whether the group meeting wasn't already finalized
     const groupMeeting = groupMeetingRow[0];
     if (groupMeeting.status === "selection-over") {
-      return res.status(403).json({ error: "Group meeting already finalized" });
+      return res.status(403).json({ message: "Group meeting already finalized" });
     }
 
     // fetch winning time window, for the creation of bookings
@@ -344,7 +349,7 @@ exports.finalizeGroupMeeting = async (req, res) => {
       [winningTimeWindowID, groupMeetingID]
     );
     if (winningTimeWindowRow.length === 0) {
-      return res.status(400).json({ error: "Winning time window not found." });
+      return res.status(400).json({ message: "Winning time window not found." });
     }
     const winningTimeWindow = winningTimeWindowRow[0];
 
@@ -368,10 +373,10 @@ exports.finalizeGroupMeeting = async (req, res) => {
       const body = `Group meeting finalized without any votes.`;
       const subject = "Group Meeting Finalized";
       const url = `mailto:${ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      
+
       return res.status(200).json({ message: "No votes submitted, but group meeting finalized.", mailtoUrl: url });
     }
-    
+
     const userIDs = userRows.map(r => r.userID);
 
     await conn.beginTransaction();
@@ -382,7 +387,7 @@ exports.finalizeGroupMeeting = async (req, res) => {
     for (let i = 0; i < recurrenceWeeks; i++) {
       const date = new Date(date0);
       date.setDate(date.getDate() + 7 * i);
-      
+
       const [slot] = await conn.query(
 	`INSERT INTO slots (ownerID, date, timeFrom, timeTo, isActive) VALUES(?, ?, ?, ?, ?)`,
 	[ownerID, date, winningTimeWindow.timeFrom, winningTimeWindow.timeTo, true]
@@ -423,11 +428,12 @@ exports.finalizeGroupMeeting = async (req, res) => {
     const body = `Chosen slot: ${winningTimeWindow.date.toLocaleDateString('en-CA')}, ${winningTimeWindow.timeFrom}, ${winningTimeWindow.timeTo}. Meeting will repeat for ${recurrenceWeeks} weeks.`;
     const subject = "Group Meeting Finalized";
     const url = `mailto:${emails.join(',')},${ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    
+
     return res.status(200).json({ message: "Group meeting finalization successful", mailtoUrl: url });
   } catch (err) {
     await conn.rollback();
-    return res.status(500).json({ message: "Group meeting finalization failed", error: err.message });
+    console.error("[groupMeetingsController.finalizeGroupMeeting]", err);
+    return res.status(500).json({ message: "Group meeting finalization failed" });
   } finally {
     conn.release();
   }
