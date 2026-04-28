@@ -8,7 +8,7 @@
 - [ ] **#5** Add `// Author: <name>` headers to every `.js`/`.jsx` file your team wrote. Spec page 5 explicitly grades this.
 - [x] **#6** Pick an actual app name (not "SOCS Booking"). Update `index.html`, `LandingPage.jsx`, `NavBar.jsx`, `README.md`.
 - [x] **#9** Fix `slotsController.deleteSlot:161` — message says "Booking ... cancelled" even when nothing was booked.
-- [ ] **#15** Deploy to Mimi. Submission requires a live URL.
+- [x] **#15** Deploy to Mimi. Submission requires a live URL.
 - [x] **#17** `bookSlot` leaves transactions open on early returns at lines 41 and 52. Move verification queries before `beginTransaction()`. Audit other transactional controllers.
 - [x] **#28** `NavBar.jsx:47` — desktop nav has no Dashboard link for students. Mirror the mobile menu logic.
 - [x] **#33** Add live URL to top of `README.md` once deployed.
@@ -17,7 +17,7 @@
 
 - [ ] **#13** Implement `.ics` calendar export. **Mandatory** for competition tier per spec page 4. Add `GET /bookings/export.ics` + download buttons on both dashboards.
 - [ ] **#14** Record 5-minute walkthrough with audio. PASS/FAIL gate.
-- [ ] **#16** Add HTTPS. Required by competition's "secure website" bonus, and your JWTs leak over plain HTTP.
+- [x] **#16** Add HTTPS. Required by competition's "secure website" bonus, and your JWTs leak over plain HTTP.
 
 ## 🟡 Code quality (graded under "Quality of coding")
 
