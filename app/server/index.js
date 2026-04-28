@@ -3,6 +3,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -14,7 +15,8 @@ const app = express();
 //Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+app.use(helmet({ contentSecurityPolicy: false }));
 
 
 //Routers
