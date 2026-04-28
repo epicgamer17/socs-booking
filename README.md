@@ -1,6 +1,6 @@
 # myBookings Application
 
-URL : https://winter2026-comp307-group12.cs.mcgill.ca/
+URL (requires either McGill VPN or being on the campus network to access) : https://winter2026-comp307-group12.cs.mcgill.ca/
 
 👥 **Team Roles**
 
