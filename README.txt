@@ -51,7 +51,9 @@
              nodemailer / Gmail SMTP for server-side notifications
              (booking cancellations, meeting accept/decline, group
              meeting finalisation, email-verification link).
-  Calendar : ical-generator for .ics export (GET /calendar/export)
+  Calendar : ical-generator for .ics export. Two endpoints:
+             GET /calendar/export            (all of the user's bookings)
+             GET /calendar/export/:slotID    (one booking, per dashboard row)
   Security : helmet (HTTP security headers), express-rate-limit on
              /auth/register and /auth/login (10 req / 15 min / IP),
              CORS restricted to FRONTEND_URL with credentials:true,
@@ -554,6 +556,19 @@
           from the deprecated `ical` API to `ICalCalendar`, parsing
           the date column when it returns as a JS Date, and the
           start/end Date construction. ~10 of the ~80 lines.
+
+          The exportSingleEvent handler (per-slot .ics export, used
+          by the per-row download buttons in both dashboards) was
+          written by Claude on Thomas's request. The matching route
+          GET /calendar/export/:slotID in routes/calendar.js was
+          also added by Claude.
+
+      app/server/lib/icsHelpers.js
+          AI-written. Single helper (addBookingEvent) that converts
+          a booking row from MySQL into an ical-generator event,
+          handling the YYYY-MM-DD vs JS Date case for the date
+          column. Used by both the bulk and the per-event ICS
+          endpoints in calendarController. ~20 lines.
 
       app/server/routes/auth.js  (lines 8-17)
           The `rateLimit({...})` config block was pasted verbatim

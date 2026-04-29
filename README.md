@@ -72,6 +72,8 @@ All slot routes require JWT token in header.
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
+| GET | `/calendar/export` | Export all of the user's bookings as an .ics file. |
+| GET | `/calendar/export/:slotID` | Export a single booking (by slot ID) as an .ics file. |
 | GET | `/slots/owners` | Returns all owners with active slots. |
 | POST | `/slots/create` | (Owner Only) Create a new slot. Body: `{ date, timeFrom, timeTo }` |
 | GET | `/slots/viewMy` | (Owner Only) Returns owner's slots and booking status. |
@@ -168,6 +170,8 @@ window.open(mailtoUrl);
 | `useAutoRefresh.jsx` | Auto refresh hook | Claude |
 | AI used for "McGill Color Palette" Colors | 
 | AI used for last minute ical export fix| 
+| `app/server/lib/icsHelpers.js` | Shared booking-row → ICS event helper | Claude |
+| `calendarController.exportSingleEvent` + `GET /calendar/export/:slotID` | Per-event .ics export endpoint | Claude (per Thomas Nguyen request) |
 
 ---
 *Note: migrations.js script is AI-generated (short utility script).*
