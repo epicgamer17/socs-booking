@@ -1,10 +1,6 @@
 // Author: Jonathan Lamontagne-Kratz
 import { useEffect, useRef } from "react";
 
-// Polls the given refetch functions on `intervalMs` while the tab is visible.
-// Pauses while hidden; on returning to visible, refetches immediately and resumes.
-// Fns are read through a ref each tick, so callers don't need to memoize them
-// or the array — the timer survives parent re-renders.
 export default function useAutoRefresh(refetchFns, intervalMs = 5_000) {
   const fnsRef = useRef(refetchFns);
 
