@@ -1,7 +1,11 @@
 ================================================================================
   myBookings - COMP 307 Winter 2026 Team Project (Group 12)
-  Submitter: Thomas Nguyen (ID: 261181634)
   Project Type: SOCS Booking Application - Competition Project
+
+  This README.txt is a shared submission. All four team members
+  agreed on the contents, including the contribution breakdown in
+  section 6, and each of us is submitting this same file under our
+  own MyCourses account.
 ================================================================================
 
 
@@ -36,12 +40,22 @@
 --------------------------------------------------------------------------------
 
   Database : MariaDB (SQL)
-  Backend  : Node.js + Express (port 3000)
-  Frontend : React 19 + Vite (dev port 5173, production served by Express)
-  Auth     : JWT (jsonwebtoken) + bcrypt for password hashing
-  Email    : mailto: links (no SMTP server, per spec)
-  Calendar : ical-generator for .ics export
-  Security : helmet, express-rate-limit, CORS allowlist, HTTPS in production
+  Backend  : Node.js + Express 5 (port 3000)
+  Frontend : React 19 + Vite (dev port 5173, production bundle served
+             by the same Express process)
+  Auth     : JWT (jsonwebtoken) signed with HS256, delivered as an
+             httpOnly + secure + sameSite=strict cookie named "token";
+             1-hour expiry. bcrypt for password hashing. Email
+             verification required before login (token sent via SMTP).
+  Email    : mailto: links for user-initiated messaging (per spec) +
+             nodemailer / Gmail SMTP for server-side notifications
+             (booking cancellations, meeting accept/decline, group
+             meeting finalisation, email-verification link).
+  Calendar : ical-generator for .ics export (GET /calendar/export)
+  Security : helmet (HTTP security headers), express-rate-limit on
+             /auth/register and /auth/login (10 req / 15 min / IP),
+             CORS restricted to FRONTEND_URL with credentials:true,
+             httpOnly cookie auth, HTTPS terminated by Apache on Mimi.
 
 
 --------------------------------------------------------------------------------
@@ -71,28 +85,50 @@
       the backend. The credentials below are read from app/server/.env.
 
 
-  --- 4.2  BACKEND .env FILE ---
+  --- 4.2  ENV FILES ---
 
-      Create the file  app/server/.env  with the following keys:
+      Two .env files are needed:  app/server/.env  AND  app/client/.env.
 
-          # --- Database ---
+      ============================================================
+      app/server/.env
+      ============================================================
+
+          # --- Database (MariaDB / MySQL, default port 3306) ---
           DB_HOST=localhost
-          DB_PORT=3306
           DB_USER=cs307-user
           DB_PASSWORD=<your-db-password>
           DB_NAME=cs307
 
-          # --- Auth / Security ---
+          # --- Auth ---
           JWT_SECRET=<any-long-random-string>
-          NODE_ENV=development
+
+          # --- Server port (optional, defaults to 3000) ---
           PORT=3000
 
-          # --- CORS allowlist (comma-separated origins) ---
-          CLIENT_ORIGIN=http://localhost:5173
+          # --- Frontend origin ---
+          # Used for: (1) the CORS allow-origin header, and (2) the
+          # base URL embedded in the email-verification link and
+          # owner invite links. In dev: http://localhost:5173.
+          # In prod on Mimi: https://winter2026-comp307-group12.cs.mcgill.ca
+          FRONTEND_URL=http://localhost:5173
 
-      In production on Mimi, NODE_ENV is set to "production" and
-      CLIENT_ORIGIN points at the deployed HTTPS origin. The same .env
-      keys are used; only the values change.
+          # --- SMTP notifications (Gmail) ---
+          # Used by lib/mailer.js for booking/meeting notifications
+          # AND by authController.js for the email-verification link
+          # sent during registration. Use a Gmail App Password, NOT
+          # your real Gmail password.
+          EMAIL_USER=<your-gmail-address>
+          EMAIL_PASS=<gmail-app-password>
+
+      ============================================================
+      app/client/.env
+      ============================================================
+
+          # Backend base URL for fetch() calls from the React app.
+          # Must match where the backend is listening.
+          # In dev:  http://localhost:3000
+          # In prod: https://winter2026-comp307-group12.cs.mcgill.ca
+          VITE_API_URL=http://localhost:3000
 
 
   --- 4.3  INSTALL DEPENDENCIES ---
@@ -143,9 +179,12 @@
 
       Open  http://localhost:5173  in a browser.
 
-      The frontend dev server proxies API calls to localhost:3000
-      via the JWT token stored in localStorage. Make sure the backend
-      is running first.
+      The frontend reads its backend URL from VITE_API_URL in
+      app/client/.env (see 4.2). All fetches are sent with
+      `credentials: 'include'` so the browser ships the auth cookie
+      back to the API. Make sure the backend is running first and
+      that FRONTEND_URL on the backend matches http://localhost:5173,
+      otherwise CORS will reject the requests.
 
 
   --- 4.7  PRODUCTION BUILD (OPTIONAL) ---
@@ -181,9 +220,24 @@
         - @mcgill.ca       (becomes an OWNER - prof / TA)
         - @mail.mcgill.ca  (becomes a STUDENT)
 
-      You may register fresh accounts from the landing page. There is
-      no email-verification mailer in dev mode, so the verification
-      link is logged to the backend console; click it to verify.
+      Password rules enforced server-side: 12-72 chars, at least one
+      uppercase, one digit, and one symbol from [!@#$%^&*].
+
+      Registration always sends a real verification email through
+      Gmail SMTP (authController.js). EMAIL_USER / EMAIL_PASS must
+      be set for the user to receive the link, and the user must
+      click it before they can log in (login is blocked with HTTP 403
+      until isVerified = TRUE in the users table).
+
+      For grading without setting up SMTP, you can skip the email
+      step by manually flipping the verification flag in the DB:
+
+          mysql> USE cs307;
+          mysql> UPDATE users SET isVerified = TRUE
+                  WHERE email = 'your.test.email@mcgill.ca';
+
+      The deployed copy on Mimi has SMTP configured; registering
+      against the live URL will send a real email.
 
 
 --------------------------------------------------------------------------------
@@ -193,109 +247,214 @@
   The TA asked us to start Demo 2 by showing what changed. The major
   fixes/additions since Demo 1 are:
 
-   - Fixed group-meeting role mismatch (controller expected role='user'
-     while the rest of the app uses 'student'); student voting now works.
-   - Fixed wrong URL prefix in UserDashboard (/group/... -> /groupMeetings/...)
-     so the student-side voting requests no longer 404.
-   - Added UNIQUE(slotID, userID) constraint and SELECT ... FOR UPDATE
-     inside the bookSlot transaction to prevent the double-booking race.
-   - Repaired bookSlot transactional logic: verification queries now run
-     before beginTransaction(), so early returns no longer leak open
-     transactions.
-   - Standardised the role label as 'student' across DB / JWT / frontend.
-   - Added Dashboard link to desktop NavBar (was mobile-only).
-   - Renamed app from "SOCS Booking" to "myBookings" across index.html,
-     LandingPage, NavBar, and README.
+   - Fixed group-meeting role mismatch: invitee resolution in
+     groupMeetingsController now filters on role='student' (was
+     'user'), and the student-side fetch URL prefix was changed from
+     /group/... to /groupMeetings/... so voting and finalize calls
+     no longer 404.
+   - Added UNIQUE(slotID, userID) constraint on the bookings table
+     and SELECT ... FOR UPDATE on the slot lookup inside bookSlot.
+     This kills the double-booking race we hit during Phase 2 tryout.
+     (UNIQUE is on the pair, not slotID alone, because group-meeting
+     finalisation needs to insert one booking per voter for the same
+     shared slot.)
+   - Audited every transactional controller (bookSlot, acceptMeeting,
+     finalizeGroupMeeting, createRecurringSlots, createGroupMeeting):
+     every early-return path now does an explicit `await
+     conn.rollback()` before returning, so connections can no longer
+     leak with an open transaction.
+   - Standardised the role label as 'student' across DB enum, JWT
+     payload, frontend role checks (auth.jsx), and route guards.
+   - Switched auth from a Bearer token in localStorage to an
+     httpOnly + secure + sameSite=strict cookie. The middleware now
+     reads `req.cookies.token`; the frontend sends `credentials:
+     'include'` on every fetch.
+   - Added Dashboard link to the desktop NavBar (was mobile-only).
+   - Renamed app from "SOCS Booking" to "myBookings" across
+     index.html, LandingPage, Register, NavBar, and the README.
    - Fixed the misleading "Booking ... cancelled" message in
-     slotsController.deleteSlot when no booking actually existed.
-   - Added .ics calendar export endpoint and download buttons on both
-     dashboards (mandatory competition feature).
-   - Deployed to Mimi with HTTPS (was HTTP in Demo 1) - JWTs no longer
-     leak on the wire.
-   - CORS restricted to the deployed origin instead of `cors()` open.
-   - Cleaned up stray console.log statements and a typo in auth.jsx.
-   - Moved document.title assignment in DirectoryPage into a useEffect.
+     slotsController.deleteSlot: notification email and message text
+     are now only sent when there actually was a booking.
+   - Added .ics calendar export at GET /calendar/export with
+     download buttons on both Owner and User dashboards (mandatory
+     competition feature).
+   - Deployed to Mimi behind Apache HTTPS (was HTTP in Demo 1);
+     `app.set('trust proxy', 1)` in index.js so secure cookies
+     work behind the reverse proxy.
+   - CORS restricted to FRONTEND_URL with credentials enabled
+     (was unrestricted `cors()` in Demo 1).
+   - Added per-IP rate limiting (10 req / 15 min) on /auth/register
+     and /auth/login to slow brute-force attempts.
+   - Email verification is now enforced: login returns 403 until
+     the user clicks the link sent at registration time.
+   - Moved document.title assignment in DirectoryPage into a
+     useEffect, removed stray console.log calls, fixed the comma /
+     semicolon typo in auth.jsx.
 
 
 --------------------------------------------------------------------------------
-  6. CONTRIBUTION STATEMENT  (Thomas Nguyen's version)
+  6. CONTRIBUTION STATEMENT  (agreed by all four team members)
 --------------------------------------------------------------------------------
 
-  Each team member submits their own README.txt with their own version
-  of this contribution statement, per the instructor's request. Below
-  is my honest account of who built what, based on commit history and
-  what we agreed on in our weekly meetings. Percentages are estimates
-  for files that more than one of us edited.
+  All four members reviewed and agreed to the breakdown below before
+  submission. Per-file authorship matches the `// Author:` headers
+  written into the source. The TA can verify with:
+
+      grep -rn "Author" app/server app/client/src
+
 
   --- 6.1  Role split ---
 
-      Sophia Hussain (Leader, Backend):   auth + slots + meeting-requests
-                                          backbone, all migrations,
-                                          calendar export, security review.
-      Thomas Nguyen (Backend, ME):        login/logout + bookings +
-                                          dashboard + Type-2 group meetings,
-                                          transaction & race-condition fixes,
-                                          various security hardening.
-      Jonathan Lamontagne-Kratz (Frontend): Owner dashboard, UI component
-                                          library, global styling, auth-aware
-                                          fetch layer.
-      Tanav Bansal (Frontend):            Landing, Register, Login, Directory,
-                                          Booking pages, bonus polish.
+      Sophia Hussain (Team Leader, Backend)
+          Auth backbone (registration, email verification, JWT
+          middleware), slots, meeting requests, invite links, all
+          users/slots/meetingRequests/inviteLinks migrations, .ics
+          calendar export, security review.
+
+      Thomas Nguyen (Backend)
+          Login / logout, bookings, dashboard handlers, Type-2 group
+          meetings (calendar method end-to-end), bookings + group-
+          meetings migrations, transaction and race-condition audit,
+          various security hardening (CORS, helmet, cookie-based auth,
+          rate limiting).
+
+      Jonathan Lamontagne-Kratz (Frontend / Design)
+          Owner Dashboard, UI component library (Button, Input,
+          ThemeToggle), global styling, theme system, NavBar, the
+          auth-aware fetch wrapper, and the cookie-based auth context.
+
+      Tanav Bansal (Frontend / Design)
+          Landing Page, Register, Login, Directory, Booking, and
+          User Dashboard pages, MailtoButton component, departments
+          data, ProtectedRoutes wrapper, polish.
 
 
-  --- 6.2  Files I (Thomas) wrote, by directory ---
+  --- 6.2  File-level authorship ---
 
-      Backend - controllers (app/server/controllers/):
-          authController.js          ~50%  (login, logout, JWT issue;
-                                            register written by Sophia)
-          bookingsController.js      ~80%  (bookSlot, cancelBooking,
-                                            viewBookings; Sophia did the
-                                            initial scaffold and review)
-          dashboardController.js     ~90%  (unified /dashboard handler;
-                                            Sophia stubbed the route)
-          groupMeetingsController.js 100%  (Type-2 calendar method, vote,
-                                            finalise)
-          meetingRequestsController.js ~20% (security/transaction fixes;
-                                              Sophia wrote the original)
-          slotsController.js         ~15%  (deleteSlot fix, transaction
-                                            audit; Sophia wrote the rest)
+      Each .js / .jsx / .sql file in the project has a `// Author: ...`
+      header. The breakdown below is grouped by team member; files
+      with multiple names in their header appear under each
+      contributor with a percentage estimate.
 
-      Backend - routes (app/server/routes/):
-          auth.js                    ~40%  (logout route, rate-limit wiring)
-          bookings.js                100%
-          dashboard.js               ~50%  (shared with Sophia)
-          groupMeetings.js           100%
+      --- Sophia Hussain ---
+          server/index.js                                  ~50%  (with Thomas)
+          server/controllers/authController.js             ~50%  (registration
+                                                                 + verify email)
+          server/controllers/slotsController.js            ~90%
+          server/controllers/meetingRequestsController.js  ~90%
+          server/controllers/inviteLinkController.js       100%
+          server/controllers/calendarController.js         ~90%  (~10% AI fixes)
+          server/middleware/authMiddleware.js              100%
+          server/routes/auth.js                            ~60%  (with Thomas)
+          server/routes/slots.js                           100%
+          server/routes/meetingRequests.js                 100%
+          server/routes/inviteLink.js                      100%
+          server/routes/calendar.js                        100%
+          server/db/db.js                                  ~50%  (with Thomas)
+          server/db/migrations/01_users.sql                100%
+          server/db/migrations/02_slots.sql                100%
+          server/db/migrations/04_meetingRequest.sql       100%
+          server/db/migrations/06_inviteLinks.sql          100%
 
-      Backend - db migrations (app/server/db/migrations/):
-          03_bookings.sql            100%  (incl. UNIQUE constraint)
-          05_groupMeetings.sql       100%
+      --- Thomas Nguyen ---
+          server/index.js                                  ~50%  (with Sophia;
+                                                                 lines 45-56 AI)
+          server/controllers/authController.js             ~50%  (login, logout,
+                                                                 JWT issue)
+          server/controllers/bookingsController.js         100%
+          server/controllers/dashboardController.js        100%
+          server/controllers/groupMeetingsController.js    ~85%  (lines 96-144
+                                                                 AI-drafted)
+          server/controllers/slotsController.js            ~10%  (deleteSlot fix
+                                                                 + transaction
+                                                                 audit only)
+          server/controllers/meetingRequestsController.js  ~10%  (txn audit +
+                                                                 sendNotification
+                                                                 wiring only)
+          server/middleware/ownerMiddleware.js             100%
+          server/routes/auth.js                            ~40%  (with Sophia;
+                                                                 logout route)
+          server/routes/bookings.js                        100%
+          server/routes/dashboard.js                       100%
+          server/routes/groupMeetings.js                   100%
+          server/lib/queryHelpers.js                       ~70%  (with Jonathan;
+                                                                 SQL bodies +
+                                                                 logic; names
+                                                                 AI-suggested)
+          server/db/db.js                                  ~50%  (with Sophia)
+          server/db/migrations/03_bookings.sql             100%  (incl.
+                                                                 UNIQUE(slotID,
+                                                                 userID))
+          server/db/migrations/05_groupMeetings.sql        100%
+          checklist.md                                     100%  (now stale)
 
-      Backend - lib / middleware:
-          lib/queryHelpers.js        ~30%  (group-meeting helpers added by me)
-          middleware/authMiddleware.js ~10% (small role-check fixes)
+      --- Jonathan Lamontagne-Kratz ---
+          server/lib/queryHelpers.js                       ~30%  (with Thomas;
+                                                                 helper-shape
+                                                                 review)
+          client/src/App.jsx                               ~50%  (with Tanav)
+          client/src/OwnerDashboard.jsx                    100%
+          client/src/VerifyEmail.jsx                       100%
+          client/src/components/CalendarSelector.jsx       100%
+          client/src/components/GroupMeetingForm.jsx       100%
+          client/src/components/NavBar.jsx                 100%
+          client/src/components/ThemeToggle.jsx            100%
+          client/src/components/ui/Button.jsx              100%
+          client/src/components/ui/Input.jsx               100%
+          client/src/utils/api.js                          100%  (fetchWithAuth)
+          client/src/utils/OwnerRoute.jsx                  100%
+          client/src/utils/theme.jsx                       100%
+          client/src/Register.jsx                          ~25%  (with Tanav;
+                                                                 styling only)
+          client/src/DirectoryPage.jsx                     ~20%  (with Tanav;
+                                                                 styling +
+                                                                 auth fetch)
+          client/src/BookingPage.jsx                       ~20%  (with Tanav;
+                                                                 auth fetch)
+          client/src/UserDashboard.jsx                     ~20%  (with Tanav;
+                                                                 useAutoRefresh
+                                                                 + auth fetch)
+          client/src/utils/auth.jsx                        ~20%  (with Tanav;
+                                                                 cookie wrapper
+                                                                 + AuthContext)
+          client/src/LandingPage.jsx                       ~30%  (with Tanav +
+                                                                 AI; styling)
+          all client CSS modules + Auth.module.css         100%
 
-      Backend - entrypoint:
-          index.js                   ~30%  (CORS allowlist, helmet wiring,
-                                            HTTPS redirect; Sophia wrote
-                                            the original bootstrap)
+      --- Tanav Bansal ---
+          client/src/App.jsx                               ~50%  (with Jonathan)
+          client/src/LandingPage.jsx                       ~50%  (with Jonathan;
+                                                                 page structure;
+                                                                 prose AI)
+          client/src/Register.jsx                          ~75%  (with Jonathan;
+                                                                 page logic)
+          client/src/login.jsx                             100%
+          client/src/DirectoryPage.jsx                     ~80%  (with Jonathan)
+          client/src/BookingPage.jsx                       ~80%  (with Jonathan)
+          client/src/UserDashboard.jsx                     ~80%  (with Jonathan)
+          client/src/components/CalendarSelectorBooking.jsx 100%
+          client/src/components/ui/MailtoButton.jsx        100%  (one AI line)
+          client/src/utils/auth.jsx                        ~80%  (with Jonathan)
+          client/src/utils/departments.jsx                 100%  (data via AI)
+          client/src/utils/ProtectedRoutes.jsx             100%
 
-      Frontend (app/client/src/):
-          Register.jsx               ~25%  (auth wiring + role handling;
-                                            Tanav built the page)
-          utils/auth.jsx             ~30%  (token refresh + logout flow;
-                                            Tanav/Jonathan wrote the rest)
-
-      Documentation:
-          checklist.md               100%  (the pre-demo fix list I drove)
-          README.md                  ~25%  (sections covering my code)
+      --- Not human-authored (kept here for completeness) ---
+          server/db/migrate.js                              AI Generated Script
+          server/lib/mailer.js                              "Author: Claude"
+          client/src/utils/useAutoRefresh.jsx               "Author: AI"
 
 
-  --- 6.3  Files I did NOT write (so the TA can grep my name) ---
+  --- 6.3  How to verify ---
 
-      Every .js / .jsx / .sql file authored mainly by me carries an
-      `// Author: Thomas Nguyen` header on its first non-shebang line.
-      Files where I only made small edits do NOT have that header -
-      they belong to whichever teammate is named in their own header.
+      The clearest way to audit who wrote what is to grep for
+      `Author` headers in the source tree:
+
+          grep -rn "Author" app/server app/client/src \
+              | grep -v node_modules
+
+      Every .js / .jsx / .sql file the team wrote has one. Files
+      with no Author header (or marked "Author: Claude" / "Author:
+      AI") are listed in section 7.2 under the AI attribution.
 
 
 --------------------------------------------------------------------------------
@@ -320,9 +479,13 @@
           helmet               -  HTTP security headers
           express-rate-limit   -  brute-force protection on /auth
           dotenv               -  .env loader
-          uuid                 -  invite-token generator
+          uuid                 -  in package.json but unused; invite
+                                   tokens come from Node's built-in
+                                   `crypto.randomBytes(32).toString("hex")`
           ical-generator       -  .ics calendar export
-          nodemailer           -  installed but UNUSED (we use mailto:)
+          nodemailer           -  Gmail SMTP transport used by
+                                   lib/mailer.js for server-sent
+                                   notification emails
 
       Frontend:
           react, react-dom     -  UI framework
@@ -338,8 +501,12 @@
           in db/migrations/ and runs them in order. ~50 lines.
 
       app/server/lib/mailer.js
-          AI-written helper around the mailto: URL pattern. Not an
-          actual SMTP mailer.
+          AI-written nodemailer wrapper. Configures a Gmail SMTP
+          transport and exposes a sendNotification() helper that
+          fire-and-forgets booking/meeting notification emails.
+          Used by slotsController, bookingsController,
+          meetingRequestsController, and groupMeetingsController.
+          ~28 lines.
 
       app/client/src/utils/useAutoRefresh.jsx
           AI-written React hook that polls dashboard data on a fixed
@@ -366,10 +533,39 @@
           into the feature branch. Schema content is ours; the
           conflict resolution was AI-assisted.
 
-      .ics export integration (last-minute fix)
-          Claude assisted with wiring ical-generator output through
-          the Express response stream and setting the right
-          Content-Disposition header.
+      app/server/index.js  (lines 45-56)
+          The block bracketed by "BEGIN: AI-generated code" / "END:
+          AI-generated code" is AI-written. It serves the built
+          React bundle from app/client/dist and adds the SPA
+          fallback so React Router URLs work after refresh in
+          production. ~10 lines.
+
+      app/server/controllers/groupMeetingsController.js
+          (lines 96-144, marked "AI FROM 96 to 144")
+          The body of getOwnerGroupMeetings, viewInvitations, and
+          the first half of submitAvailabilityVote (validation and
+          authorisation checks) were drafted by Claude. Thomas
+          refactored and integrated them; Claude wrote the initial
+          version.
+
+      app/server/controllers/calendarController.js
+          The .ics integration is mostly Sophia's, with several
+          lines marked "// AI FIX" inline. Claude fixed: switching
+          from the deprecated `ical` API to `ICalCalendar`, parsing
+          the date column when it returns as a JS Date, and the
+          start/end Date construction. ~10 of the ~80 lines.
+
+      app/server/routes/auth.js  (lines 8-17)
+          The `rateLimit({...})` config block was pasted verbatim
+          from the express-rate-limit npm package's README example.
+          Bracketed in the file with "BEGIN: code pasted from ... /
+          END: code pasted from ...".
+
+      app/client/src/LandingPage.jsx  (Help section text)
+          The user-facing wording of the "How it works" / Help
+          section was generated by Claude from a short markdown
+          outline Thomas wrote. Page structure and styling are
+          Tanav's and Jonathan's; only the prose is AI-generated.
 
       McGill colour palette
           The hex values used throughout the CSS modules were
@@ -402,20 +598,50 @@
   8. KNOWN LIMITATIONS  (full disclosure for the TA)
 --------------------------------------------------------------------------------
 
-   - Logout is client-side only: the JWT is removed from localStorage
-     but is not blacklisted server-side, so a stolen token remains
-     valid until its expiry. We accepted this as a known trade-off
-     given the project scope.
-   - No SMTP mailer. Email notifications use the mailto: pattern,
-     which opens the user's default mail client. This is exactly
-     what the spec asks for ("mailto: not a mail server").
-   - Heatmap voting (bonus) and McGill Tinder (bonus) are NOT
-     implemented. We implemented the Calendar method for Type-2
-     group meetings, which is the required version.
-   - The /slots/recurring bulk endpoint exists in the backend but
-     the frontend currently calls /slots/create in a loop instead.
-     Both paths produce the same data; the bulk endpoint is dead
-     code and can be ignored when grading.
+   - Logout: the auth middleware reads the JWT from an httpOnly
+     cookie only (it does not accept Authorization Bearer headers),
+     and POST /auth/logout clears that cookie via res.clearCookie.
+     The JWT itself is not added to a server-side denylist, so if a
+     copy of the token were exfiltrated by some other means it
+     would technically remain valid for up to 1 hour (the token's
+     expiry). Practically, since the cookie is httpOnly + secure +
+     sameSite=strict, it cannot be read by JS or sent cross-site,
+     so this is a theoretical limitation only.
+   - Email split: user-to-user messaging uses the mailto: pattern
+     (per spec - "mailto: not a mail server"). Server-initiated
+     notifications (booking cancellations, meeting accept/decline,
+     group-meeting finalisation) are sent through nodemailer +
+     Gmail SMTP via app/server/lib/mailer.js. The email-verification
+     link sent at registration time uses a separate nodemailer
+     transport set up directly in authController.js. If EMAIL_USER
+     / EMAIL_PASS are not set, registration will fail (verification
+     email cannot be sent) but the rest of the app still works.
+   - Heatmap voting (bonus), McGill Tinder (bonus), and auto-
+     populated Google/Outlook calendars (bonus) are NOT implemented.
+     We implemented the Calendar method for Type-2 group meetings,
+     which is the required version, plus .ics export which is
+     mandatory for the competition tier.
+   - getOwners (GET /slots/owners) lazily creates an inviteLinks
+     row for any owner that doesn't yet have one. That means a
+     GET endpoint mutates the database, which is bad practice.
+     The functionality works correctly; the side-effect just
+     belongs at registration time instead.
+   - createRecurringSlots uses `toISOString().split("T")[0]` to
+     derive the date string for each weekly occurrence, which is
+     timezone-sensitive: an owner in a non-UTC timezone could see
+     dates shift by one day if they create slots near midnight
+     local time. CalendarSelector.jsx already does the safe
+     UTC-math version; we just haven't ported it back to the
+     server controller.
+   - The /slots/recurring bulk endpoint exists on the backend
+     but is not currently called from the frontend (OwnerDashboard
+     calls /slots/create in a loop instead). Both paths produce
+     the same data; the bulk endpoint is currently unused.
+   - /dashboard/student is gated by requireAuth only, not by a
+     student-role check, so an owner who hits that endpoint
+     directly receives an empty payload rather than 403. Not a
+     security issue (cannot leak other users' data), but worth
+     flagging.
 
 
 --------------------------------------------------------------------------------
