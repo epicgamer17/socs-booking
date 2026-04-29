@@ -71,6 +71,16 @@ exports.createSlot = async (req, res) => {
   const date = req.body.date;
   const timeFrom = req.body.timeFrom;
   const timeTo = req.body.timeTo;
+
+  //missing fields
+  if (!date || !timeFrom || !timeTo) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+  //invalid time range
+  if (timeFrom >= timeTo) {
+    return res.status(400).json({ message: "timeFrom must be before timeTo" });
+  }
+
   try {
     //insert slot into db
     await db.query(

@@ -40,6 +40,8 @@ const groupMeetingsRouter = require('./routes/groupMeetings.js');
 const meetingRequestsRouter = require('./routes/meetingRequests.js');
 const slotsRouter = require('./routes/slots.js'); 
 const inviteLinkRouter = require('./routes/inviteLink.js');
+const calendarRouter = require('./routes/calendar.js');
+
 
 //Routing 
 app.use('/auth', authRouter); 
@@ -49,6 +51,7 @@ app.use('/bookings', bookingsRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/url', inviteLinkRouter);
 app.use('/groupMeetings', groupMeetingsRouter);
+app.use('/calendar', calendarRouter);
 
 // wiring for HTTPS
 // BEGIN: AI-generated code
