@@ -4,33 +4,43 @@ const crypto = require("crypto");
 const { sendNotification } = require("../lib/mailer");
 const { getSlotsForOwner } = require("../lib/queryHelpers");
 
+
 //----- Get all Owners with Public Slots -----
 exports.getOwners = async (req, res) => {
   try {
-    // AI Query - by jonathan
+    //get owners with at least one active slot and the existing invite token 
     const [rows] = await db.query(
-      `SELECT users.id AS ownerID, users.firstName, users.lastName,
-              users.department, users.email, inviteLinks.token AS inviteToken
-         FROM users
-         JOIN slots ON slots.ownerID = users.id AND slots.isActive = TRUE
-    LEFT JOIN inviteLinks ON inviteLinks.ownerID = users.id
-        WHERE users.role = 'owner'
-     GROUP BY users.id`
-    );
+      `SELECT 
+      users.id AS ownerID,
+      users.firstName,
+      users.lastName,
+      users.department,
+      users.email,
+      inviteLinks.token
+      FROM users
+      JOIN slots ON slots.ownerID = users.id
+      LEFT JOIN inviteLinks ON inviteLinks.ownerID = users.id
+      WHERE users.role = 'owner'
+      AND slots.isActive = TRUE
+      GROUP BY users.id
+    `);
 
-    // AI for the for loop here by Jonathan.
-    // Backfill an invite token for any owner that doesn't have one — keeps ownerIDs
-    // out of directory URLs without requiring every owner to visit their dashboard first.
     const owners = [];
+
     for (const row of rows) {
-      let token = row.inviteToken;
+      let token = row.token;
+
+      //create invite token if owner doesn't have one
       if (!token) {
         token = crypto.randomBytes(32).toString("hex");
+
         await db.query(
-          `INSERT INTO inviteLinks (ownerID, token) VALUES(?, ?)`,
+          "INSERT INTO inviteLinks (ownerID, token) VALUES (?, ?)",
           [row.ownerID, token]
         );
       }
+
+      //build response object for frontend
       owners.push({
         firstName: row.firstName,
         lastName: row.lastName,
@@ -39,7 +49,6 @@ exports.getOwners = async (req, res) => {
         inviteToken: token,
       });
     }
-
     return res.status(200).json(owners);
   } catch (err) {
     console.error("[slotsController.getOwners]", err);
@@ -122,7 +131,7 @@ exports.activateSlot = async (req, res) => {
       [slotID, ownerID]
     );
 
-    //if no affected rows, activate operation was not performed
+    //if no affected rows, activate operation not performed
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "Unauthorized or slot does not exist" });
     }

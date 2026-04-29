@@ -1,4 +1,4 @@
-// Thomas Nguyen, Sophia Hussain, Jonathan Lamontagne-Kratz
+// Thomas Nguyen, Jonathan Lamontagne-Kratz
 const db = require("../db/db");
 
 exports.getBookingsForUser = async (userID) => {
