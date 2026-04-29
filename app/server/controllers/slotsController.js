@@ -5,6 +5,7 @@ const crypto = require("crypto");
 //----- Get all Owners with Public Slots -----
 exports.getOwners = async (req, res) => {
   try {
+    // AI Query - by jonathan
     const [rows] = await db.query(
       `SELECT users.id AS ownerID, users.firstName, users.lastName,
               users.department, users.email, inviteLinks.token AS inviteToken
@@ -15,6 +16,7 @@ exports.getOwners = async (req, res) => {
      GROUP BY users.id`
     );
 
+    // AI for the for loop here by Jonathan.
     // Backfill an invite token for any owner that doesn't have one — keeps ownerIDs
     // out of directory URLs without requiring every owner to visit their dashboard first.
     const owners = [];

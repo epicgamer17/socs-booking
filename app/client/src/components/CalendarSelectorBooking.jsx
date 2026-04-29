@@ -1,4 +1,4 @@
-/* Author: Tanav Bansal*/
+/* Author: Tanav Bansal */
 
 import { useState } from 'react';
 import useAuth from '../utils/auth';

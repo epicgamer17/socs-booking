@@ -1,4 +1,4 @@
-// Author: Jonathan Lamontagne-Kratz
+// Author: AI
 import { useEffect, useRef } from "react";
 
 export default function useAutoRefresh(refetchFns, intervalMs = 5_000) {
