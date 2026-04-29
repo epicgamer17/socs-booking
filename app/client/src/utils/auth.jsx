@@ -1,4 +1,5 @@
 /* Author: Tanav Bansal */
+//Jonathan Lamontagne-Kratz modefied it a bit return use AuthContext
 
 
 import { useState, createContext, useContext } from "react";
