@@ -1,3 +1,7 @@
+//Author: Tanav bansal 
+// Jonathan Lamontagne-Kratz modified the fetch function to usecallback
+
+
 import { useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
 import useAutoRefresh from "./utils/useAutoRefresh"
