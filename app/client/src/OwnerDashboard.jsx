@@ -110,7 +110,7 @@ function OwnerDashboard() {
     fetchPolls();
   }, [fetchPolls]);
 
-  useAutoRefresh([fetchDashboardData, fetchPolls], 30_000);
+  useAutoRefresh([fetchDashboardData, fetchPolls], 5_000);
 
   function handlePollCreated() {
     fetchPolls();
