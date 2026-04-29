@@ -164,6 +164,7 @@ window.open(mailtoUrl);
 | Merge conflict resolution | `db/migrations/05_groupMeetings.sql` after master was merged into feature branch | AI assistance |
 | params.toString().replace(/\+/g, "%20")|formatedParams in MailtoButton.jsx|claude
 |DEPARTMENT_OPTIONS|departments.jsx convert the html from minerva to json format|claude
+| `mailer.js` | Mailer helper function | Claude |
 
 ---
 *Note: migrations.js script is AI-generated (short utility script).*
