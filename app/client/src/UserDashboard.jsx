@@ -1,6 +1,7 @@
 //Author: Tanav bansal 
 // Jonathan Lamontagne-Kratz modified the fetch function for useAutoRefresh
 // Jonathan Lamontagne-Kratz modified it to include the fetching with auth
+// Jonathan Lamontagne-Kratz modified to include exporting of calendar
 
 import { useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
@@ -131,6 +132,28 @@ function UserDashboard() {
         }
     }
 
+    // handle exporting of calendar with backend, aligns with current system and returns and ics file. it is from the student perspective, so it will return the bookings that the student has made.
+    async function handleExportCalendar() {
+        try {
+            const r = await fetchWithAuth(`${API_URL}/calendar/export`);
+            if (!r.ok) {
+                setError("Failed to export calendar");
+                return;
+            }
+            const blob = await r.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'meetings.ics';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch {
+            setError("Failed to export calendar");
+        }
+    }
+
     return (
         <div className={styles.container}>
             <header className={styles.header}>
@@ -138,6 +161,9 @@ function UserDashboard() {
                     <h1 className={styles.title}>Student Dashboard</h1>
                     <p className={styles.subtitle}>Welcome back, Student</p>
                 </div>
+                <Button variant="primary" onClick={handleExportCalendar}>
+                    Export Calendar (.ics)
+                </Button>
             </header>
 
             {error && <p style={{ color: "red" }}>{error}</p>}
