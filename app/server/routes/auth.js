@@ -26,6 +26,6 @@ router.get("/verify/:token", authController.verifyEmail);
 router.post("/login", limiter, authController.login);
 
 //logout user
-router.post("/logout", requireAuth, authController.logout);
+router.post("/logout", authController.logout);
 
 module.exports = router;
