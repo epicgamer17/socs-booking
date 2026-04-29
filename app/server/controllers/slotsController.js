@@ -22,8 +22,7 @@ exports.getOwners = async (req, res) => {
       LEFT JOIN inviteLinks ON inviteLinks.ownerID = users.id
       WHERE users.role = 'owner'
       AND slots.isActive = TRUE
-      GROUP BY users.id
-    `);
+      GROUP BY users.id`);
 
     const owners = [];
 

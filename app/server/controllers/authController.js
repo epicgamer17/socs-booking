@@ -48,7 +48,7 @@ exports.register = async (req, res) => {
   if (password.length < 12) {
     return res.status(400).json({ message: "Password must be at least 12 characters" });
   } else if (password.length > 72) {
-    return res.status(400).json({ message: "Password too long. What are you trying to do?" });
+    return res.status(400).json({ message: "Password too long" });
   } else if (!/[A-Z]/.test(password)) {
     return res.status(400).json({ message: "Password must contain at least one uppercase character" });
   } else if (!/\d/.test(password)) {

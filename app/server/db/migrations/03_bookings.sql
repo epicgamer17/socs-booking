@@ -1,4 +1,4 @@
--- Sophia Hussain, Thomas Nguyen
+-- Thomas Nguyen
 CREATE TABLE IF NOT EXISTS bookings (
   id INT AUTO_INCREMENT PRIMARY KEY,
   slotID INT NOT NULL,  
