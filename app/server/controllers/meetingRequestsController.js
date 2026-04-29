@@ -1,4 +1,4 @@
-//Sophia Hussain and AI???? (accept and decline meeting function)
+//Sophia Hussain
 const db = require("../db/db");
 const { sendNotification } = require("../lib/mailer");
 const { getPendingRequestsForOwner } = require("../lib/queryHelpers");
@@ -128,7 +128,7 @@ exports.acceptMeeting = async (req, res) => {
         return res.status(200).json({
             message: "Meeting request accepted"
         });
-        
+
     } catch (err) {
         await conn.rollback();
         console.error("[meetingRequestsController.acceptMeeting]", err);
@@ -175,7 +175,7 @@ exports.declineMeeting = async (req, res) => {
         }).catch(err => {
             console.error("[sendNotification.declineMeeting]", err);
         });
-        
+
         return res.status(200).json({
             message: "Meeting request declined"
         });

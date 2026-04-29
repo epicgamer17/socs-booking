@@ -1,10 +1,12 @@
 /* Author: Tanav Bansal*/
+// Jonathan Lamontagne-Kratz modified it to include the fetching with auth
 
 import { useParams, useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
 import { useEffect, useState } from "react"
 import Button from "./components/ui/Button";
 import styles from "./BookingPage.module.css"
+import { fetchWithAuth } from "./utils/api";
 
 
 
@@ -31,12 +33,8 @@ function BookingPage() {
 
         async function resolveToken() {
             try {
-                const r = await fetch(`${API_URL}/url/resolve/${token}`, {
+                const r = await fetchWithAuth(`${API_URL}/url/resolve/${token}`, {
                     method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${user.token}`,
-                    },
                 });
                 const data = await r.json();
                 if (!r.ok) {
@@ -61,12 +59,8 @@ function BookingPage() {
 
             try {
 
-                const r = await fetch(`${API_URL}/slots/public/${ownerId}`, {
+                const r = await fetchWithAuth(`${API_URL}/slots/public/${ownerId}`, {
                     method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${user.token}`
-                    },
                 });
 
                 const data = await r.json();
@@ -99,12 +93,8 @@ function BookingPage() {
 
         try {
 
-            const r = await fetch(`${API_URL}/bookings/${slotId}`, {
+            const r = await fetchWithAuth(`${API_URL}/bookings/${slotId}`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.token}`
-                },
             });
 
             const data = await r.json();

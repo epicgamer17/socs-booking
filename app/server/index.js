@@ -9,21 +9,7 @@ const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-// rate limiting
-const { rateLimit } = require('express-rate-limit');
-// BEGIN: code pasted from https://www.npmjs.com/package/express-rate-limit
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-  standardHeaders: 'draft-8', // draft-6: `RateLimit-*` headers; draft-7 & draft-8: combined `RateLimit` header
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-  ipv6Subnet: 56, // Set to 60 or 64 to be less aggressive, or 52 or 48 to be more aggressive
-  // store: ... , // Redis, Memcached, etc. See below.
-});
-
-// Apply the rate limiting middleware to all requests.
-app.use(limiter);
-// END: code pasted from https://www.npmjs.com/package/express-rate-limit
+app.set('trust proxy', 1);
 
 
 //Middleware
@@ -40,13 +26,13 @@ const bookingsRouter = require('./routes/bookings.js');
 const dashboardRouter = require('./routes/dashboard.js');
 const groupMeetingsRouter = require('./routes/groupMeetings.js');
 const meetingRequestsRouter = require('./routes/meetingRequests.js');
-const slotsRouter = require('./routes/slots.js'); 
+const slotsRouter = require('./routes/slots.js');
 const inviteLinkRouter = require('./routes/inviteLink.js');
 const calendarRouter = require('./routes/calendar.js');
 
 
 //Routing 
-app.use('/auth', authRouter); 
+app.use('/auth', authRouter);
 app.use('/slots', slotsRouter);
 app.use('/request', meetingRequestsRouter);
 app.use('/bookings', bookingsRouter);
@@ -72,5 +58,5 @@ app.get(/^\/(?!auth|slots|request|bookings|dashboard|url|groupMeetings).*/, (req
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

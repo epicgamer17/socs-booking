@@ -3,11 +3,11 @@ import { useState } from 'react';
 import useAuth from '../utils/auth';
 import Button from './ui/Button';
 import Input from './ui/Input';
+import { fetchWithAuth } from '../utils/api';
 import styles from './CalendarSelector.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-// Adds `weeks * 7` days to a YYYY-MM-DD string without timezone drift
 function addWeeks(isoDate, weeks) {
     const [y, m, d] = isoDate.split('-').map(Number);
     const dt = new Date(Date.UTC(y, m - 1, d));
@@ -43,12 +43,8 @@ function CalendarSelector({ onCreated }) {
         for (let i = 0; i < weekCount; i++) {
             const slotDate = addWeeks(date, i);
             try {
-                const r = await fetch(`${API_URL}/slots/create`, {
+                const r = await fetchWithAuth(`${API_URL}/slots/create`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${user.token}`,
-                    },
                     body: JSON.stringify({ date: slotDate, timeFrom, timeTo }),
                 });
                 if (!r.ok) {

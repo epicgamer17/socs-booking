@@ -1,7 +1,4 @@
 //Thomas Nguyen
-/*
-  Dashboard data depending on user role. Separating seemed simpler to me, but lmk if I should I should revert to the previously recommended approach - Thomas.
-*/
 
 const db = require("../db/db");
 const { getSlotsForOwner, getPendingRequestsForOwner, getPollsForOwner, getBookingsForUser, getPollsForInvitedUser } = require("../lib/queryHelpers");

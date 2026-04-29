@@ -3,6 +3,7 @@ import { useState } from 'react';
 import useAuth from '../utils/auth';
 import Button from './ui/Button';
 import Input from './ui/Input';
+import { fetchWithAuth } from '../utils/api';
 import styles from './CalendarSelector.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -66,12 +67,8 @@ function GroupMeetingForm({ onCreated }) {
 
         setSubmitting(true);
         try {
-            const r = await fetch(`${API_URL}/groupMeetings/group`, {
+            const r = await fetchWithAuth(`${API_URL}/groupMeetings/group`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`,
-                },
                 body: JSON.stringify({
                     title: title,
                     timeWindows: windows,

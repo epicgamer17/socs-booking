@@ -8,8 +8,8 @@ exports.generateLink = async (req, res) => {
 
     try {
         //check if owner has a link
-        const[result] = await db.query(`
-        SELECT token FROM inviteLinks WHERE ownerID = ?`,[ownerID]);
+        const [result] = await db.query(`
+        SELECT token FROM inviteLinks WHERE ownerID = ?`, [ownerID]);
 
         // if they already have one, return it
         if (result.length > 0) {
@@ -22,7 +22,7 @@ exports.generateLink = async (req, res) => {
 
         await db.query(
             `INSERT INTO inviteLinks (ownerID, token) VALUES(?,?)`,
-            [ownerID,token]
+            [ownerID, token]
         );
 
         return res.status(201).json({
@@ -74,8 +74,8 @@ exports.deleteLink = async (req, res) => {
         return res.status(200).json({ message: "Invite link deleted" });
 
     } catch (err) {
-      console.error("[inviteLinkController.deleteLink]", err);
-      return res.status(500).json({ message: "Failed to delete link" });
+        console.error("[inviteLinkController.deleteLink]", err);
+        return res.status(500).json({ message: "Failed to delete link" });
     }
 };
 

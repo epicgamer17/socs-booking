@@ -11,8 +11,9 @@ function NavBar() {
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
 
-    const isOwner = user?.role === 'owner';
-    const homeHref = !user ? '/' : isOwner ? '/owner-dashboard' : '/user-dashboard';
+    const isOwner = !!(user && user.role === 'owner');
+    const isLoggedIn = !!(user && user.role);
+    const homeHref = !isLoggedIn ? '/' : isOwner ? '/owner-dashboard' : '/user-dashboard';
 
     // Close the menu on route change so tapping a link dismisses it.
     useEffect(() => {
@@ -45,24 +46,29 @@ function NavBar() {
                 </NavLink>
 
                 <div className={styles.desktopLinks}>
-                    {user && isOwner && (
-                        <NavLink to="/owner-dashboard" className={linkClass}>Staff Dashboard</NavLink>
-                    )}
-                    {user && (
-                        <NavLink to="/user-dashboard" className={linkClass}>Student Dashboard</NavLink>
-                    )}
-
-                    {user && (
-                        <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>
-                    )}
-                    {!user && (
+                    {/* Public Links (for when logged out) */}
+                    {!isLoggedIn && (
                         <>
                             <NavLink to="/login" className={linkClass}>Login</NavLink>
                             <NavLink to="/register" className={linkClass}>Register</NavLink>
                         </>
                     )}
+
+                    {/* links when logged in to stop you being able to see dashboard navs when logged out */}
+                    {isLoggedIn && (
+                        <>
+                            {isOwner ? (
+                                <NavLink to="/owner-dashboard" className={linkClass}>Staff Dashboard</NavLink>
+                            ) : (
+                                <NavLink to="/user-dashboard" className={linkClass}>Student Dashboard</NavLink>
+                            )}
+                            <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>
+                        </>
+                    )}
+
                     <ThemeToggle />
-                    {user && (
+
+                    {isLoggedIn && (
                         <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
                             Logout
                         </button>
@@ -90,20 +96,23 @@ function NavBar() {
                 className={`${styles.mobileMenu} ${isOpen ? styles.mobileMenuOpen : ''}`}
                 aria-hidden={!isOpen}
             >
-                {user && isOwner && (
-                    <NavLink to="/owner-dashboard" className={linkClass}>Staff Dashboard</NavLink>
-
-                )}
-                {user && (
-                    <NavLink to="/user-dashboard" className={linkClass}>Student Dashboard</NavLink>
-                )}
-                {user && (
-                    <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>
-                )}
-                {!user && (
+                {/* Mobile Links */}
+                {/* Public links */}
+                {!isLoggedIn && (
                     <>
                         <NavLink to="/login" className={linkClass}>Login</NavLink>
                         <NavLink to="/register" className={linkClass}>Register</NavLink>
+                    </>
+                )}
+                {/* links when logged in to stop you being able to see dashboard navs when logged out */}
+                {isLoggedIn && (
+                    <>
+                        {isOwner ? (
+                            <NavLink to="/owner-dashboard" className={linkClass}>Staff Dashboard</NavLink>
+                        ) : (
+                            <NavLink to="/user-dashboard" className={linkClass}>Student Dashboard</NavLink>
+                        )}
+                        <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>
                     </>
                 )}
 
@@ -111,7 +120,7 @@ function NavBar() {
 
                 <div className={styles.mobileActions}>
                     <ThemeToggle />
-                    {user && (
+                    {isLoggedIn && (
                         <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
                             Logout
                         </button>

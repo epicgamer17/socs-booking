@@ -11,6 +11,20 @@ function Input({ label, type = 'text', value, onChange, placeholder, required })
                 type={type}
                 value={value}
                 onChange={onChange}
+                onClick={(e) => {
+                    if (type === 'date' || type === 'time') {
+                        try {
+                            e.target.showPicker();
+                        } catch (err) {}
+                    }
+                }}
+                onFocus={(e) => {
+                    if (type === 'date' || type === 'time') {
+                        try {
+                            e.target.showPicker();
+                        } catch (err) {}
+                    }
+                }}
                 placeholder={placeholder}
                 required={required}
                 className={styles.input}
