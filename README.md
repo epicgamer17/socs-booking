@@ -167,6 +167,7 @@ window.open(mailtoUrl);
 | `mailer.js` | Mailer helper function | Claude |
 | `useAutoRefresh.jsx` | Auto refresh hook | Claude |
 | AI used for "McGill Color Palette" Colors | 
+| AI used for last minute ical export fix| 
 
 ---
 *Note: migrations.js script is AI-generated (short utility script).*

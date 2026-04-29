@@ -1,6 +1,6 @@
 //Sophia Hussain
 const db = require("../db/db");
-const ical = require("ical-generator");
+const { ICalCalendar } = require("ical-generator");  // AI FIX to use ICalCalendar class instead of ical 
 
 //----- Export Bookings as .ics file -----
 exports.exportCalendar = async (req, res) => {
@@ -48,12 +48,17 @@ exports.exportCalendar = async (req, res) => {
             bookings = rows;
         }
 
-        const calendar = ical({ name: "My Meetings" });
+        const calendar = new ICalCalendar({ name: "My Meetings" });  // AI FIX
 
         // create a calendar event for each booking
         for (const booking of bookings) {
-            const start = new Date(`${booking.date}T${booking.timeFrom}`);
-            const end = new Date(`${booking.date}T${booking.timeTo}`);
+            // Ensure date is in YYYY-MM-DD format if it's a Date object // AI FIX
+            const dateStr = booking.date instanceof Date  // AI FIX
+                ? booking.date.toISOString().split('T')[0]  // AI FIX
+                : booking.date;  // AI FIX
+
+            const start = new Date(`${dateStr}T${booking.timeFrom}`);  // AI FIX
+            const end = new Date(`${dateStr}T${booking.timeTo}`);  // AI FIX
 
             calendar.createEvent({
                 start,
