@@ -1,4 +1,4 @@
-/* Author: Tanav Bansal*/
+/* Author: Tanav Bansal */
 
 
 import { useState, createContext, useContext } from "react";
@@ -65,7 +65,7 @@ export function AuthProvider({ children }) {
             }
             return true;
         }
-        catch{
+        catch {
             setError("Registration Failed");
             return false;
 
@@ -93,12 +93,12 @@ export function AuthProvider({ children }) {
             setUser(userData);
             return userData;
         }
-        catch{
+        catch {
             setError("Login Failed");
             return false;
 
         }
-        
+
     }
 
     async function logout() {
@@ -109,13 +109,13 @@ export function AuthProvider({ children }) {
 
 
             });
-            
+
         }
-        catch{
+        catch {
             console.log("Logout Failed");
-            
+
         }
-        finally{
+        finally {
             localStorage.removeItem("student")
             setUser(null);
 

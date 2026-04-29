@@ -1,3 +1,7 @@
+//Author: Tanav bansal 
+// Jonathan Lamontagne-Kratz modified the fetch function to usecallback and useAutoRefresh
+
+
 import { useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
 import useAutoRefresh from "./utils/useAutoRefresh"
@@ -99,10 +103,6 @@ function UserDashboard() {
             const newBookingList = bookings.filter((b) => b.bookingID !== bookingID)
 
             setBookings(newBookingList);
-
-            if (data.emailToNotify) {
-                window.open(`mailto:${data.emailToNotify}?subject=${date}(${timeFrom}-${timeTo}) Booking Cancelled`)
-            }
         }
         catch {
             setError("Failed to cancel the booking")

@@ -39,8 +39,6 @@ function CalendarSelector({ onCreated }) {
         }
 
         setSubmitting(true);
-
-        // Sequential so failures attribute to the right week; server insert is cheap
         const failures = [];
         for (let i = 0; i < weekCount; i++) {
             const slotDate = addWeeks(date, i);

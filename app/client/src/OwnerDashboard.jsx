@@ -131,9 +131,6 @@ function OwnerDashboard() {
         ...prev,
         slots: prev.slots.filter((s) => s.slotID !== slotID),
       }));
-      if (data.emailToNotify) {
-        window.location.href = `mailto:${data.emailToNotify}?subject=Booking Cancelled`;
-      }
     } catch {
       setError("Failed to delete slot");
     }
@@ -177,11 +174,6 @@ function OwnerDashboard() {
           : prev.slots,
       }));
 
-      if (data.emailToNotify) {
-        const subject = accepted ? "Meeting Request Accepted" : "Meeting Request Declined";
-        const body = `Your meeting request on ${data.date} from ${data.timeFrom} to ${data.timeTo} has been ${accepted ? "accepted" : "declined"}.`;
-        window.location.href = `mailto:${data.emailToNotify}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      }
     } catch {
       setError(`Failed to ${action} request`);
     }
@@ -217,9 +209,6 @@ function OwnerDashboard() {
         return rest;
       });
       fetchDashboardData();
-      if (data.mailtoUrl) {
-        window.location.href = data.mailtoUrl;
-      }
     } catch {
       setError("Failed to finalize poll");
     }

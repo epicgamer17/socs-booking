@@ -1,5 +1,4 @@
-/* Author: Tanav Bansal*/
-// Author: Jonathan Lamontagne-Kratz
+/* Author: Tanav Bansal and Author: Jonathan Lamontagne-Kratz */
 
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 

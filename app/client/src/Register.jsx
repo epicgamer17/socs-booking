@@ -1,4 +1,4 @@
-/* Author: Tanav Bansal*/
+/* Author: Tanav Bansal & Jonathan Lamontange Kratz (linking styling only) */
 
 import { useEffect, useState } from "react";
 import useAuth from './utils/auth';

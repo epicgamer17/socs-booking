@@ -1,4 +1,4 @@
-/* Author: Tanav Bansal*/
+/* Author: Tanav Bansal and Jonathan Lamontagne-Kratz (linking styling only) */
 
 import { useEffect, useState } from "react"
 import useAuth from "./utils/auth";
@@ -27,30 +27,30 @@ function DirectoryPage() {
 
   useEffect(() => {
 
-      async function fetchOwners() {
+    async function fetchOwners() {
 
-          const r = await fetch(`${API_URL}/slots/owners`, {
-              method: "GET",
-              headers: {
-                  "Content-Type": "application/json",
-                  "Authorization": `Bearer ${user.token}`
-              },
-          });
+      const r = await fetch(`${API_URL}/slots/owners`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user.token}`
+        },
+      });
 
-          const data = await r.json();
-          if (!r.ok) {
-              setError(data.message || "Failed to fetch data")
-              return;
-          }
-          setOwners(data)
-          setFilteredOwners(data)
-
+      const data = await r.json();
+      if (!r.ok) {
+        setError(data.message || "Failed to fetch data")
+        return;
       }
+      setOwners(data)
+      setFilteredOwners(data)
 
-      if (user) {
-          fetchOwners();
+    }
 
-      }
+    if (user) {
+      fetchOwners();
+
+    }
 
 
 

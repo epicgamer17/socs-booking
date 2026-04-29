@@ -1,4 +1,4 @@
-//Thomas Nguyen, Jonathan Lamontagne-Kratz
+//Thomas Nguyen
 const db = require("../db/db");
 const { sendNotification } = require("../lib/mailer");
 
@@ -62,16 +62,16 @@ exports.createGroupMeeting = async (req, res) => {
     // insert time windows into db
     for (let i = 0; i < timeWindows.length; i++) {
       await conn.query(
-	`INSERT INTO timeWindows (groupMeetingID, date, timeFrom, timeTo) VALUES(?, ?, ?, ?)`,
-	[gmid, timeWindows[i].date, timeWindows[i].timeFrom, timeWindows[i].timeTo]
+        `INSERT INTO timeWindows (groupMeetingID, date, timeFrom, timeTo) VALUES(?, ?, ?, ?)`,
+        [gmid, timeWindows[i].date, timeWindows[i].timeFrom, timeWindows[i].timeTo]
       );
     }
 
     // insert invitations into db
     for (const invitedUserID of invitedUserIDs) {
       await conn.query(
-	`INSERT INTO userInvitations (userID, groupMeetingID) VALUES(?, ?)`,
-	[invitedUserID, gmid]
+        `INSERT INTO userInvitations (userID, groupMeetingID) VALUES(?, ?)`,
+        [invitedUserID, gmid]
       );
     }
 
@@ -86,6 +86,8 @@ exports.createGroupMeeting = async (req, res) => {
   }
 }
 
+
+// AI FROM 96 to 144 (end of exports.getOwnerGroupMeetings)
 /*
   GET /group/owner - Owner lists all of their non-finalized group meetings, with each
   candidate time window and its vote count. Shape is intentionally close to what
@@ -240,7 +242,7 @@ exports.submitAvailabilityVote = async (req, res) => {
     );
     if (ownedWindows.length !== timeWindowIDs.length) {
       return res.status(400).json({
-	message: "One or more timeWindowIDs do not belong to this group meeting"
+        message: "One or more timeWindowIDs do not belong to this group meeting"
       });
     }
 
@@ -249,8 +251,8 @@ exports.submitAvailabilityVote = async (req, res) => {
     // insert vote submission into db
     for (const timeWindowID of timeWindowIDs) {
       await conn.query(
-	`INSERT INTO userVotes (userID, timeWindowID) VALUES(?, ?)`,
-	[userID, timeWindowID]
+        `INSERT INTO userVotes (userID, timeWindowID) VALUES(?, ?)`,
+        [userID, timeWindowID]
       );
     }
 
@@ -395,8 +397,8 @@ exports.finalizeGroupMeeting = async (req, res) => {
       date.setDate(date.getDate() + 7 * i);
 
       const [slot] = await conn.query(
-	`INSERT INTO slots (ownerID, date, timeFrom, timeTo, isActive) VALUES(?, ?, ?, ?, ?)`,
-	[ownerID, date, winningTimeWindow.timeFrom, winningTimeWindow.timeTo, true]
+        `INSERT INTO slots (ownerID, date, timeFrom, timeTo, isActive) VALUES(?, ?, ?, ?, ?)`,
+        [ownerID, date, winningTimeWindow.timeFrom, winningTimeWindow.timeTo, true]
       );
       slotIDs.push(slot.insertId);
     }
@@ -404,10 +406,10 @@ exports.finalizeGroupMeeting = async (req, res) => {
     // create bookings for every such week, for every voter
     for (let i = 0; i < recurrenceWeeks; i++) {
       for (let j = 0; j < userIDs.length; j++) {
-	await conn.query(
-	  `INSERT INTO bookings (slotID, userID, groupMeetingID) VALUES(?, ?, ?)`,
-	  [slotIDs[i], userIDs[j], groupMeetingID]
-	);
+        await conn.query(
+          `INSERT INTO bookings (slotID, userID, groupMeetingID) VALUES(?, ?, ?)`,
+          [slotIDs[i], userIDs[j], groupMeetingID]
+        );
       }
     }
 

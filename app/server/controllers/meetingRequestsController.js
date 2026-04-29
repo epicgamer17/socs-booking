@@ -1,4 +1,4 @@
-//Sophia Hussain and AI????(accept meeting function)
+//Sophia Hussain and AI???? (accept and decline meeting function)
 const db = require("../db/db");
 const { sendNotification } = require("../lib/mailer");
 
