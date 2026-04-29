@@ -29,7 +29,7 @@
 
   Name                         | McGill ID    | Role
   -----------------------------|--------------|------------------------
-  Sophia Hussain               | 261418580    | Team Leader / Backend
+  Sophia Hussain               | 2611418580    | Team Leader / Backend
   Thomas Nguyen                | 261181634    | Backend
   Jonathan Lamontagne-Kratz    | 261143892    | Frontend / Design
   Tanav Bansal                 | 261075755    | Frontend / Design
