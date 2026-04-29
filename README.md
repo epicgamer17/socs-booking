@@ -9,7 +9,7 @@ URL (requires either McGill VPN or being on the campus network to access) : http
 | Sophia Hussain | Leader/Backend | 2611418580 | Registration, auth middleware, Slots (create/delete/activate/view my slots/view owners public slots/browse all owners with active slots), users.sql, slots.sql, meetingRequests.sql, inviteLinks.sql Type 1 meeting request, Type 3 recurring office hours |
 | Thomas Nguyen | Backend | 261181634 | login/logout controllers, booking controllers (create, view, cancel), dashboard controllers, group meeting controller (create, view, vote) |
 | Jonathan Lamontagne-Kratz | Frontend | 261143892 | Owner Page, Bonus Features, Global Page Styling, UI Components |
-| Tanav Bansal | Frontend/Design | 261075755 | Landing page,registration page,login page |
+| Tanav Bansal | Frontend/Design | 261075755 | DirectoryPage, Booking Page, Landing page,registration page,login page |
 
 🛠 **Tech Stack**
 
