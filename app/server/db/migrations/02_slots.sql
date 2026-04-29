@@ -1,3 +1,4 @@
+-- Sophia Hussain
 CREATE TABLE IF NOT EXISTS slots (
     id INT AUTO_INCREMENT PRIMARY KEY,
     ownerID INT NOT NULL,

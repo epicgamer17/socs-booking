@@ -26,13 +26,13 @@ const bookingsRouter = require('./routes/bookings.js');
 const dashboardRouter = require('./routes/dashboard.js');
 const groupMeetingsRouter = require('./routes/groupMeetings.js');
 const meetingRequestsRouter = require('./routes/meetingRequests.js');
-const slotsRouter = require('./routes/slots.js'); 
+const slotsRouter = require('./routes/slots.js');
 const inviteLinkRouter = require('./routes/inviteLink.js');
 const calendarRouter = require('./routes/calendar.js');
 
 
 //Routing 
-app.use('/auth', authRouter); 
+app.use('/auth', authRouter);
 app.use('/slots', slotsRouter);
 app.use('/request', meetingRequestsRouter);
 app.use('/bookings', bookingsRouter);
@@ -58,5 +58,5 @@ app.get(/^\/(?!auth|slots|request|bookings|dashboard|url|groupMeetings).*/, (req
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });

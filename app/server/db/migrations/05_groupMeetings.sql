@@ -1,3 +1,4 @@
+-- Thomas Nguyen
 -- recurrence is to be handled manually, in the controller
 CREATE TABLE IF NOT EXISTS groupMeetings (
   title VARCHAR(255) NOT NULL,

@@ -1,3 +1,4 @@
+-- Sophia Hussain
 CREATE TABLE IF NOT EXISTS meetingRequests (
   id INT AUTO_INCREMENT PRIMARY KEY,
   userID INT NOT NULL,
