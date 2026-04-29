@@ -5,23 +5,48 @@ const ical = require("ical-generator");
 //----- Export Bookings as .ics file -----
 exports.exportCalendar = async (req, res) => {
     const userID = req.user.id;
+    const role = req.user.role;
 
-    // get confirmed bookings 
     try {
-        const [bookings] = await db.query(
-            `SELECT 
+        let bookings;
+
+        if (role === "owner") {
+            // get bookings for owner's slots
+            const [rows] = await db.query(
+                `SELECT 
+                slots.date,
+                slots.timeFrom,
+                slots.timeTo,
+                students.email AS otherEmail,
+                students.firstName,
+                students.lastName
+                 FROM slots
+                 JOIN bookings ON bookings.slotID = slots.id
+                 JOIN users AS students ON students.id = bookings.userID
+                 WHERE slots.ownerID = ?`,
+                [userID]
+            );
+
+            bookings = rows;
+        } else {
+            // get bookings made by student
+            const [rows] = await db.query(
+                `SELECT 
                 slots.date, 
                 slots.timeFrom, 
                 slots.timeTo, 
-                owners.email AS ownerEmail,
+                owners.email AS otherEmail,
                 owners.firstName,
                 owners.lastName
-             FROM bookings
-             JOIN slots ON slots.id = bookings.slotID
-             JOIN users AS owners ON owners.id = slots.ownerID
-             WHERE bookings.userID = ?`,
-            [userID]
-        );
+                 FROM bookings
+                 JOIN slots ON slots.id = bookings.slotID
+                 JOIN users AS owners ON owners.id = slots.ownerID
+                 WHERE bookings.userID = ?`,
+                [userID]
+            );
+
+            bookings = rows;
+        }
 
         const calendar = ical({ name: "My Meetings" });
 
@@ -34,11 +59,7 @@ exports.exportCalendar = async (req, res) => {
                 start,
                 end,
                 summary: `Meeting with ${booking.firstName} ${booking.lastName}`,
-                description: `Booked through McGill.\nContact: ${booking.ownerEmail}`,
-                organizer: {
-                    name: `${booking.firstName} ${booking.lastName}`,
-                    email: booking.ownerEmail,
-                },
+                description: `Booked through McGill.\nContact: ${booking.otherEmail}`,
             });
         }
 
