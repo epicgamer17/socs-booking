@@ -1,5 +1,9 @@
 //Sophia Hussain, Thomas Nguyen
 
+// BEGIN: code pasted from https://www.npmjs.com/package/express-rate-limit
+import { rateLimit } from 'express-rate-limit'
+// END: code pasted from https://www.npmjs.com/package/express-rate-limit
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -8,14 +12,8 @@ const helmet = require('helmet');
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-//eventually AS BONUS must make this https if possible. most important priority bonus bc otherwise
-//jwt tokens can by read any anyone (which breaks the whole point of auth)
-
-
 // rate limiting
 // BEGIN: code pasted from https://www.npmjs.com/package/express-rate-limit
-import { rateLimit } from 'express-rate-limit'
-
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
