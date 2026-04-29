@@ -17,6 +17,14 @@
 */
 
 const db = require("../db/db");
+const nodemailer = require("nodemailer");
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 /*
   POST /bookings/:slotID - user books a slot
@@ -73,6 +81,15 @@ exports.bookSlot = async (req, res) => {
     const subject = "Slot booked";
     const body = `Slot on ${rows[0].date.toLocaleDateString('en-CA')} from ${rows[0].timeFrom} to ${rows[0].timeTo} booked.`;
     const mailtoUrl = `mailto:${rows[0].ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+
+    // send confirmation email
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: rows[0].ownerEmail,
+      subject: `${subject}`,
+      html: `<p>${body}</p>`
+    });
 
     // return info on booked slot and notify owner by email
     return res.status(201).json({
