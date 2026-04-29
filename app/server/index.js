@@ -1,9 +1,5 @@
 //Sophia Hussain, Thomas Nguyen
 
-// BEGIN: code pasted from https://www.npmjs.com/package/express-rate-limit
-import { rateLimit } from 'express-rate-limit'
-// END: code pasted from https://www.npmjs.com/package/express-rate-limit
-
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -13,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 // rate limiting
+const { rateLimit } = require('express-rate-limit');
 // BEGIN: code pasted from https://www.npmjs.com/package/express-rate-limit
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
