@@ -138,6 +138,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: var(--spacing-md);
 }
 
 .pollCandidates {
@@ -148,6 +149,21 @@
 
 .leader {
     border: 1px solid var(--color-primary);
+}
+
+.pollInput {
+    width: 4rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+}
+
+.pollInput:focus {
+    outline: none;
+    border-color: var(--color-primary);
 }
 
 @media (max-width: 600px) {

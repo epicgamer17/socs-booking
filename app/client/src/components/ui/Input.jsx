@@ -3,7 +3,10 @@
 import React from 'react';
 import styles from './Input.module.css';
 
-function Input({ label, type = 'text', value, onChange, placeholder, required }) {
+function Input({ label, type = 'text', value, onChange, placeholder, required, step }) {
+    // Default step for time input is 15 minutes (900 seconds)
+    const inputStep = step || (type === 'time' ? '900' : undefined);
+
     return (
         <div className={styles.inputWrapper}>
             {label && <label className={styles.label}>{label}</label>}
@@ -11,6 +14,7 @@ function Input({ label, type = 'text', value, onChange, placeholder, required })
                 type={type}
                 value={value}
                 onChange={onChange}
+                step={inputStep}
                 onClick={(e) => {
                     if (type === 'date' || type === 'time') {
                         try {

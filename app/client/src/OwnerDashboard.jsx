@@ -322,6 +322,7 @@ function OwnerDashboard() {
                   <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     Recur (weeks):
                     <input
+                      className={styles.pollInput}
                       type="number"
                       min="1"
                       value={recurrenceByPoll[poll.id] ?? 1}
@@ -332,7 +333,6 @@ function OwnerDashboard() {
                           [poll.id]: Number.isFinite(n) && n > 0 ? n : 1,
                         }));
                       }}
-                      style={{ width: '4rem' }}
                     />
                   </label>
                 </div>

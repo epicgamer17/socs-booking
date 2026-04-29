@@ -144,13 +144,13 @@ function GroupMeetingForm({ onCreated }) {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '1rem' }}>
-                <label>Invited student emails (comma-, space-, or newline-separated)</label>
+                <label className={styles.label}>Invited student emails (comma-, space-, or newline-separated)</label>
                 <textarea
+                    className={styles.textarea}
                     value={emailsText}
                     onChange={(e) => setEmailsText(e.target.value)}
                     placeholder="alice@mail.mcgill.ca, bob@mail.mcgill.ca"
                     rows={3}
-                    style={{ padding: '0.5rem', fontFamily: 'inherit' }}
                 />
             </div>
 
