@@ -1,6 +1,6 @@
 //Sophia Hussain and AI????(accept meeting function)
 const db = require("../db/db");
-
+const { sendNotification } = require("../lib/mailer");
 
 //----- See all Meeting Requests -----
 exports.seeMeetingRequests = async (req, res) => {
@@ -56,13 +56,20 @@ exports.requestMeeting = async (req, res) => {
             `INSERT INTO meetingRequests (userID, ownerID, date, timeFrom, timeTo, message)
             VALUES (?, ?, ?, ?, ?, ?)`, [userID, ownerID, date, timeFrom, timeTo, message]
         );
+
+        sendNotification({
+            to: ownerEmail,
+            subject: "New meeting request",
+            text: `You have a new meeting request for ${date} from ${timeFrom} to ${timeTo}`,
+            replyTo: req.user.email,
+        }).catch(err => {
+            console.error("[sendNotification.requestMeeting]", err);
+        });
+
         return res.status(201).json({
             message: "Meeting request sent",
-            emailToNotify: ownerEmail,
-            date,
-            timeFrom,
-            timeTo
         });
+
     } catch (err) {
         console.error("[meetingRequestsController.requestMeeting]", err);
         return res.status(500).json({ message: "unable to query db" });
@@ -121,13 +128,19 @@ exports.acceptMeeting = async (req, res) => {
 
         await conn.commit();
 
-        return res.status(200).json({
-            message: "Meeting request accepted",
-            emailToNotify: bookedByEmail,
-            date,
-            timeFrom,
-            timeTo,
+        sendNotification({
+            to: bookedByEmail,
+            subject: "Meeting request accepted",
+            text: `Your meeting request on ${date} from ${timeFrom} to ${timeTo} has been accepted`,
+            replyTo: req.user.email,
+        }).catch(err => {
+            console.error("[sendNotification.acceptMeeting]", err);
         });
+
+        return res.status(200).json({
+            message: "Meeting request accepted"
+        });
+        
     } catch (err) {
         await conn.rollback();
         console.error("[meetingRequestsController.acceptMeeting]", err);
@@ -160,16 +173,23 @@ exports.declineMeeting = async (req, res) => {
         }
 
         await db.query(
-            `UPDATE meetingRequests SET status = 'declined' WHERE id = ?`,
-            [requestID]
+            `UPDATE meetingRequests
+             SET status = 'declined'
+             WHERE id = ? AND ownerID = ? AND status = 'pending'`,
+            [requestID, ownerID]
         );
 
+        sendNotification({
+            to: rows[0].bookedByEmail,
+            subject: "Meeting request declined",
+            text: `Your meeting request for ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been declined.`,
+            replyTo: req.user.email,
+        }).catch(err => {
+            console.error("[sendNotification.declineMeeting]", err);
+        });
+        
         return res.status(200).json({
-            message: "Meeting request declined",
-            emailToNotify: rows[0].bookedByEmail,
-            date: rows[0].date,
-            timeFrom: rows[0].timeFrom,
-            timeTo: rows[0].timeTo,
+            message: "Meeting request declined"
         });
     } catch (err) {
         console.error("[meetingRequestsController.declineMeeting]", err);
