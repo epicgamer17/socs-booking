@@ -17,6 +17,7 @@
 */
 
 const db = require("../db/db");
+const { sendNotification } = require("../lib/mailer");
 
 /*
   POST /bookings/:slotID - user books a slot
@@ -70,15 +71,19 @@ exports.bookSlot = async (req, res) => {
 
     await conn.commit();
 
-    const subject = "Slot booked";
-    const body = `Slot on ${rows[0].date.toLocaleDateString('en-CA')} from ${rows[0].timeFrom} to ${rows[0].timeTo} booked.`;
-    const mailtoUrl = `mailto:${rows[0].ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const ownerEmail = rows[0].ownerEmail;
+    // send confirmation email to owner
+    sendNotification({
+      to: ownerEmail,
+      subject: "Slot booked",
+      text: `Slot on ${rows[0].date.toLocaleDateString('en-CA')} from ${rows[0].timeFrom} to ${rows[0].timeTo} booked.`,
+      replyTo: req.user.email
+    });
 
     // return info on booked slot and notify owner by email
     return res.status(201).json({
-      message: `Booking on slot at ${rows[0].date.toLocaleDateString('en-CA')} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been created`,
-      emailToNotify: rows[0].ownerEmail,
-      mailtoUrl: mailtoUrl,
+      message: "Booking created",
+      notified: ownerEmail
     });
   } catch (err) {
     await conn.rollback();
@@ -134,7 +139,7 @@ exports.cancelBooking = async (req, res) => {
               slots.date     AS date,
               slots.timeFrom AS timeFrom,
               slots.timeTo   AS timeTo,
-              owners.email    AS ownerEmail
+              owners.email   AS ownerEmail
          FROM bookings
          JOIN slots ON slots.id = bookings.slotID
          JOIN users AS owners ON owners.id = slots.ownerID
@@ -152,15 +157,19 @@ exports.cancelBooking = async (req, res) => {
       [bookingID, userID]
     );
 
-    const subject = "Booking Cancelled";
-    const body = `Booking on ${rows[0].date.toLocaleDateString('en-CA')} from ${rows[0].timeFrom} to ${rows[0].timeTo} cancelled.`;
-    const mailtoUrl = `mailto:${rows[0].ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const ownerEmail = rows[0].ownerEmail;
+    // notify owner by email
+    sendNotification({
+      to: ownerEmail,
+      subject: "Booking Cancelled",
+      text: `Booking on ${rows[0].date.toLocaleDateString('en-CA')} from ${rows[0].timeFrom} to ${rows[0].timeTo} cancelled.`,
+      replyTo: req.user.email
+    });
 
     // return info on deleted booking and notify owner by email
     return res.status(200).json({
       message: `Booking on ${rows[0].date.toLocaleDateString('en-CA')} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been cancelled`,
-      emailToNotify: rows[0].ownerEmail,
-      mailtoUrl: mailtoUrl,
+      notified: ownerEmail
     });
   } catch (err) {
     console.error("[bookingsController.cancelBooking]", err);

@@ -1,5 +1,6 @@
 //Thomas Nguyen, Jonathan Lamontagne-Kratz
 const db = require("../db/db");
+const { sendNotification } = require("../lib/mailer");
 
 /*
   POST /group - Owner creates a group meeting + list of available time options + list of invited users - Insert into groupMeetings table - Insert each time option into timeWindows table - Insert each invitee into userInvitations table - requireAuth + requireOwner.
@@ -304,7 +305,7 @@ exports.viewVoteResults = async (req, res) => {
 }
 
 /*
-  POST /group/:id/finalize ← Owner picks the winning time slot - Create slots + bookings for all users who voted - If is_recurring = true: create N slots (one per week for recurrence_weeks) - Build mailto: URLs for all involved users, return in response - requireAuth + requireOwner
+  POST /group/:id/finalize ← Owner picks the winning time slot - Create slots + bookings for all users who voted - If is_recurring = true: create N slots (one per week for recurrence_weeks) - notify all students by email, return in response - requireAuth + requireOwner
 
   Expected fields in req.body:
   - recurrenceWeeks (int) <- optional
@@ -322,7 +323,8 @@ exports.finalizeGroupMeeting = async (req, res) => {
   try {
     // check whether the current owner has the right to access that group meeting or the group meeting even exists
     const [groupMeetingRow] = await conn.query(
-      `SELECT groupMeetings.status AS status
+      `SELECT groupMeetings.status AS status,
+              groupMeetings.title  AS title
          FROM groupMeetings
         WHERE groupMeetings.ownerID = ? AND groupMeetings.id = ?`,
       [ownerID, groupMeetingID]
@@ -365,16 +367,20 @@ exports.finalizeGroupMeeting = async (req, res) => {
     // edge case: no votes
     if (userRows.length === 0) {
       await conn.query(
-	`UPDATE groupMeetings SET status = 'selection-over'
+        `UPDATE groupMeetings SET status = 'selection-over'
          WHERE groupMeetings.id = ?`,
-	[groupMeetingID]
+        [groupMeetingID]
       );
 
-      const body = `Group meeting finalized without any votes.`;
-      const subject = "Group Meeting Finalized";
-      const url = `mailto:${ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      // notify owner by email
+      sendNotification({
+        to: ownerEmail,
+        subject: "Group Meeting Finalized",
+        text: `Group meeting "${groupMeeting.title}" finalized without any votes.`,
+        replyTo: ownerEmail
+      });
 
-      return res.status(200).json({ message: "No votes submitted, but group meeting finalized.", mailtoUrl: url });
+      return res.status(200).json({ message: "No votes submitted, but group meeting finalized.", notified: ownerEmail });
     }
 
     const userIDs = userRows.map(r => r.userID);
@@ -424,12 +430,16 @@ exports.finalizeGroupMeeting = async (req, res) => {
     );
     const emails = emailRows.map(r => r.email);
 
-    // build mailto URLs
-    const body = `Chosen slot: ${winningTimeWindow.date.toLocaleDateString('en-CA')}, ${winningTimeWindow.timeFrom}, ${winningTimeWindow.timeTo}. Meeting will repeat for ${recurrenceWeeks} weeks.`;
-    const subject = "Group Meeting Finalized";
-    const url = `mailto:${emails.join(',')},${ownerEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    // notify voters by email
+    const to_field = `${emails.join(',')},${ownerEmail}`;
+    sendNotification({
+      to: to_field,
+      subject: "Group Meeting Finalized",
+      text: `Chosen slot: ${winningTimeWindow.date.toLocaleDateString('en-CA')}, ${winningTimeWindow.timeFrom}, ${winningTimeWindow.timeTo}. Meeting will repeat for ${recurrenceWeeks} weeks.`,
+      replyTo: ownerEmail
+    });
 
-    return res.status(200).json({ message: "Group meeting finalization successful", mailtoUrl: url });
+    return res.status(200).json({ message: "Group meeting finalization successful", notified: to_field });
   } catch (err) {
     await conn.rollback();
     console.error("[groupMeetingsController.finalizeGroupMeeting]", err);

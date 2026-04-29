@@ -69,7 +69,7 @@ function UserDashboard() {
 
 
 
-    useAutoRefresh([fetchDashboardData], 30_000);
+    useAutoRefresh([fetchDashboardData], 5_000);
 
 
 

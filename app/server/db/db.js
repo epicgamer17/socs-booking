@@ -7,15 +7,7 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   waitForConnections: true,
-  connectionLimit: 10, //maybe change later
+  connectionLimit: 20,
 });
 
 module.exports = pool;
-
-
-//delete comment when done project
-
-//FOR migrations , if u add smth or chanage an already exisiting db.
-// delete the database manually
-//and then run npm run migrate. 
-//if you add a new sql file under migrations then run npm run migrate aswell.

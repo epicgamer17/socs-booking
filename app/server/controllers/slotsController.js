@@ -1,6 +1,7 @@
 //Sophia Hussain
 const db = require("../db/db");
 const crypto = require("crypto");
+const { sendNotification } = require("../lib/mailer");
 
 //----- Get all Owners with Public Slots -----
 exports.getOwners = async (req, res) => {
@@ -71,6 +72,16 @@ exports.createSlot = async (req, res) => {
   const date = req.body.date;
   const timeFrom = req.body.timeFrom;
   const timeTo = req.body.timeTo;
+
+  //missing fields
+  if (!date || !timeFrom || !timeTo) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+  //invalid time range
+  if (timeFrom >= timeTo) {
+    return res.status(400).json({ message: "timeFrom must be before timeTo" });
+  }
+
   try {
     //insert slot into db
     await db.query(
@@ -136,39 +147,49 @@ exports.activateSlot = async (req, res) => {
     });
   }
 };
-
 //----- Delete a Slot -----
 exports.deleteSlot = async (req, res) => {
   const slotID = req.params.id;
   const ownerID = req.user.id;
+
   try {
     //get slot and booker info
     const [rows] = await db.query(
       `SELECT slots.date, slots.timeFrom, slots.timeTo, users.email AS bookedByEmail
-         FROM slots
-         LEFT JOIN bookings ON slots.id = bookings.slotID
-         LEFT JOIN users ON users.id = bookings.userID
-         WHERE slots.id = ? AND slots.ownerID = ?`,
+       FROM slots
+       LEFT JOIN bookings ON slots.id = bookings.slotID
+       LEFT JOIN users ON users.id = bookings.userID
+       WHERE slots.id = ? AND slots.ownerID = ?`,
       [slotID, ownerID]
     );
+
     if (rows.length === 0) {
       return res.status(404).json({ message: "Unauthorized or slot does not exist" });
     }
+
     //delete booking associated to slot if it exists
     if (rows[0].bookedByEmail !== null) {
       await db.query("DELETE FROM bookings WHERE slotID = ?", [slotID]);
     }
+
     //delete slot
     await db.query(
       "DELETE FROM slots WHERE id = ? AND ownerID = ?",
       [slotID, ownerID]
     );
+
+    //notify booked user if their booking was cancelled
     if (rows[0].bookedByEmail !== null) {
-      return res.status(200).json({
-        message: `Booking on ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been cancelled`,
-        emailToNotify: rows[0].bookedByEmail
+      sendNotification({
+        to: rows[0].bookedByEmail,
+        subject: "Booking cancelled",
+        text: `Your booking on ${rows[0].date} from ${rows[0].timeFrom} to ${rows[0].timeTo} has been cancelled.`,
+        replyTo: req.user.email,
+      }).catch(err => {
+        console.error("[sendNotification.deleteSlot]", err);
       });
     }
+
     return res.status(200).json({ message: "Slot deleted" });
 
   } catch (err) {
