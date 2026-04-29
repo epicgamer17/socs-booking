@@ -97,7 +97,7 @@ exports.createGroupMeeting = async (req, res) => {
 exports.getOwnerGroupMeetings = async (req, res) => {
   const ownerID = req.user.id;
   try {
-    const pollData = getPollsForOwner(ownerID);
+    const pollData = await getPollsForOwner(ownerID);
     return res.status(200).json({ polls: pollData });
   } catch (err) {
     console.error("[groupMeetingsController.getOwnerGroupMeetings]", err);
@@ -111,7 +111,7 @@ exports.getOwnerGroupMeetings = async (req, res) => {
 exports.viewInvitations = async (req, res) => {
   const userID = req.user.id;
   try {
-    const pollData = getPollsForInvitedUser(userID);
+    const pollData = await getPollsForInvitedUser(userID);
     return res.status(200).json({ polls: pollData });
   } catch (err) {
     console.error("[groupMeetingsController.viewInvitations]", err);

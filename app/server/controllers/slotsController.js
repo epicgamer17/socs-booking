@@ -103,7 +103,7 @@ exports.viewSlots = async (req, res) => {
   const ownerID = req.user.id;
 
   try {
-    const slots = getSlotsForOwner(ownerID);
+    const slots = await getSlotsForOwner(ownerID);
     return res.status(200).json(slots);
   } catch (err) {
     console.error("[slotsController.viewSlots]", err);

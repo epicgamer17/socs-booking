@@ -87,7 +87,7 @@ exports.viewBookings = async (req, res) => {
   const userID = req.user.id;
 
   try {
-    const bookings = getBookingsForUser(userID);
+    const bookings = await getBookingsForUser(userID);
 
     // return the info about the bookings to the booker
     return res.status(200).json(bookings);

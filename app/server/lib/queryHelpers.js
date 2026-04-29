@@ -48,7 +48,7 @@ exports.getPendingRequestsForOwner = async (ownerID) => {
             meetingRequests.timeFrom,
             meetingRequests.timeTo,
             meetingRequests.message,
-            users.email AS requestedBy
+            users.email AS bookedByEmail
        FROM meetingRequests
   LEFT JOIN users ON users.id = meetingRequests.userID
       WHERE meetingRequests.status = 'pending' AND meetingRequests.ownerID = ?`,

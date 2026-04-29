@@ -8,7 +8,7 @@ exports.seeMeetingRequests = async (req, res) => {
     const ownerID = req.user.id;
 
     try {
-        const result = getPendingRequestsForOwner(ownerID);
+        const result = await getPendingRequestsForOwner(ownerID);
         return res.status(200).json(result);
     } catch (err) {
         console.error("[meetingRequestsController.seeMeetingRequests]", err);

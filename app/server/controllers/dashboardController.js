@@ -13,13 +13,13 @@ exports.dashboardDataForOwner = async (req, res) => {
 
   try {
     // get the slots and associated bookings
-    const slotsBookingsRows = getSlotsForOwner(ownerID);
+    const slotsBookingsRows = await getSlotsForOwner(ownerID);
 
     // get pending meeting requests
-    const meetingRequestRows = getPendingRequestsForOwner(ownerID);
+    const meetingRequestRows = await getPendingRequestsForOwner(ownerID);
 
     // fetch group meeting non-finalized poll data
-    const groupMeetingData = getPollsForOwner(ownerID);
+    const groupMeetingData = await getPollsForOwner(ownerID);
 
     return res.status(200).json({ slots: slotsBookingsRows, meetingRequests: meetingRequestRows, polls: groupMeetingData });
   } catch (err) {
@@ -36,10 +36,10 @@ exports.dashboardDataForStudent = async (req, res) => {
 
   try {
     // fetch the bookings
-    const bookingRows = getBookingsForUser(userID);
+    const bookingRows = await getBookingsForUser(userID);
 
     // fetch the group meeting poll data
-    const groupMeetingData = getPollsForInvitedUser(userID);
+    const groupMeetingData = await getPollsForInvitedUser(userID);
 
     // return the info about the bookings to the booker
     return res.status(200).json({ bookingRows: bookingRows, groupMeetingRows: groupMeetingData });
