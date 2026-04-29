@@ -4,6 +4,7 @@ import { useState } from 'react';
 import useAuth from '../utils/auth';
 import Button from './ui/Button';
 import Input from './ui/Input';
+import { fetchWithAuth } from '../utils/api';
 import styles from './CalendarSelectorUser.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -39,12 +40,8 @@ function CalendarSelectorBooking() {
 
 
         try {
-            const r = await fetch(`${API_URL}/request/meeting`, {
+            const r = await fetchWithAuth(`${API_URL}/request/meeting`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`,
-                },
                 body: JSON.stringify({ ownerEmail: email.trim(), message: messageToOwner, date, timeFrom, timeTo }),
             });
             const data = await r.json();

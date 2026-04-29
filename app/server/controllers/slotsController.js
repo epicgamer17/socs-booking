@@ -2,6 +2,7 @@
 const db = require("../db/db");
 const crypto = require("crypto");
 const { sendNotification } = require("../lib/mailer");
+const { getSlotsForOwner } = require("../lib/queryHelpers");
 
 //----- Get all Owners with Public Slots -----
 exports.getOwners = async (req, res) => {
@@ -102,21 +103,7 @@ exports.viewSlots = async (req, res) => {
   const ownerID = req.user.id;
 
   try {
-    const [slots] = await db.query(
-      `SELECT 
-              slots.id AS slotID,
-              slots.date,
-              slots.timeFrom,
-              slots.timeTo,
-              slots.isActive,
-              users.email AS bookedByEmail
-             FROM slots 
-             LEFT JOIN bookings ON slots.id = bookings.slotID 
-             LEFT JOIN users ON users.id = bookings.userID
-             WHERE slots.ownerID = ?`,
-      [ownerID]
-    );
-
+    const slots = await getSlotsForOwner(ownerID);
     return res.status(200).json(slots);
   } catch (err) {
     console.error("[slotsController.viewSlots]", err);

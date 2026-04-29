@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
 import useAutoRefresh from "./utils/useAutoRefresh"
 import { useCallback, useEffect, useState } from "react"
+import { fetchWithAuth } from "./utils/api";
 
 import Button from './components/ui/Button';
 import MailtoButton from "./components/ui/MailtoButton";
@@ -37,12 +38,8 @@ function UserDashboard() {
     const fetchDashboardData = useCallback(async () => {
         if (!user?.token) return;
         try {
-            const r = await fetch(`${API_URL}/dashboard/student`, {
+            const r = await fetchWithAuth(`${API_URL}/dashboard/student`, {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.token}`,
-                },
             });
 
             const data = await r.json();
@@ -85,12 +82,8 @@ function UserDashboard() {
 
         try {
 
-            const r = await fetch(`${API_URL}/bookings/${bookingID}`, {
+            const r = await fetchWithAuth(`${API_URL}/bookings/${bookingID}`, {
                 method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.token}`,
-                },
             });
 
             const data = await r.json();
@@ -135,16 +128,9 @@ function UserDashboard() {
 
         try {
 
-            const r = await fetch(`${API_URL}/groupMeetings/group/${group.id}/vote`, {
+            const r = await fetchWithAuth(`${API_URL}/groupMeetings/group/${group.id}/vote`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.token}`,
-                },
-                
                 body:JSON.stringify({timeWindowIDs : voteList})
-                
-                
             });
 
             const data = await r.json();

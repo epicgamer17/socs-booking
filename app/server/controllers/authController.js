@@ -45,8 +45,16 @@ exports.register = async (req, res) => {
     }
 
     //if weak password 
-    if (password.length < 8) {
-        return res.status(400).json({ message: "Password must be at least 8 characters" });
+    if (password.length < 12) {
+        return res.status(400).json({ message: "Password must be at least 12 characters" });
+    } else if (password.length > 72) {
+        return res.status(400).json({ message: "Password too long. What are you trying to do?" });
+    } else if (!/[A-Z]/.test(password)) {
+        return res.status(400).json({ message: "Password must contain at least one uppercase character" });
+    } else if (!/\d/.test(password)) {
+        return res.status(400).json({ message: "Password must contain at least one digit" });
+    } else if (!/[!@#$%^&*]/.test(password)) {
+        return res.status(400).json({ message: `Password must contain at least one symbol among [!@#$%^&*]` });
     }
 
     //if invalid department
@@ -150,21 +158,19 @@ exports.login = async (req, res) => {
       // wrong password
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    /*
-     // check email is verified before allowing login
-     if (!user.isVerified) {
+    // check email is verified before allowing login
+    if (!user.isVerified) {
       return res.status(403).json({ message: "Please verify your email before logging in" });
-  }
+    }
 
-    */
     // login successful: send back JWT token expiring in 1h
     const token = jwt.sign({ id: user.id, role: user.role, email: email }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     res.cookie("token", token, {
       httpOnly: true,
       secure: true,
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60,   // 1h, like the cookie
+      sameSite: "strict",
+      maxAge: 1000 * 60 * 60,   // 1h, like the token
     });
 
     return res.status(200).json({ message: "User logged in successfully", token });
@@ -177,7 +183,8 @@ exports.login = async (req, res) => {
 
 
 //--------Logout--------
-exports.logout = async (_, res) => {
+exports.logout = async (req, res) => {
+  res.clearCookie("token");
   res.status(200).json({ message: "Logout successful" });
 };
 

@@ -1,7 +1,9 @@
 /* Author: Tanav Bansal */
+//Jonathan Lamontagne-Kratz modefied it a bit return use AuthContext and use cookies wrapper
 
 
 import { useState, createContext, useContext } from "react";
+import { fetchWithAuth } from "./api";
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -53,9 +55,8 @@ export function AuthProvider({ children }) {
         }
 
         try {
-            const r = await fetch(`${API_URL}/auth/register`, {
+            const r = await fetchWithAuth(`${API_URL}/auth/register`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(to_send_data)
             });
             const data = await r.json();
@@ -76,9 +77,8 @@ export function AuthProvider({ children }) {
         setError("");
         if (!checkEmailPassword(email, password)) return false;
         try {
-            const r = await fetch(`${API_URL}/auth/login`, {
+            const r = await fetchWithAuth(`${API_URL}/auth/login`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
             });
 
@@ -103,11 +103,8 @@ export function AuthProvider({ children }) {
 
     async function logout() {
         try {
-            await fetch(`${API_URL}/auth/logout`, {
+            await fetchWithAuth(`${API_URL}/auth/logout`, {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${user.token}` }
-
-
             });
 
         }

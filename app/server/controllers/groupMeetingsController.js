@@ -1,6 +1,7 @@
 //Thomas Nguyen
 const db = require("../db/db");
 const { sendNotification } = require("../lib/mailer");
+const { getPollsForOwner, getPollsForInvitedUser } = require("../lib/queryHelpers");
 
 /*
   POST /group - Owner creates a group meeting + list of available time options + list of invited users - Insert into groupMeetings table - Insert each time option into timeWindows table - Insert each invitee into userInvitations table - requireAuth + requireOwner.
@@ -96,47 +97,8 @@ exports.createGroupMeeting = async (req, res) => {
 exports.getOwnerGroupMeetings = async (req, res) => {
   const ownerID = req.user.id;
   try {
-    const [rows] = await db.query(
-      `SELECT groupMeetings.id     AS groupMeetingID,
-              groupMeetings.title  AS title,
-              timeWindows.id       AS timeWindowID,
-              timeWindows.date     AS date,
-              timeWindows.timeFrom AS timeFrom,
-              timeWindows.timeTo   AS timeTo,
-              COUNT(userVotes.id)  AS total
-         FROM groupMeetings
-         JOIN timeWindows ON timeWindows.groupMeetingID = groupMeetings.id
-    LEFT JOIN userVotes  ON userVotes.timeWindowID = timeWindows.id
-        WHERE groupMeetings.ownerID = ?
-          AND groupMeetings.status != 'selection-over'
-     GROUP BY groupMeetings.id, timeWindows.id
-     ORDER BY groupMeetings.id, timeWindows.id`,
-      [ownerID]
-    );
-
-    const byMeeting = new Map();
-    for (const row of rows) {
-      let poll = byMeeting.get(row.groupMeetingID);
-      if (!poll) {
-        poll = {
-          id: row.groupMeetingID,
-          title: row.title,
-          candidates: [],
-          voterCount: 0,
-        };
-        byMeeting.set(row.groupMeetingID, poll);
-      }
-      poll.candidates.push({
-        candidateID: row.timeWindowID,
-        date: row.date,
-        timeFrom: row.timeFrom,
-        timeTo: row.timeTo,
-        votes: row.total,
-      });
-      poll.voterCount += row.total;
-    }
-
-    return res.status(200).json({ polls: Array.from(byMeeting.values()) });
+    const pollData = await getPollsForOwner(ownerID);
+    return res.status(200).json({ polls: pollData });
   } catch (err) {
     console.error("[groupMeetingsController.getOwnerGroupMeetings]", err);
     return res.status(500).json({ message: "Failed to fetch owner group meetings" });
@@ -149,48 +111,8 @@ exports.getOwnerGroupMeetings = async (req, res) => {
 exports.viewInvitations = async (req, res) => {
   const userID = req.user.id;
   try {
-    const [rows] = await db.query(
-      `SELECT groupMeetings.id     AS groupMeetingID,
-              groupMeetings.title  AS title,
-              timeWindows.id       AS timeWindowID,
-              timeWindows.date     AS date,
-              timeWindows.timeFrom AS timeFrom,
-              timeWindows.timeTo   AS timeTo,
-              COUNT(userVotes.id)  AS total
-         FROM userInvitations
-         JOIN groupMeetings ON groupMeetings.id = userInvitations.groupMeetingID
-         JOIN timeWindows   ON timeWindows.groupMeetingID = groupMeetings.id
-    LEFT JOIN userVotes ON userVotes.timeWindowID = timeWindows.id
-        WHERE userInvitations.userID = ?
-          AND groupMeetings.status != 'selection-over'
-     GROUP BY groupMeetings.id, timeWindows.id
-     ORDER BY groupMeetings.id, timeWindows.id`,
-      [userID]
-    );
-
-    const byMeeting = new Map();
-    for (const row of rows) {
-      let poll = byMeeting.get(row.groupMeetingID);
-      if (!poll) {
-        poll = {
-          id: row.groupMeetingID,
-          title: row.title,
-          candidates: [],
-          voterCount: 0,
-        };
-        byMeeting.set(row.groupMeetingID, poll);
-      }
-      poll.candidates.push({
-        candidateID: row.timeWindowID,
-        date: row.date,
-        timeFrom: row.timeFrom,
-        timeTo: row.timeTo,
-        votes: row.total,
-      });
-      poll.voterCount += row.total;
-    }
-
-    return res.status(200).json(Array.from(byMeeting.values()));
+    const pollData = await getPollsForInvitedUser(userID);
+    return res.status(200).json({ polls: pollData });
   } catch (err) {
     console.error("[groupMeetingsController.viewInvitations]", err);
     return res.status(500).json({ message: "Failed to fetch group meetings for non-owner" });

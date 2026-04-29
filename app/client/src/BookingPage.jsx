@@ -5,6 +5,7 @@ import useAuth from "./utils/auth"
 import { useEffect, useState } from "react"
 import Button from "./components/ui/Button";
 import styles from "./BookingPage.module.css"
+import { fetchWithAuth } from "./utils/api";
 
 
 
@@ -30,42 +31,49 @@ function BookingPage() {
         if (!token || !user?.token) return;
 
         async function resolveToken() {
-            const r = await fetch(`${API_URL}/url/resolve/${token}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.token}`,
-                },
-            });
-            const data = await r.json();
-            if (!r.ok) {
-                setError(data.message || "Invalid or expired invite link");
-                return;
+            try {
+                const r = await fetchWithAuth(`${API_URL}/url/resolve/${token}`, {
+                    method: "GET",
+                });
+                const data = await r.json();
+                if (!r.ok) {
+                    setError(data.message || "Invalid or expired invite link");
+                    return;
+                }
+                setOwnerId(data.ownerID);
             }
-            setOwnerId(data.ownerID);
+            catch {
+                setError(data.message || "failed to prcess the link");
+                return;
+
+            }
         }
 
         resolveToken();
     }, [token, user?.token])
 
-    useEffect(()=>{
+    useEffect(() => {
 
         async function fetchSlots() {
 
-            const r = await fetch(`${API_URL}/slots/public/${ownerId}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.token}`
-                },
-            });
+            try {
 
-            const data = await r.json();
-            if (!r.ok) {
-                setError(data.message || "Failed to fetch data")
-                return;
+                const r = await fetchWithAuth(`${API_URL}/slots/public/${ownerId}`, {
+                    method: "GET",
+                });
+
+                const data = await r.json();
+                if (!r.ok) {
+                    setError(data.message || "Failed to Book the slot")
+                    return;
+                }
+                setSlots(data)
             }
-            setSlots(data)
+            catch {
+                setError("Failed to Book the slot")
+                return;
+
+            }
 
         }
 
@@ -74,7 +82,7 @@ function BookingPage() {
 
         }
 
-    },[user,ownerId])
+    }, [user, ownerId])
 
     async function handleBooking(slotId) {
         const confirmation = window.confirm("Are you sure you want to book this slot?")
@@ -82,21 +90,25 @@ function BookingPage() {
             return;
         }
 
-      const r = await fetch(`${API_URL}/bookings/${slotId}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${user.token}`
-            },
-        });
+        try {
 
-        const data = await r.json();
-        if (!r.ok) {
-            setError(data.message || "Failed to fetch data")
-            return;
+            const r = await fetchWithAuth(`${API_URL}/bookings/${slotId}`, {
+                method: "POST",
+            });
+
+            const data = await r.json();
+            if (!r.ok) {
+                setError(data.message || "Failed to fetch data")
+                return;
+            }
+
+            setSlots((prev) => prev.filter(s => s.id !== slotId))
         }
+        catch {
+            setError("Failed to fetch data")
+            return;
 
-        setSlots((prev) => prev.filter(s => s.id !== slotId))
+        }
 
     }
 
