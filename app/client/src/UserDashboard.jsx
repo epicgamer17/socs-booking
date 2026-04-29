@@ -103,10 +103,6 @@ function UserDashboard() {
             const newBookingList = bookings.filter((b) => b.bookingID !== bookingID)
 
             setBookings(newBookingList);
-
-            if (data.emailToNotify) {
-                window.open(`mailto:${data.emailToNotify}?subject=${date}(${timeFrom}-${timeTo}) Booking Cancelled`)
-            }
         }
         catch {
             setError("Failed to cancel the booking")

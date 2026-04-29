@@ -59,18 +59,6 @@ function CalendarSelectorBooking() {
             setSubmitting(false);
         }
 
-        const params = new URLSearchParams();
-
-        params.append("subject", `Request for meeting on ${date} (${timeFrom} to ${timeTo})`)
-
-
-
-        params.append("body", messageToOwner)
-
-        const formatedParams = params.toString().replace(/\+/g, "%20");
-        const mailtoUrl = `mailto:${email.trim()}?${formatedParams}`;
-
-        window.open(mailtoUrl);
 
 
         setStatus({ type: 'success', message: `Booking request created successfully` });

@@ -96,10 +96,6 @@ function BookingPage() {
             return;
         }
 
-        if (data.mailtoUrl) {
-            window.open(data.mailtoUrl)
-        }
-
         setSlots((prev) => prev.filter(s => s.id !== slotId))
 
     }
