@@ -1,26 +1,14 @@
 //Sophia Hussain and AI???? (accept and decline meeting function)
 const db = require("../db/db");
 const { sendNotification } = require("../lib/mailer");
+const { getPendingRequestsForOwner } = require("../lib/queryHelpers");
 
 //----- See all Meeting Requests -----
 exports.seeMeetingRequests = async (req, res) => {
     const ownerID = req.user.id;
 
     try {
-        const [result] = await db.query(
-            `SELECT
-                meetingRequests.id,
-                meetingRequests.userID,
-                meetingRequests.date,
-                meetingRequests.timeFrom,
-                meetingRequests.timeTo,
-                meetingRequests.message,
-                users.email AS requestedBy
-            FROM meetingRequests
-            LEFT JOIN users ON users.id = meetingRequests.userID
-            WHERE meetingRequests.status = 'pending' AND meetingRequests.ownerID = ?`,
-            [ownerID]
-        );
+        const result = getPendingRequestsForOwner(ownerID);
         return res.status(200).json(result);
     } catch (err) {
         console.error("[meetingRequestsController.seeMeetingRequests]", err);

@@ -23,8 +23,8 @@
 
 - [x] **#3** Standardize role label as `student` everywhere — DB, JWT, frontend localStorage, all comparisons. Currently `auth.jsx:20` uses `"user"`.
 - [ ] **#8** Make Type 1 meeting request flow consistent — server should build `mailtoUrl` for owner notifications, matching the `bookSlot`/`cancelBooking` pattern.
-- [ ] **#10** `/dashboard/student` duplicates `bookingsController.viewBookings`. Delete one.
-- [ ] **#11** `/dashboard/student` doesn't enforce role. Add `requireStudent` or merge into single `/dashboard`.
+- [x] **#10** `/dashboard/student` duplicates `bookingsController.viewBookings`. Delete one.
+- [-] **#11** `/dashboard/student` doesn't enforce role. Add `requireStudent` or merge into single `/dashboard`.
 - [ ] **#12** Document logout limitation in README (JWT not actually invalidated until expiry).
 - [ ] **#18** `getOwners` in `slotsController.js:7-15` selects ungrouped columns. Add to `GROUP BY` or wrap in `MAX()`.
 - [ ] **#19** `getOwners` mutates DB on a GET. Move invite token creation to registration time.

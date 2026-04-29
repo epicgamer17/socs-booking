@@ -2,6 +2,7 @@
 
 const db = require("../db/db");
 const { sendNotification } = require("../lib/mailer");
+const { getBookingsForUser } = require("../lib/queryHelpers");
 
 /*
   POST /bookings/:slotID - user books a slot
@@ -86,23 +87,7 @@ exports.viewBookings = async (req, res) => {
   const userID = req.user.id;
 
   try {
-    const [bookings] = await db.query(
-      `SELECT bookings.id        AS bookingID,
-              bookings.slotID    AS slotID,
-              bookings.userID    AS userID,
-              bookings.createdAt AS dateBooked,
-              slots.date,
-              slots.timeFrom,
-              slots.timeTo,
-              slots.isActive,
-              owners.email       AS ownerEmail
-         FROM bookings
-         JOIN slots ON slots.id = bookings.slotID
-         JOIN users AS owners ON owners.id = slots.ownerID
-        WHERE bookings.userID = ?
-     ORDER BY slots.date, slots.timeFrom`,
-      [userID]
-    );
+    const bookings = getBookingsForUser(userID);
 
     // return the info about the bookings to the booker
     return res.status(200).json(bookings);
