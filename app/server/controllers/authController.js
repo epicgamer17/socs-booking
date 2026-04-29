@@ -150,11 +150,13 @@ exports.login = async (req, res) => {
       // wrong password
       return res.status(401).json({ message: "Invalid credentials" });
     }
-
+    /*
      // check email is verified before allowing login
      if (!user.isVerified) {
       return res.status(403).json({ message: "Please verify your email before logging in" });
   }
+
+    */
     // login successful: send back JWT token expiring in 1h
     const token = jwt.sign({ id: user.id, role: user.role, email: email }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
