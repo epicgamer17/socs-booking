@@ -1,5 +1,6 @@
 //Author: Tanav bansal 
-// Jonathan Lamontagne-Kratz modified the fetch function to usecallback and useAutoRefresh
+// Jonathan Lamontagne-Kratz modified the fetch function for useAutoRefresh
+// Jonathan Lamontagne-Kratz modified it to include the fetching with auth
 
 
 import { useNavigate } from "react-router-dom"
@@ -31,7 +32,7 @@ function UserDashboard() {
     const [errorTimeSlot, setErrorTimeSlot] = useState({})
 
 
-    
+
     const [groupMeetings, setGroupMeetings] = useState([]);
 
 
@@ -115,10 +116,11 @@ function UserDashboard() {
     }
     async function handleSubmitVote(group, voteList) {
         setErrorTimeSlot({});
-        if (voteList.length===0) {
+        if (voteList.length === 0) {
             setErrorTimeSlot({
-                groupID:group.id,
-                message:"Please select at least one time slot."});
+                groupID: group.id,
+                message: "Please select at least one time slot."
+            });
             return;
         }
         const confirmation = window.confirm("Are you sure you want to submit the votings?")
@@ -130,15 +132,16 @@ function UserDashboard() {
 
             const r = await fetchWithAuth(`${API_URL}/groupMeetings/group/${group.id}/vote`, {
                 method: "POST",
-                body:JSON.stringify({timeWindowIDs : voteList})
+                body: JSON.stringify({ timeWindowIDs: voteList })
             });
 
             const data = await r.json();
 
             if (!r.ok) {
                 setErrorTimeSlot({
-                groupID:group.id,
-                message:data.message || "Failed to submit votes"});
+                    groupID: group.id,
+                    message: data.message || "Failed to submit votes"
+                });
                 return;
             }
 
@@ -149,11 +152,12 @@ function UserDashboard() {
         }
         catch {
             setErrorTimeSlot({
-                groupID:group.id,
-                message:"Failed to submit votes"});
+                groupID: group.id,
+                message: "Failed to submit votes"
+            });
         }
 
-        
+
         return;
     }
 
@@ -242,7 +246,7 @@ function UserDashboard() {
                                 <Button variant="danger" onClick={() => handleSubmitVote(g, selectedVotes[g.id] || [])}>
                                     Submit Vote
                                 </Button>
-                                {errorTimeSlot.groupID===g.id && <p style={{ color: "red" }}>{errorTimeSlot.message}</p>}
+                                {errorTimeSlot.groupID === g.id && <p style={{ color: "red" }}>{errorTimeSlot.message}</p>}
 
                             </div>
                         );

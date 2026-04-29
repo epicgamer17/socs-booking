@@ -9,6 +9,8 @@ const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+app.set('trust proxy', 1);
+
 
 //Middleware
 app.use(cookieParser());

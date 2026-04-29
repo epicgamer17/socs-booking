@@ -1,4 +1,5 @@
 /* Author: Tanav Bansal and Jonathan Lamontagne-Kratz (linking styling only) */
+// Jonathan Lamontagne-Kratz modified it to include the fetching with auth
 
 import { useEffect, useState } from "react"
 import useAuth from "./utils/auth";
