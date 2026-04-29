@@ -241,59 +241,7 @@
 
 
 --------------------------------------------------------------------------------
-  5. WHAT IS DIFFERENT SINCE DEMO 1
---------------------------------------------------------------------------------
-
-  The TA asked us to start Demo 2 by showing what changed. The major
-  fixes/additions since Demo 1 are:
-
-   - Fixed group-meeting role mismatch: invitee resolution in
-     groupMeetingsController now filters on role='student' (was
-     'user'), and the student-side fetch URL prefix was changed from
-     /group/... to /groupMeetings/... so voting and finalize calls
-     no longer 404.
-   - Added UNIQUE(slotID, userID) constraint on the bookings table
-     and SELECT ... FOR UPDATE on the slot lookup inside bookSlot.
-     This kills the double-booking race we hit during Phase 2 tryout.
-     (UNIQUE is on the pair, not slotID alone, because group-meeting
-     finalisation needs to insert one booking per voter for the same
-     shared slot.)
-   - Audited every transactional controller (bookSlot, acceptMeeting,
-     finalizeGroupMeeting, createRecurringSlots, createGroupMeeting):
-     every early-return path now does an explicit `await
-     conn.rollback()` before returning, so connections can no longer
-     leak with an open transaction.
-   - Standardised the role label as 'student' across DB enum, JWT
-     payload, frontend role checks (auth.jsx), and route guards.
-   - Switched auth from a Bearer token in localStorage to an
-     httpOnly + secure + sameSite=strict cookie. The middleware now
-     reads `req.cookies.token`; the frontend sends `credentials:
-     'include'` on every fetch.
-   - Added Dashboard link to the desktop NavBar (was mobile-only).
-   - Renamed app from "SOCS Booking" to "myBookings" across
-     index.html, LandingPage, Register, NavBar, and the README.
-   - Fixed the misleading "Booking ... cancelled" message in
-     slotsController.deleteSlot: notification email and message text
-     are now only sent when there actually was a booking.
-   - Added .ics calendar export at GET /calendar/export with
-     download buttons on both Owner and User dashboards (mandatory
-     competition feature).
-   - Deployed to Mimi behind Apache HTTPS (was HTTP in Demo 1);
-     `app.set('trust proxy', 1)` in index.js so secure cookies
-     work behind the reverse proxy.
-   - CORS restricted to FRONTEND_URL with credentials enabled
-     (was unrestricted `cors()` in Demo 1).
-   - Added per-IP rate limiting (10 req / 15 min) on /auth/register
-     and /auth/login to slow brute-force attempts.
-   - Email verification is now enforced: login returns 403 until
-     the user clicks the link sent at registration time.
-   - Moved document.title assignment in DirectoryPage into a
-     useEffect, removed stray console.log calls, fixed the comma /
-     semicolon typo in auth.jsx.
-
-
---------------------------------------------------------------------------------
-  6. CONTRIBUTION STATEMENT  (agreed by all four team members)
+  5. CONTRIBUTION STATEMENT  (agreed by all four team members)
 --------------------------------------------------------------------------------
 
   All four members reviewed and agreed to the breakdown below before
@@ -303,7 +251,7 @@
       grep -rn "Author" app/server app/client/src
 
 
-  --- 6.1  Role split ---
+  --- 5.1  Role split ---
 
       Sophia Hussain (Team Leader, Backend)
           Auth backbone (registration, email verification, JWT
@@ -329,7 +277,7 @@
           data, ProtectedRoutes wrapper, polish.
 
 
-  --- 6.2  File-level authorship ---
+  --- 5.2  File-level authorship ---
 
       Each .js / .jsx / .sql file in the project has a `// Author: ...`
       header. The breakdown below is grouped by team member; files
@@ -444,7 +392,7 @@
           client/src/utils/useAutoRefresh.jsx               "Author: AI"
 
 
-  --- 6.3  How to verify ---
+  --- 5.3  How to verify ---
 
       The clearest way to audit who wrote what is to grep for
       `Author` headers in the source tree:
@@ -458,7 +406,7 @@
 
 
 --------------------------------------------------------------------------------
-  7. CODE / CONTENT NOT WRITTEN BY THE TEAM  (the "30% rule")
+  6. CODE / CONTENT NOT WRITTEN BY THE TEAM  (the "30% rule")
 --------------------------------------------------------------------------------
 
   Per the spec (page 5), at least 70% of the project must be hand-coded.
@@ -467,7 +415,7 @@
   contributions are utility helpers and one merge-conflict resolution.
 
 
-  --- 7.1  Open-source libraries (npm packages) ---
+  --- 6.1  Open-source libraries (npm packages) ---
 
       Backend:
           express              -  HTTP server framework
@@ -494,7 +442,7 @@
           eslint + plugins     -  linting (dev only)
 
 
-  --- 7.2  AI-assisted code (Claude / ChatGPT) ---
+  --- 6.2  AI-assisted code (Claude / ChatGPT) ---
 
       app/server/db/migrate.js
           AI-generated short utility script that reads every .sql file
@@ -575,80 +523,3 @@
           Initial outline / formatting of the project README was
           AI-generated; the content (team table, routes, task list)
           is ours.
-
-      AI-generated dummy data
-          We used Claude to generate seed rows during development.
-          NONE of this dummy data is in the final submission - the
-          production database starts empty after the migrations run.
-
-
-  --- 7.3  Templates / documentation we read but did not copy ---
-
-      - Vite + React project scaffold (`npm create vite@latest`)
-        produced the initial app/client/ directory layout, the
-        eslint config, and three placeholder files (App.jsx,
-        main.jsx, index.css). All of these were heavily rewritten.
-      - Express docs and MDN web docs were consulted heavily but
-        not copied verbatim.
-      - bcrypt and jsonwebtoken README examples informed our auth
-        controller structure.
-
-
---------------------------------------------------------------------------------
-  8. KNOWN LIMITATIONS  (full disclosure for the TA)
---------------------------------------------------------------------------------
-
-   - Logout: the auth middleware reads the JWT from an httpOnly
-     cookie only (it does not accept Authorization Bearer headers),
-     and POST /auth/logout clears that cookie via res.clearCookie.
-     The JWT itself is not added to a server-side denylist, so if a
-     copy of the token were exfiltrated by some other means it
-     would technically remain valid for up to 1 hour (the token's
-     expiry). Practically, since the cookie is httpOnly + secure +
-     sameSite=strict, it cannot be read by JS or sent cross-site,
-     so this is a theoretical limitation only.
-   - Email split: user-to-user messaging uses the mailto: pattern
-     (per spec - "mailto: not a mail server"). Server-initiated
-     notifications (booking cancellations, meeting accept/decline,
-     group-meeting finalisation) are sent through nodemailer +
-     Gmail SMTP via app/server/lib/mailer.js. The email-verification
-     link sent at registration time uses a separate nodemailer
-     transport set up directly in authController.js. If EMAIL_USER
-     / EMAIL_PASS are not set, registration will fail (verification
-     email cannot be sent) but the rest of the app still works.
-   - Heatmap voting (bonus), McGill Tinder (bonus), and auto-
-     populated Google/Outlook calendars (bonus) are NOT implemented.
-     We implemented the Calendar method for Type-2 group meetings,
-     which is the required version, plus .ics export which is
-     mandatory for the competition tier.
-   - getOwners (GET /slots/owners) lazily creates an inviteLinks
-     row for any owner that doesn't yet have one. That means a
-     GET endpoint mutates the database, which is bad practice.
-     The functionality works correctly; the side-effect just
-     belongs at registration time instead.
-   - createRecurringSlots uses `toISOString().split("T")[0]` to
-     derive the date string for each weekly occurrence, which is
-     timezone-sensitive: an owner in a non-UTC timezone could see
-     dates shift by one day if they create slots near midnight
-     local time. CalendarSelector.jsx already does the safe
-     UTC-math version; we just haven't ported it back to the
-     server controller.
-   - The /slots/recurring bulk endpoint exists on the backend
-     but is not currently called from the frontend (OwnerDashboard
-     calls /slots/create in a loop instead). Both paths produce
-     the same data; the bulk endpoint is currently unused.
-   - /dashboard/student is gated by requireAuth only, not by a
-     student-role check, so an owner who hits that endpoint
-     directly receives an empty payload rather than 403. Not a
-     security issue (cannot leak other users' data), but worth
-     flagging.
-
-
---------------------------------------------------------------------------------
-  9. CONTACT
---------------------------------------------------------------------------------
-
-  If anything in this README is unclear while grading, please email
-  any of us through MyCourses; we will respond ASAP.
-
-  - End of README.txt -
