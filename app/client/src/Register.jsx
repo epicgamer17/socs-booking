@@ -35,10 +35,13 @@ function Register() {
     }
 
     function handleEmailChange(event) {
-        const newEmail = event.target.value
         setError("")
-        setEmail(newEmail)
-        setIsOwner(newEmail.endsWith("@mcgill.ca"))
+        setEmail(event.target.value)
+    }
+
+    function handleIsOwnerChange(event) {
+        setError("")
+        setIsOwner(event.target.checked)
     }
 
     function handlePasswordChange(event) {
@@ -76,7 +79,8 @@ function Register() {
             return
         }
 
-        const ok = await register(email, firstName, lastName, password, department)
+        const role = isOwner ? "owner" : "student"
+        const ok = await register(email, firstName, lastName, password, department, role)
         if (ok) {
             setFirstName("")
             setLastName("")
@@ -96,14 +100,19 @@ function Register() {
                 <p className={styles.subtitle}>Join myBookings</p>
 
                 {error && <p className={styles.error}>{error}</p>}
-                {isRegistered && <p className={styles.success}>Please check your email to verify your account before logging in</p>}
+                {isRegistered && <p className={styles.success}>Account created — you can log in right away (test mode).</p>}
 
                 <form onSubmit={submitForm} className={styles.formGroup}>
                     <Input label="First Name" id="firstName" type="text" value={firstName} onChange={handleFirstNameChange} placeholder="First name" required />
                     <Input label="Last Name" id="lastName" type="text" value={lastName} onChange={handleLastNameChange} placeholder="Last name" required />
-                    <Input label="McGill Email" id="email" type="email" value={email} onChange={handleEmailChange} placeholder="first.last@[mail.]mcgill.ca" required />
+                    <Input label="Email" id="email" type="email" value={email} onChange={handleEmailChange} placeholder="any.email@example.com" required />
                     <Input label="Password" id="password" type="password" value={password} onChange={handlePasswordChange} placeholder="••••••••" required />
                     <Input label="Confirm Password" id="confirmationPassword" type="password" value={confirmationPassword} onChange={handleConfirmationPasswordChange} placeholder="••••••••" required />
+
+                    <label style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <input type="checkbox" checked={isOwner} onChange={handleIsOwnerChange} />
+                        Register as owner (test mode)
+                    </label>
 
                     {isOwner && (
                         <div className={styles.selectWrapper}>

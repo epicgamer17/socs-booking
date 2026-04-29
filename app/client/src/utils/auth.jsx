@@ -18,11 +18,13 @@ export function AuthProvider({ children }) {
     });
     const [error, setError] = useState("");
 
+    // TEST MODE: domain check is relaxed — role is selected on the form and
+    // we only fall back to the email rule when nothing was passed in.
     function getRoleFromEmail(email) {
-        const r = email.trim().toLowerCase();
+        const r = (email || "").trim().toLowerCase();
         if (r.endsWith("@mail.mcgill.ca")) return "student";
         if (r.endsWith("@mcgill.ca")) return "owner";
-        return null;
+        return "student";
     }
 
     function checkEmailPassword(email, password) {
@@ -34,22 +36,19 @@ export function AuthProvider({ children }) {
             setError("Please enter your password");
             return false;
         }
-        if (!getRoleFromEmail(email)) {
-            setError("Use a valid McGill email");
-            return false;
-        }
         return true;
     }
 
-    async function register(email, firstName, lastName, password, department) {
+    async function register(email, firstName, lastName, password, department, role) {
         setError("");
         if (!checkEmailPassword(email, password)) return false;
 
+        const finalRole = role || getRoleFromEmail(email);
         const to_send_data = {
-            email, firstName, lastName, password
+            email, firstName, lastName, password, role: finalRole
         }
 
-        if (getRoleFromEmail(email) === "owner") {
+        if (finalRole === "owner") {
             to_send_data.department = department;
 
         }
@@ -88,7 +87,15 @@ export function AuthProvider({ children }) {
                 return false;
             }
 
-            const userData = { email, role: getRoleFromEmail(email), token: data.token };
+            // role lives in the JWT payload — decode it so test users with
+            // non-McGill emails still land on the right dashboard.
+            let role = getRoleFromEmail(email);
+            try {
+                const payload = JSON.parse(atob(data.token.split(".")[1]));
+                if (payload.role) role = payload.role;
+            } catch { /* fall back to email-derived role */ }
+
+            const userData = { email, role, token: data.token };
             localStorage.setItem("student", JSON.stringify(userData))
             setUser(userData);
             return userData;

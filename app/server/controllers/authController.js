@@ -25,7 +25,9 @@ const VALID_DEPARTMENTS = [
   "SWRK", "URBP", "WMST"
 ];
 
-//--------Registration--------  
+//--------Registration--------
+// TEST MODE: any email domain is accepted, accounts are auto-verified, and role
+// is taken straight from the request body so testers can pick "owner" freely.
 exports.register = async (req, res) => {
 
   //remove any trailing whitespaces
@@ -34,17 +36,13 @@ exports.register = async (req, res) => {
   const firstName = (req.body.firstName || "").trim();
   const lastName = (req.body.lastName || "").trim();
   const department = req.body.department;
+  const requestedRole = (req.body.role || "").trim().toLowerCase();
   //check if email and password, first name, last name provided
   if (!email || !password || !firstName || !lastName) {
     return res.status(400).json({ message: "missing mandatory fields" });
   }
 
-  //if invalid email 
-  if (!email.endsWith("@mcgill.ca") && !email.endsWith("@mail.mcgill.ca")) {
-    return res.status(400).json({ message: "Mcgill email required " })
-  }
-
-  //if weak password 
+  //if weak password
   if (password.length < 12) {
     return res.status(400).json({ message: "Password must be at least 12 characters" });
   } else if (password.length > 72) {
@@ -62,35 +60,24 @@ exports.register = async (req, res) => {
     return res.status(400).json({ message: "Invalid department code" })
   }
 
-  //setting role 
-  let role = "student";
-  if (email.endsWith("@mcgill.ca")) {
-    role = "owner";
+  // role comes from the form; fall back to the legacy email-domain rule so
+  // existing registrations keep working.
+  let role = requestedRole === "owner" ? "owner" : (requestedRole === "student" ? "student" : null);
+  if (!role) {
+    role = email.endsWith("@mcgill.ca") ? "owner" : "student";
   }
 
   try {
     //encrypt password using bcrypt
     const hashedPassword = await bcrypt.hash(password, 10);
-    const verifyToken = crypto.randomBytes(32).toString("hex");
 
-    //add valid user to db
+    //add valid user to db, marked verified up-front (test mode)
     await db.query(
-      "INSERT INTO users (email, firstName, lastName, department, password, role, verifyToken) VALUES( ?, ?, ?, ?, ?, ?, ? )",
-      [email, firstName, lastName, department, hashedPassword, role, verifyToken]
+      "INSERT INTO users (email, firstName, lastName, department, password, role, isVerified, verifyToken) VALUES( ?, ?, ?, ?, ?, ?, TRUE, NULL )",
+      [email, firstName, lastName, department, hashedPassword, role]
     );
 
-    // send verification email
-    const verifyURL = `${process.env.FRONTEND_URL}/verify/${verifyToken}`;
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Verify your SOCS Booking account",
-      html: `<p>Hi ${firstName},</p>
-                   <p>Please verify your McGill Booking account by clicking the link below:</p>
-                   <a href="${verifyURL}">${verifyURL}</a>`
-    });
-
-    return res.status(201).json({ message: "User registered successfully. Please check your email to verify your account." });
+    return res.status(201).json({ message: "User registered successfully. You can log in immediately (test mode)." });
 
   } catch (err) {
     console.error("[authController.register]", err);
