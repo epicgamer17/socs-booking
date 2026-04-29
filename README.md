@@ -9,7 +9,7 @@ URL (requires either McGill VPN or being on the campus network to access) : http
 | Sophia Hussain | Leader/Backend | 2611418580 | Registration, auth middleware, Slots (create/delete/activate/view my slots/view owners public slots/browse all owners with active slots), users.sql, slots.sql, meetingRequests.sql, inviteLinks.sql Type 1 meeting request, Type 3 recurring office hours |
 | Thomas Nguyen | Backend | 261181634 | login/logout controllers, booking controllers (create, view, cancel), dashboard controllers, Type 2 group meetings, groupMeetings.sql, bookings.sql, various security features |
 | Jonathan Lamontagne-Kratz | Frontend | 261143892 | Owner Page, Bonus Features, Global Page Styling, UI Components |
-| Tanav Bansal | Frontend/Design | 261075755 | Landing page,registration page,login page |
+| Tanav Bansal | Frontend/Design | 261075755 | DirectoryPage, Booking Page, Landing page,registration page,login page |
 
 🛠 **Tech Stack**
 
@@ -162,8 +162,9 @@ window.open(mailtoUrl);
 | README.md | Basic outline | AI-generated outline and formatting |
 | AI Generated Dummy Data | (not used in final submission) |
 | Merge conflict resolution | `db/migrations/05_groupMeetings.sql` after master was merged into feature branch | AI assistance |
-| const formatedParams |MailtoButton.jsx|claude
+| params.toString().replace(/\+/g, "%20")|formatedParams in MailtoButton.jsx|claude
 |DEPARTMENT_OPTIONS|departments.jsx convert the html from minerva to json format|claude
+| `mailer.js` | Mailer helper function | Claude |
 
 ---
 *Note: migrations.js script is AI-generated (short utility script).*
