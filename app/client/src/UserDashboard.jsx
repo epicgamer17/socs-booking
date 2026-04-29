@@ -1,5 +1,5 @@
 //Author: Tanav bansal 
-// Jonathan Lamontagne-Kratz modified the fetch function to usecallback
+// Jonathan Lamontagne-Kratz modified the fetch function to usecallback and useAutoRefresh
 
 
 import { useNavigate } from "react-router-dom"
