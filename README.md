@@ -162,5 +162,8 @@ window.open(mailtoUrl);
 | README.md | Basic outline | AI-generated outline and formatting |
 | AI Generated Dummy Data | (not used in final submission) |
 | Merge conflict resolution | `db/migrations/05_groupMeetings.sql` after master was merged into feature branch | AI assistance |
+| const formatedParams |MailtoButton.jsx|claude
+|DEPARTMENT_OPTIONS|departments.jsx convert the html from minerva to json format|claude
+
 ---
 *Note: migrations.js script is AI-generated (short utility script).*

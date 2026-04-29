@@ -30,7 +30,7 @@ function UserDashboard() {
     const [groupMeetings, setGroupMeetings] = useState([]);
 
 
-    const fetchBookings = useCallback(async () => {
+    const fetchDashboardData = useCallback(async () => {
         if (!user?.token) return;
         try {
             const r = await fetch(`${API_URL}/dashboard/student`, {
@@ -43,54 +43,29 @@ function UserDashboard() {
 
             const data = await r.json();
             if (!r.ok) {
-                setError(data.message || "Failed to fetch bookings")
+                setError(data.message || "Failed to fetch Dashboard")
                 return;
             }
 
             setBookings(data.bookingRows);
+            setGroupMeetings(data.groupMeetingRows)
         }
         catch (err) {
-            setError("Failed to fetch Bookings")
+            setError("Failed to fetch Dashboard")
         }
         finally {
             setLoading(false);
         }
     }, [user?.token]);
 
-    useEffect(() => { fetchBookings(); }, [fetchBookings]);
+    useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
 
 
 
 
 
 
-    const fetchGroupMeetings = useCallback(async () => {
-        if (!user?.token) return;
-        try {
-            const r = await fetch(`${API_URL}/groupMeetings/group/viewInvitations`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.token}`,
-                },
-            });
-
-            const data = await r.json();
-            if (!r.ok) {
-                setError(data.message || "Failed to fetch Group meetings")
-                return;
-            }
-
-            setGroupMeetings(data);
-        }
-        catch (err) {
-            setError("Failed to fetch Group meetings")
-        }
-    }, [user?.token]);
-
-    useEffect(() => { fetchGroupMeetings(); }, [fetchGroupMeetings]);
-
-    useAutoRefresh([fetchBookings, fetchGroupMeetings], 30_000);
+    useAutoRefresh([fetchDashboardData], 30_000);
 
 
 
