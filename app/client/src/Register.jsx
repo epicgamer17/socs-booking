@@ -96,7 +96,7 @@ function Register() {
                 <p className={styles.subtitle}>Join myBookings</p>
 
                 {error && <p className={styles.error}>{error}</p>}
-                {isRegistered && <p className={styles.success}>Registration Successful</p>}
+                {isRegistered && <p className={styles.success}>Please check your email to verify your account before logging in</p>}
 
                 <form onSubmit={submitForm} className={styles.formGroup}>
                     <Input label="First Name" id="firstName" type="text" value={firstName} onChange={handleFirstNameChange} placeholder="First name" required />
