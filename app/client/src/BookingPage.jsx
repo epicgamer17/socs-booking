@@ -1,4 +1,5 @@
 /* Author: Tanav Bansal*/
+// Jonathan Lamontagne-Kratz modified it to include the fetching with auth
 
 import { useParams, useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
