@@ -15,7 +15,7 @@
 
 ## 🟠 Competition track only
 
-- [ ] **#13** Implement `.ics` calendar export. **Mandatory** for competition tier per spec page 4. Add `GET /bookings/export.ics` + download buttons on both dashboards.
+- [x] **#13** Implement `.ics` calendar export. **Mandatory** for competition tier per spec page 4. Add `GET /bookings/export.ics` + download buttons on both dashboards.
 - [ ] **#14** Record 5-minute walkthrough with audio. PASS/FAIL gate.
 - [x] **#16** Add HTTPS. Required by competition's "secure website" bonus, and your JWTs leak over plain HTTP.
 

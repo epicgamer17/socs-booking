@@ -230,6 +230,28 @@ function OwnerDashboard() {
     }
   }
 
+  // handle exporting of calendar with backend, aligns with current system and returns and ics file. it is from the owner perspective, so it will return the bookings made for their slots.
+  async function handleExportCalendar() {
+    try {
+      const r = await fetchWithAuth(`${API_URL}/calendar/export`);
+      if (!r.ok) {
+        setError("Failed to export calendar");
+        return;
+      }
+      const blob = await r.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'meetings.ics';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setError("Failed to export calendar");
+    }
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -237,6 +259,9 @@ function OwnerDashboard() {
           <h1 className={styles.title}>Staff Dashboard</h1>
           <p className={styles.subtitle}>Welcome back, Administrator</p>
         </div>
+        <Button variant="primary" onClick={handleExportCalendar}>
+          Export Calendar (.ics)
+        </Button>
       </header>
 
       {error && <p style={{ color: '#ed1b2f' }}>{error}</p>}
