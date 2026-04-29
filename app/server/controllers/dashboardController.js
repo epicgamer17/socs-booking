@@ -159,7 +159,7 @@ exports.dashboardDataForStudent = async (req, res) => {
     }
 
     // return the info about the bookings to the booker
-    return res.status(200).json({ bookingRows: bookingRows, groupMeetingRows: Array.from(byMeeting.values())});
+    return res.status(200).json({ bookingRows: bookingRows, groupMeetingRows: Array.from(byMeeting.values()) });
   } catch (err) {
     console.error("[dashboardController.dashboardDataForStudent]", err);
     return res.status(500).json({ message: "Failed to retrieve student dashboard data" });

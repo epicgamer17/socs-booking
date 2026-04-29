@@ -38,6 +38,7 @@ function OwnerDashboard() {
         slots: data.slots || [],
         meetingRequests: data.meetingRequests || [],
       });
+      setPolls(data.polls || []);
     } catch {
       setError("Failed to fetch dashboard data");
     } finally {
@@ -53,6 +54,8 @@ function OwnerDashboard() {
   const activeSlots = dashboardData.slots.filter((s) => s.isActive).length;
   const pendingRequests = dashboardData.meetingRequests.length;
 
+  const [polls, setPolls] = useState([]);
+  const [recurrenceByPoll, setRecurrenceByPoll] = useState({});
   const [inviteUrl, setInviteUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [linkBusy, setLinkBusy] = useState(false);
@@ -68,52 +71,20 @@ function OwnerDashboard() {
         },
       });
       const data = await r.json();
-      if (!r.ok) {
-        setError(data.message || "Failed to fetch invite link");
-        return;
-      }
-      setInviteUrl(data.url);
-    } catch {
-      setError("Failed to fetch invite link");
-    }
+      if (r.ok) setInviteUrl(data.url);
+    } catch { }
   }, [user]);
 
   useEffect(() => {
     fetchInviteLink();
   }, [fetchInviteLink]);
 
-  const [polls, setPolls] = useState([]);
-  const [recurrenceByPoll, setRecurrenceByPoll] = useState({});
 
-  const fetchPolls = useCallback(async () => {
-    if (!user?.token) return;
-    try {
-      const r = await fetch(`${API_URL}/groupMeetings/group/owner`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
-      const data = await r.json();
-      if (!r.ok) {
-        setError(data.message || 'Failed to fetch polls');
-        return;
-      }
-      setPolls(data.polls ?? []);
-    } catch {
-      setError('Failed to fetch polls');
-    }
-  }, [user]);
 
-  useEffect(() => {
-    fetchPolls();
-  }, [fetchPolls]);
-
-  useAutoRefresh([fetchDashboardData, fetchPolls], 30_000);
+  useAutoRefresh([fetchDashboardData], 5_000);
 
   function handlePollCreated() {
-    fetchPolls();
+    fetchDashboardData();
   }
 
   async function handleActivate(slotID) {
@@ -267,9 +238,10 @@ function OwnerDashboard() {
 
   async function handleRegenerateLink() {
     if (!inviteUrl) {
-      fetchInviteLink();
+      await fetchInviteLink();
       return;
     }
+
     const confirmed = window.confirm("Generate a new invite link? The current one will stop working.");
     if (!confirmed) return;
     setLinkBusy(true);
@@ -287,7 +259,7 @@ function OwnerDashboard() {
         setError(data.message || "Failed to revoke invite link");
         return;
       }
-      setInviteUrl('');
+
       await fetchInviteLink();
     } catch {
       setError("Failed to regenerate invite link");
