@@ -2,7 +2,6 @@
 // Jonathan Lamontagne-Kratz modified the fetch function for useAutoRefresh
 // Jonathan Lamontagne-Kratz modified it to include the fetching with auth
 
-
 import { useNavigate } from "react-router-dom"
 import useAuth from "./utils/auth"
 import useAutoRefresh from "./utils/useAutoRefresh"
@@ -14,27 +13,19 @@ import MailtoButton from "./components/ui/MailtoButton";
 import styles from './UserDashboard.module.css';
 import CalendarSelectorBooking from "./components/CalendarSelectorBooking";
 
-
-
 const API_URL = import.meta.env.VITE_API_URL;
 
-
 function UserDashboard() {
-
     const navigate = useNavigate()
     const { user, logout } = useAuth()
     const [bookings, setBookings] = useState([])
     const [error, setError] = useState()
     const [loading, setLoading] = useState(true)
 
-
     const [selectedVotes, setSelectedVotes] = useState({})
     const [errorTimeSlot, setErrorTimeSlot] = useState({})
 
-
-
     const [groupMeetings, setGroupMeetings] = useState([]);
-
 
     const fetchDashboardData = useCallback(async () => {
         if (!user?.token) return;
@@ -62,27 +53,15 @@ function UserDashboard() {
 
     useEffect(() => { fetchDashboardData(); }, [fetchDashboardData]);
 
-
-
-
-
-
     useAutoRefresh([fetchDashboardData], 5_000);
-
-
-
-
-
 
     async function handleCancel(bookingID, date, timeFrom, timeTo) {
         const confirm = window.confirm("Are you sure you want to cancel this booking?")
         if (!confirm) {
             return;
-
         }
 
         try {
-
             const r = await fetchWithAuth(`${API_URL}/bookings/${bookingID}`, {
                 method: "DELETE",
             });
@@ -95,13 +74,11 @@ function UserDashboard() {
             }
 
             const newBookingList = bookings.filter((b) => b.bookingID !== bookingID)
-
             setBookings(newBookingList);
         }
         catch {
             setError("Failed to cancel the booking")
         }
-
     }
 
     function handleVoteToggle(candidateIdVotedList, candidateID) {
@@ -111,9 +88,8 @@ function UserDashboard() {
         } else {
             return [...candidateIdVotedList, candidateID]
         }
-
-
     }
+
     async function handleSubmitVote(group, voteList) {
         setErrorTimeSlot({});
         if (voteList.length === 0) {
@@ -129,7 +105,6 @@ function UserDashboard() {
         }
 
         try {
-
             const r = await fetchWithAuth(`${API_URL}/groupMeetings/group/${group.id}/vote`, {
                 method: "POST",
                 body: JSON.stringify({ timeWindowIDs: voteList })
@@ -147,8 +122,6 @@ function UserDashboard() {
 
             const newGroupList = groupMeetings.filter((g) => g.id !== group.id)
             setGroupMeetings(newGroupList)
-
-
         }
         catch {
             setErrorTimeSlot({
@@ -156,31 +129,16 @@ function UserDashboard() {
                 message: "Failed to submit votes"
             });
         }
-
-
-        return;
     }
 
-
-
-
-
     return (
-
         <div className={styles.container}>
-
-
             <header className={styles.header}>
                 <div>
                     <h1 className={styles.title}>Student Dashboard</h1>
-                    <p className={styles.subtitle}>Welcome back,Student</p>
+                    <p className={styles.subtitle}>Welcome back, Student</p>
                 </div>
-
             </header>
-
-
-
-
 
             {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -207,13 +165,9 @@ function UserDashboard() {
 
                         return (
                             <div key={g.id} className={styles.pollCard}>
-
-
                                 <div className={styles.pollHeader}>
                                     <strong>{g.title}</strong>
-
                                 </div>
-
 
                                 <div className={styles.pollCandidates}>
                                     {g.candidates.map((candidate) => {
@@ -247,21 +201,16 @@ function UserDashboard() {
                                     Submit Vote
                                 </Button>
                                 {errorTimeSlot.groupID === g.id && <p style={{ color: "red" }}>{errorTimeSlot.message}</p>}
-
                             </div>
                         );
                     })}
                 </div>
             </section>
 
-
-
-
             <section className={styles.section}>
                 <h2>Your Bookings</h2>
                 {loading && <p>Loading..</p>}
                 {!loading && bookings.length === 0 && <p>No Bookings</p>}
-
 
                 <div className={styles.activityList}>
                     {bookings.map((b) => {
@@ -286,16 +235,9 @@ function UserDashboard() {
                         </div>
                     })}
                 </div>
-
-
             </section>
-
-        </div>);
-
-
-
-
-
+        </div>
+    );
 }
 
-export default UserDashboard
+export default UserDashboard;

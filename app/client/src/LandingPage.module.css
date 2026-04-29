@@ -1,6 +1,10 @@
 /* Author: Jonathan Lamontagne-Kratz */
+.container {
+    background: var(--color-bg);
+}
+
 .hero {
-    min-height: 100vh;
+    min-height: 90vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -14,10 +18,6 @@
     font-size: 4rem;
     color: var(--text-primary);
     margin-bottom: var(--spacing-md);
-}
-
-.highlight {
-    color: var(--color-primary);
 }
 
 .description {
@@ -35,16 +35,104 @@
     justify-content: center;
 }
 
-@media (max-width: 600px) {
-    .hero {
-        padding: var(--spacing-lg) var(--spacing-md);
-    }
+/* Documentation Sections */
+.infoSection {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 4rem var(--spacing-xl);
+}
 
+.sectionHeader {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.sectionHeader h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+}
+
+.card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+}
+
+.card h3 {
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.card ul {
+    padding-left: 1.2rem;
+}
+
+.card li {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-secondary);
+}
+
+.note {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+}
+
+.definitionList dt {
+    font-weight: bold;
+    margin-top: var(--spacing-md);
+}
+
+.definitionList dd {
+    margin-left: 0;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.tipsCard {
+    margin-top: 4rem;
+    padding: var(--spacing-xl);
+    background: var(--color-bg-accent);
+    border-radius: var(--radius-xl);
+}
+
+.tipsCard h3 {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.tipsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.tipItem {
+    text-align: center;
+}
+
+.tipIcon {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: var(--spacing-sm);
+}
+
+@media (max-width: 600px) {
     .title {
         font-size: 2.5rem;
     }
 
-    .description {
-        font-size: 1rem;
+    .hero {
+        padding: var(--spacing-lg) var(--spacing-md);
     }
 }
