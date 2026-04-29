@@ -6,6 +6,7 @@ import Button from './components/ui/Button';
 import MailtoButton from './components/ui/MailtoButton';
 import CalendarSelector from './components/CalendarSelector';
 import GroupMeetingForm from './components/GroupMeetingForm';
+import { fetchWithAuth } from './utils/api';
 import styles from './OwnerDashboard.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -20,12 +21,8 @@ function OwnerDashboard() {
   const fetchDashboardData = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const r = await fetch(`${API_URL}/dashboard/owner`, {
+      const r = await fetchWithAuth(`${API_URL}/dashboard/owner`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.token}`,
-        },
       });
 
       const data = await r.json();
@@ -63,12 +60,8 @@ function OwnerDashboard() {
   const fetchInviteLink = useCallback(async () => {
     if (!user?.token) return;
     try {
-      const r = await fetch(`${API_URL}/url/generate`, {
+      const r = await fetchWithAuth(`${API_URL}/url/generate`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.token}`,
-        },
       });
       const data = await r.json();
       if (r.ok) setInviteUrl(data.url);
@@ -89,12 +82,8 @@ function OwnerDashboard() {
 
   async function handleActivate(slotID) {
     try {
-      const r = await fetch(`${API_URL}/slots/activate/${slotID}`, {
+      const r = await fetchWithAuth(`${API_URL}/slots/activate/${slotID}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.token}`,
-        },
       });
       const data = await r.json();
       if (!r.ok) {
@@ -115,12 +104,8 @@ function OwnerDashboard() {
     if (!confirmed) return;
 
     try {
-      const r = await fetch(`${API_URL}/slots/delete/${slotID}`, {
+      const r = await fetchWithAuth(`${API_URL}/slots/delete/${slotID}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.token}`,
-        },
       });
       const data = await r.json();
       if (!r.ok) {
@@ -138,12 +123,8 @@ function OwnerDashboard() {
 
   async function handleRequestAction(requestID, action) {
     try {
-      const r = await fetch(`${API_URL}/request/${action}/${requestID}`, {
+      const r = await fetchWithAuth(`${API_URL}/request/${action}/${requestID}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.token}`,
-        },
       });
       const data = await r.json();
       if (!r.ok) {
@@ -187,12 +168,8 @@ function OwnerDashboard() {
     );
     if (!confirmed) return;
     try {
-      const r = await fetch(`${API_URL}/groupMeetings/group/finalize/${pollID}`, {
+      const r = await fetchWithAuth(`${API_URL}/groupMeetings/group/finalize/${pollID}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.token}`,
-        },
         body: JSON.stringify({
           winningTimeWindowID: candidate.candidateID,
           recurrenceWeeks: weeks,
@@ -236,12 +213,8 @@ function OwnerDashboard() {
     setLinkBusy(true);
     try {
       const token = inviteUrl.split('/').pop();
-      const r = await fetch(`${API_URL}/url/delete/${token}`, {
+      const r = await fetchWithAuth(`${API_URL}/url/delete/${token}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.token}`,
-        },
       });
       if (!r.ok) {
         const data = await r.json();

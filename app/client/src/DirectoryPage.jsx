@@ -5,6 +5,7 @@ import useAuth from "./utils/auth";
 import { getDepartment, DEPARTMENT_OPTIONS } from "./utils/departments"
 import styles from './DirectoryPage.module.css'
 import { useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "./utils/api";
 
 const API_URL = import.meta.env.VITE_API_URL
 function DirectoryPage() {
@@ -29,12 +30,8 @@ function DirectoryPage() {
 
     async function fetchOwners() {
 
-      const r = await fetch(`${API_URL}/slots/owners`, {
+      const r = await fetchWithAuth(`${API_URL}/slots/owners`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${user.token}`
-        },
       });
 
       const data = await r.json();
