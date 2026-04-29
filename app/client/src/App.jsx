@@ -13,6 +13,7 @@ import Login from './login';
 import OwnerDashboard from './OwnerDashboard';
 import NavBar from './components/NavBar';
 import UserDashboard from './UserDashboard';
+import VerifyEmail from './VerifyEmail';
 import { AuthProvider } from './utils/auth';
 import { ThemeProvider } from './utils/theme';
 
@@ -28,6 +29,7 @@ function App() {
                         <Route path='/' element={<LandingPage />} />
                         <Route path='/register' element={<Register />} />
                         <Route path='/login' element={<Login />} />
+                        <Route path='/verify/:token' element={<VerifyEmail />} />
 
                         <Route element={<ProtectedRoutes />}>
                             <Route path='/directory-page' element={<DirectoryPage />} />

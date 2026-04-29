@@ -12,7 +12,7 @@ function NavBar() {
     const [isOpen, setIsOpen] = useState(false);
 
     const isOwner = user?.role === 'owner';
-    const homeHref = !user ? '/' : isOwner ? '/owner-dashboard' : '/user-dashboard';
+    const homeHref = !user?.role ? '/' : isOwner ? '/owner-dashboard' : '/user-dashboard';
 
     // Close the menu on route change so tapping a link dismisses it.
     useEffect(() => {
@@ -45,24 +45,24 @@ function NavBar() {
                 </NavLink>
 
                 <div className={styles.desktopLinks}>
-                    {user && isOwner && (
+                    {user?.role === 'owner' && (
                         <NavLink to="/owner-dashboard" className={linkClass}>Staff Dashboard</NavLink>
                     )}
-                    {user && (
+                    {user?.role === 'student' && (
                         <NavLink to="/user-dashboard" className={linkClass}>Student Dashboard</NavLink>
                     )}
 
-                    {user && (
+                    {user?.role && (
                         <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>
                     )}
-                    {!user && (
+                    {!user?.role && (
                         <>
                             <NavLink to="/login" className={linkClass}>Login</NavLink>
                             <NavLink to="/register" className={linkClass}>Register</NavLink>
                         </>
                     )}
                     <ThemeToggle />
-                    {user && (
+                    {user?.role && (
                         <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
                             Logout
                         </button>
@@ -90,17 +90,17 @@ function NavBar() {
                 className={`${styles.mobileMenu} ${isOpen ? styles.mobileMenuOpen : ''}`}
                 aria-hidden={!isOpen}
             >
-                {user && isOwner && (
+                {user?.role === 'owner' && (
                     <NavLink to="/owner-dashboard" className={linkClass}>Staff Dashboard</NavLink>
 
                 )}
-                {user && (
+                {user?.role === 'student' && (
                     <NavLink to="/user-dashboard" className={linkClass}>Student Dashboard</NavLink>
                 )}
-                {user && (
+                {user?.role && (
                     <NavLink to="/directory-page" className={linkClass}>Directory</NavLink>
                 )}
-                {!user && (
+                {!user?.role && (
                     <>
                         <NavLink to="/login" className={linkClass}>Login</NavLink>
                         <NavLink to="/register" className={linkClass}>Register</NavLink>
@@ -111,7 +111,7 @@ function NavBar() {
 
                 <div className={styles.mobileActions}>
                     <ThemeToggle />
-                    {user && (
+                    {user?.role && (
                         <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
                             Logout
                         </button>
