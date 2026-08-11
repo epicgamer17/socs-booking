@@ -2,3 +2,4 @@
 app/server/.env
 app/client/.env
 *.pdf
+.DS_Store
